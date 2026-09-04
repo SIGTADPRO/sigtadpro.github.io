@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIGTAD PRO — Panel de Control Interno</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { padding-top: 40px; }
+    .admin-container { max-width: 900px; margin: 0 auto; padding: 24px; }
+    .login-box {
+      max-width: 400px; margin: 80px auto; background: var(--bg-card);
+      border: 1px solid var(--border-bright); border-radius: var(--radius-lg);
+      padding: 32px; box-shadow: var(--glow-blue); text-align: center;
+    }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px; margin: 28px 0;
+    }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; text-align: center;
+    }
+    .stat-card.highlight-card { border-color: var(--gold); }
+    .stat-num { font-size: 2.8rem; font-weight: 800; line-height: 1; margin: 10px 0; }
+    .stat-real { color: #10b981; }
+    .stat-art { color: #a78bfa; }
+    .stat-total { color: var(--blue-bright); }
+    .subscribers-table {
+      width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.9rem;
+    }
+    .subscribers-table th, .subscribers-table td {
+      padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left;
+    }
+    .subscribers-table th { background: rgba(255,255,255,0.04); color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+
+  <div class="admin-container">
+    <!-- Bloque de Autenticación Local -->
+    <div id="adminAuthBox" class="login-box">
+      <img src="assets/logo.png" alt="Logo" style="width: 70px; margin: 0 auto 16px;" />
+      <h2>Panel Privado SIGTAD PRO</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 8px 0 20px;">
+        Acceso exclusivo para el administrador
+      </p>
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+        <div class="form-group" style="text-align: left; margin-bottom: 16px;">
+          <label>Contraseña de Administrador</label>
+          <input type="password" id="adminPasswordInput" placeholder="Ingresa tu clave" required />
+        </div>
+        <button type="submit" class="btn-primary btn-full">Acceder al Panel</button>
+      </form>
+    </div>
+
+    <!-- Panel de Métricas (Oculto hasta autenticar) -->
+    <div id="adminDashboard" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+        <div>
+          <h2>📊 Auditoría de Descargas & Usuarios</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Diferenciación estricta entre pulsaciones reales y conteo artificial</p>
+        </div>
+        <div>
+          <button onclick="location.reload()" class="btn-outline">🔄 Actualizar</button>
+          <a href="index.html" class="btn-primary" style="margin-left: 8px;">Volver a la Web</a>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <!-- Reales Windows -->
+        <div class="stat-card">
+          <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Windows</span>
+          <div class="stat-num stat-real" id="adminRealWin">0</div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Pulsaciones al instalador .exe</p>
+        </div>
+
+        <!-- Reales Android -->
+        <div class="stat-card">
+          <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Android</span>
+          <div class="stat-num stat-real" id="adminRealAnd">0</div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Redirecciones a Play Store</p>
+        </div>
+
+        <!-- Total Real -->
+        <div class="stat-card" style="border-color: #10b981;">
+          <span style="font-size: 0.8rem; color: #10b981; font-weight: 700; text-transform: uppercase;">Total Reales</span>
+          <div class="stat-num stat-real" id="adminRealTotal">0</div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Descargas 100% verídicas</p>
+        </div>
+
+        <!-- Artificial acumulado -->
+        <div class="stat-card">
+          <span style="font-size: 0.8rem; color: var(--purple-light); font-weight: 700; text-transform: uppercase;">Conteo Artificial</span>
+          <div class="stat-num stat-art" id="adminArtificial">0</div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Fórmula logarítmica activa</p>
+        </div>
+
+        <!-- Total Visible en la Web -->
+        <div class="stat-card highlight-card">
+          <span style="font-size: 0.8rem; color: var(--gold); font-weight: 700; text-transform: uppercase;">Visible al Público</span>
+          <div class="stat-num stat-total" id="adminDisplayed">0</div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Real + Artificial combinado</p>
+        </div>
+      </div>
+
+      <!-- Sección de Suscriptores / Usuarios Registrados -->
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-top: 32px;">
+        <h3>👥 Base de Datos de Suscriptores y Registros</h3>
+        <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 4px 0 16px;">
+          Usuarios que crearon cuenta o solicitaron recibir noticias (vía Supabase)
+        </p>
+
+        <div id="subscribersListContainer">
+          <p style="color: var(--text-muted); font-size: 0.9rem;">
+            Conecta tus credenciales de Supabase en <code>js/config.js</code> para listar los registros en vivo.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/counter.js"></script>
+  <script>
+    function handleAdminLogin(e) {
+      e.preventDefault();
+      const input = document.getElementById('adminPasswordInput').value;
+      const expected = (typeof ADMIN_PASSWORD !== 'undefined') ? ADMIN_PASSWORD : 'sigtad_admin_2026';
+
+      if (input === expected) {
+        document.getElementById('adminAuthBox').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'block';
+        loadDashboardStats();
+      } else {
+        alert('Contraseña incorrecta.');
+      }
+    }
+
+    async function loadDashboardStats() {
+      // Obtener datos reales de Supabase o Local
+      const real = await fetchRealCount();
+      const artificial = getArtificialCount();
+      const realTotal = (real.windows || 0) + (real.android || 0);
+      const totalVisible = realTotal + artificial;
+
+      document.getElementById('adminRealWin').textContent = real.windows || 0;
+      document.getElementById('adminRealAnd').textContent = real.android || 0;
+      document.getElementById('adminRealTotal').textContent = realTotal;
+      document.getElementById('adminArtificial').textContent = artificial;
+      document.getElementById('adminDisplayed').textContent = totalVisible;
+
+      // Cargar suscriptores si Supabase está activo
+      if (_supabase) {
+        const { data, error } = await _supabase
+          .from('subscribers')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        const cont = document.getElementById('subscribersListContainer');
+        if (error || !data || data.length === 0) {
+          cont.innerHTML = '<p style="color: var(--text-muted);">Aún no hay registros en la tabla subscribers.</p>';
+        } else {
+          let html = '<table class="subscribers-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th></tr></thead><tbody>';
+          data.forEach(sub => {
+            html += `<tr><td>${sub.name || 'Sin nombre'}</td><td><strong>${sub.email}</strong></td><td>${new Date(sub.created_at).toLocaleDateString('es-VE')}</td></tr>`;
+          });
+          html += '</tbody></table>';
+          cont.innerHTML = html;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

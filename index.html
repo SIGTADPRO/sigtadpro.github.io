@@ -1,0 +1,578 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIGTAD PRO | Sistema Inteligente de Gestión y Control Interno</title>
+  <meta name="description" content="SIGTAD PRO: Software de control interno de negocios, simulación de caja, inventarios, clientes y deudores. Descárgalo para Windows y Android con 15 días gratis." />
+  <meta name="theme-color" content="#080818" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Librería QR ligera (CDN seguro) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Supabase JS Client (v2 CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- EmailJS SDK (opcional para notificaciones admin) -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       SPLASH SCREEN (1.5 a 3 segundos)
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="splash" aria-hidden="true">
+    <img src="assets/logo.png" alt="SIGTAD PRO Logo" />
+    <div class="splash-name">SIGTAD PRO</div>
+    <div style="font-size: 0.9rem; color: #7c9aff; margin-top: 6px; letter-spacing: 0.05em;">Motor SIGTAD-V1(R)</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MEMBRETE SUPERIOR / NAVBAR
+       ══════════════════════════════════════════════════════════════ -->
+  <header id="mainHeader">
+    <nav class="navbar">
+      <a href="#inicio" class="nav-brand">
+        <img src="assets/logo.png" alt="SIGTAD PRO" class="nav-logo" />
+        <span class="nav-title">SIGTAD <span class="highlight">PRO</span></span>
+      </a>
+
+      <!-- Botones de acceso rápido -->
+      <div class="nav-links" id="navLinks">
+        <a href="#inicio" class="nav-link">Inicio</a>
+        <a href="#que-somos" class="nav-link">¿Qué Somos?</a>
+        <a href="#descargas" class="nav-link">Descargas</a>
+        <a href="#referidos" class="nav-link">Referidos</a>
+        <a href="#manual" class="nav-link">Manual de Uso</a>
+        <a href="#contacto" class="nav-link">Contacto</a>
+        <button id="navAuthBtn" class="btn-nav-auth">Acceso</button>
+      </div>
+
+      <!-- Botón menú hamburguesa para pantallas pequeñas -->
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú de navegación">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ══════════════════════════════════════════════════════════════
+         HERO SECTION (PORTADA)
+         ══════════════════════════════════════════════════════════════ -->
+    <section id="inicio" class="hero-section">
+      <div class="hero-content">
+        <div class="hero-badge">⚡ VERSIÓN OFICIAL v4.0.3 DISPONIBLE</div>
+        <h1 class="hero-title">
+          Control Total para tu Negocio con <span class="gradient-text">SIGTAD PRO</span>
+        </h1>
+        <p class="hero-subtitle">
+          El algoritmo escalable y adaptable que combina rigor jurídico y alta tecnología para la administración eficiente, segura y offline de tu comercio o empresa.
+        </p>
+        <div class="hero-actions">
+          <a href="#descargas" class="btn-primary btn-lg">Descargar Software</a>
+          <a href="#que-somos" class="btn-outline btn-lg">Conocer Más</a>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-logo-glow">
+          <img src="assets/logo.png" alt="SIGTAD PRO Shield Logo" class="hero-logo" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         BLOQUE 1° — INFORMATIVO (3 RECUADROS)
+         ══════════════════════════════════════════════════════════════ -->
+    <section id="que-somos" class="info-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Solución Integral a tu Medida</h2>
+          <p class="section-subtitle">Potencia, seguridad y versatilidad técnica adaptada a la escala de tu emprendimiento.</p>
+        </div>
+
+        <div class="cards-grid">
+          <!-- Card 1: ¿Qué somos? -->
+          <div class="info-card">
+            <div class="card-icon">⚖️</div>
+            <h3 class="card-title">¿Qué somos?</h3>
+            <p class="card-text">
+              Somos la combinación entre asesoría jurídica y sistemas informáticos que se adapta a tu uso. Desde un pequeño negocio hasta la administración de tu empresa.
+            </p>
+            <p class="card-text">
+              SIGTAD, como algoritmo escalable y adaptable, puede ser una sencilla página web o incluso un complejo búnker alojado localmente. <strong>El límite lo pones tú.</strong>
+            </p>
+          </div>
+
+          <!-- Card 2: ¿Qué hace la app? -->
+          <div class="info-card card-featured">
+            <div class="card-icon">💼</div>
+            <h3 class="card-title">¿Qué hace la app?</h3>
+            <p class="card-text">
+              <strong>SIGTAD PRO</strong>, basado en el motor <strong>SIGTAD-V1(R)</strong>, es un sistema informático para el control interno de negocios:
+            </p>
+            <ul class="feature-list">
+              <li>🔹 <strong>Simulación de caja</strong></li>
+              <li>🔹 <strong>Control de ingresos y egresos</strong> filtrados en períodos de tiempo</li>
+              <li>🔹 <strong>Registro y control de clientes</strong></li>
+              <li>🔹 <strong>Control de deudores y fiados</strong></li>
+              <li>🔹 <strong>Control de ventas</strong></li>
+              <li>🔹 <strong>Tasas de cambio referenciales</strong></li>
+              <li>🔹 <strong>Notas de venta</strong></li>
+            </ul>
+          </div>
+
+          <!-- Card 3: Sistema de Referidos (Resumen) -->
+          <div class="info-card">
+            <div class="card-icon">💰</div>
+            <h3 class="card-title">Sistema de Referidos</h3>
+            <p class="card-text" style="font-size: 1.05rem; font-weight: 600; color: #fbbf24;">
+              ¡Gana hasta el 20% de comisión por cada venta cerrada simplemente recomendando la app!
+            </p>
+            <p class="card-text">
+              Convierte tus recomendaciones en ingresos recurrentes sin complicaciones técnicas ni contratos complejos.
+            </p>
+            <div style="margin-top: auto; padding-top: 12px;">
+              <a href="#referidos" class="btn-outline btn-full">Ver Detalles y Planes</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         BLOQUE 2° — DESCARGAS (CONTADOR + BOTONES)
+         ══════════════════════════════════════════════════════════════ -->
+    <section id="descargas" class="downloads-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Descarga SIGTAD PRO</h2>
+          <p class="section-subtitle">Instálalo en tu computadora o dispositivo móvil y comienza a organizar tus finanzas hoy mismo.</p>
+        </div>
+
+        <!-- Contador de Descargas con Trampa Psicológica Progresiva -->
+        <div class="counter-container">
+          <div class="counter-display">
+            <span class="counter-number" id="downloadCounter">--</span>
+            <span class="counter-label">Descargas Oficiales</span>
+          </div>
+          <div class="counter-live-dot">
+            <span class="live-dot"></span> Conteo activo y verificado en tiempo real
+          </div>
+        </div>
+
+        <!-- Botones de Descarga -->
+        <div class="download-buttons">
+          <!-- Botón Windows -->
+          <div class="download-card">
+            <div class="download-os-info">
+              <svg class="os-icon-svg" viewBox="0 0 88 88" fill="none">
+                <path d="M0 12.5L35.8 7.6V41.7H0V12.5ZM0 46.3H35.8V80.4L0 75.5V46.3ZM40.1 7V41.7H88V0L40.1 7ZM40.1 46.3H88V88L40.1 81V46.3Z" fill="#0078D4"/>
+              </svg>
+              <div>
+                <h3>Windows (PC)</h3>
+                <div class="version-label">Instalador Oficial v4.0.3 (.exe)</div>
+              </div>
+            </div>
+            <p class="card-text">Compatible con Windows 10, 11 y versiones anteriores de 64 bits. Modo 100% offline.</p>
+            <button id="btnDownloadWindows" class="btn-download btn-windows">
+              <span>⬇️ Descargar para Windows</span>
+            </button>
+            <div class="download-note">⚡ Descarga directa y segura</div>
+          </div>
+
+          <!-- Botón Android -->
+          <div class="download-card">
+            <div class="download-os-info">
+              <svg class="os-icon-svg" viewBox="0 0 24 24" fill="#3DDC84">
+                <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.551 0 .9993.4482.9993.9993.0001.5511-.4483.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0223 3.503C15.5902 8.4126 13.8533 8.125 12 8.125c-1.8533 0-3.5902.2876-5.1368.8247L4.8409 5.4467a.4161.4161 0 00-.5677-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.7848h24c-.3432-4.1259-2.6889-7.5981-6.1185-9.4634"/>
+              </svg>
+              <div>
+                <h3>Android</h3>
+                <div class="version-label">Google Play Store</div>
+              </div>
+            </div>
+            <p class="card-text">Disponible para celulares y tablets Android. Llévate el control de tu caja en el bolsillo.</p>
+            <button id="btnDownloadAndroid" class="btn-download btn-android-dl">
+              <span>▶️ Ir a Google Play Store</span>
+            </button>
+            <div class="download-note" id="androidNote">📲 Publicación oficial en curso</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         BLOQUE 3° — SISTEMA DE REFERIDOS (DETALLADO + VIDEO)
+         ══════════════════════════════════════════════════════════════ -->
+    <section id="referidos" class="referidos-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Programa de Socios y Referidos</h2>
+          <p class="section-subtitle">Gana dinero recurrente recomendando la herramienta que los comerciantes necesitan.</p>
+        </div>
+
+        <div class="referidos-layout">
+          <!-- Información y tabla -->
+          <div class="referidos-info">
+            <div class="referidos-highlight">
+              <span class="big-percent">20%</span>
+              <p>de comisión por cada venta cerrada simplemente recomendando la app</p>
+            </div>
+
+            <div class="plans-table">
+              <h3>Comisiones por Plan Seleccionado</h3>
+
+              <!-- Plan Mensual -->
+              <div class="plan-row">
+                <div class="plan-name">
+                  <span class="plan-badge">Plan Mensual</span>
+                  <span class="plan-price">$5 USD / mes</span>
+                </div>
+                <div class="plan-commission">
+                  <span class="commission-amount">$1 USD</span>
+                  <span class="commission-detail">cada mes durante 5 meses<br>(de mantenerse activa la licencia)</span>
+                </div>
+              </div>
+
+              <!-- Plan Anual -->
+              <div class="plan-row">
+                <div class="plan-name">
+                  <span class="plan-badge">Plan Anual</span>
+                  <span class="plan-price">$50 USD / año</span>
+                </div>
+                <div class="plan-commission">
+                  <span class="commission-amount">$10 USD</span>
+                  <span class="commission-detail">comisión única e inmediata<br>por cada cliente cerrado</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Advertencia legal/norma de referidos -->
+            <div class="referidos-notice">
+              <span class="notice-icon">⚠️</span>
+              <div>
+                <strong>Aviso importante sobre el pago de comisiones:</strong><br>
+                El pago de comisión por referido aplica únicamente al <strong>primer plan elegido</strong> por el usuario referido.
+              </div>
+            </div>
+
+            <a href="#contacto" class="btn-whatsapp">
+              <span>💬 Notificar una Referencia o Solicitar Afiliación</span>
+            </a>
+          </div>
+
+          <!-- Previsualización Video Promocional (YouTube Shorts) -->
+          <div class="referidos-video">
+            <h3>🎥 Video Promocional Oficial</h3>
+            <div class="video-wrapper video-shorts">
+              <iframe
+                src="https://www.youtube-nocookie.com/embed/7xEdINe2bjI"
+                title="SIGTAD PRO - Video Promocional"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+                loading="lazy">
+              </iframe>
+            </div>
+            <p style="text-align: center; font-size: 0.82rem; color: #9999cc;">Conoce en 60 segundos por qué SIGTAD PRO es la mejor opción.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         BLOQUE 4° — MANUAL DE USO (VIDEO YOUTUBE)
+         ══════════════════════════════════════════════════════════════ -->
+    <section id="manual" class="manual-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Manual de Uso en Video</h2>
+          <p class="section-subtitle">Aprende paso a paso cómo dominar todas las funciones de SIGTAD PRO desde el primer minuto.</p>
+        </div>
+
+        <div class="video-container">
+          <div class="video-wrapper video-landscape">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/SQTjJy0CfBI"
+              title="Manual de Uso SIGTAD PRO"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         BLOQUE 5° — CONTACTO DIRECTO (WHATSAPP + QR)
+         ══════════════════════════════════════════════════════════════ -->
+    <section id="contacto" class="contact-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Contacto Directo y Soporte</h2>
+          <p class="section-subtitle">Comunícate directamente con el equipo de desarrollo para licencias, consultas legales o sugerencias.</p>
+        </div>
+
+        <div class="contact-grid">
+          <!-- Datos de Contacto -->
+          <div class="contact-info">
+            <!-- Teléfono -->
+            <div class="contact-item">
+              <span class="contact-icon">📞</span>
+              <div>
+                <div class="contact-label">Teléfono Directo</div>
+                <a href="tel:+584128835935" class="contact-value">+58 412 883 59 35</a>
+              </div>
+            </div>
+
+            <!-- WhatsApp -->
+            <div class="contact-item">
+              <span class="contact-icon">💬</span>
+              <div>
+                <div class="contact-label">WhatsApp de Atención Inmediata</div>
+                <a href="https://wa.me/584128835935" target="_blank" rel="noopener" class="contact-value whatsapp-link">
+                  Enviar Mensaje por WhatsApp (+58 412 883 59 35)
+                </a>
+              </div>
+            </div>
+
+            <!-- Correo -->
+            <div class="contact-item">
+              <span class="contact-icon">✉️</span>
+              <div>
+                <div class="contact-label">Correo Electrónico</div>
+                <a href="mailto:sigtadpro@gmail.com" class="contact-value">sigtadpro@gmail.com</a>
+              </div>
+            </div>
+
+            <!-- Motivos de contacto -->
+            <div class="contact-reasons">
+              <h4>¿Para qué puedes escribirnos?</h4>
+              <ul>
+                <li>✅ <strong>Solicitar licencias de pago</strong> (activaciones inmediatas)</li>
+                <li>✅ <strong>Comunicar haber referido a un cliente</strong> para cobrar tu comisión</li>
+                <li>✅ <strong>Reportar fallos o bugs</strong> para corrección prioritaria</li>
+                <li>✅ <strong>Solicitar nuevas funciones</strong> o mejoras personalizadas</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Código QR WhatsApp -->
+          <div class="contact-qr">
+            <h3>Escanea para chatear por WhatsApp</h3>
+            <div class="qr-container" id="whatsappQr">
+              <!-- El QR se renderiza dinámicamente con qrcode.min.js -->
+            </div>
+            <p class="qr-caption">Apunta con la cámara de tu teléfono para abrir una conversación directa en WhatsApp sin guardar el número.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <img src="assets/logo.png" alt="SIGTAD PRO" class="footer-logo" />
+        <div>
+          <h3>SIGTAD PRO v4.0.3</h3>
+          <p>Motor SIGTAD-V1(R) &copy; 2026. Todos los derechos reservados.</p>
+        </div>
+      </div>
+
+      <div class="footer-links">
+        <a href="#inicio">Inicio</a>
+        <a href="#que-somos">¿Qué somos?</a>
+        <a href="#descargas">Descargas</a>
+        <a href="#referidos">Referidos</a>
+        <a href="#manual">Manual de Uso</a>
+        <a href="#contacto">Contacto</a>
+        <a href="#" onclick="openModal('termsModal'); return false;">Términos y Licencia Legal</a>
+      </div>
+
+      <div class="footer-legal">
+        El motor informático <strong>SIGTAD-V1(R)</strong> se encuentra legalmente protegido y registrado. Cualquier intento de descompilación, plagio, alteración no autorizada o violación de derechos de autor se encuentra sujeto a las sanciones civiles y penales previstas en la legislación vigente.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL 1: TÉRMINOS Y DESCARGO LEGAL (OBLIGATORIO)
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="termsModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-box terms-modal">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <img src="assets/logo.png" alt="SIGTAD" class="modal-logo" />
+          <div>
+            <h2>Términos y Descargo Legal</h2>
+            <span class="version-badge">SIGTAD PRO v4.0.3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body scrollable">
+        <h3>CONTRATO DE LICENCIA DE USO Y EXCLUSIÓN DE RESPONSABILIDAD</h3>
+
+        <div class="terms-item">
+          <strong>1. PROPÓSITO DEL SOFTWARE:</strong>
+          Este sistema ha sido diseñado exclusivamente para la administración interna, control de inventarios, flujo de caja y gestión de cuentas en pequeños comercios de forma offline.
+        </div>
+
+        <div class="terms-item">
+          <strong>2. NO HOMOLOGACIÓN TRIBUTARIA:</strong>
+          Se deja constancia expresa de que este software <strong>NO se encuentra homologado ni certificado por el Servicio Integrado de Administración Aduanera y Tributaria (SENIAT)</strong> ni por ningún otro órgano fiscal de la República Bolivariana de Venezuela. No constituye una máquina fiscal ni genera facturación fiscal oficial.
+        </div>
+
+        <div class="terms-item">
+          <strong>3. RESPONSABILIDAD FISCAL DEL USUARIO:</strong>
+          El uso de este sistema en auditorías oficiales, contabilidad externa o con el fin de evadir impuestos es de exclusiva responsabilidad del usuario. El comerciante se compromete a llevar sus declaraciones y obligaciones impositivas oficiales según las normativas vigentes por fuera de esta herramienta.
+        </div>
+
+        <div class="terms-item">
+          <strong>4. EXCLUSIÓN DE RESPONSABILIDAD:</strong>
+          El Desarrollador (Abg. Edinson Pereira) queda totalmente exento de cualquier responsabilidad penal, civil, mercantil o administrativa derivada del uso inadecuado del software, alteración de datos, evasión fiscal o cualquier práctica contraria a la ley realizada por parte de los usuarios.
+        </div>
+
+        <div class="terms-item">
+          <strong>5. LICENCIA INTRANSFERIBLE:</strong>
+          La licencia se vincula de forma inalterable al ID de Negocio generado. Está prohibido el copiado, distribución o reventa no autorizada de esta aplicación.
+        </div>
+
+        <div class="terms-item">
+          <strong>6. MONEDAS Y VALORES REFERENCIALES:</strong>
+          Queda expresamente convenido que cualquier moneda, divisa o valor referencial personalizado distinto al Bolívar (VES) configurado dentro de la aplicación es meramente referencial e informativo para el comercio. El Bolívar es la única moneda de curso legal obligatoria. El Desarrollador se deslinda de toda responsabilidad legal, civil o comercial ante cualquier transacción errónea, malentendido con clientes o mal uso tributario de estos indicadores referenciales.
+        </div>
+
+        <div class="copyright-notice">
+          <span class="shield-icon">🛡️</span>
+          <p>
+            <strong>Aviso de Propiedad Intelectual:</strong> El algoritmo y motor <strong>SIGTAD-V1(R)</strong> se encuentran legalmente registrados. El uso no autorizado de su código o arquitectura constituye una infracción legal sujeta a procesos judiciales.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="acceptTermsBtn" class="btn-primary btn-lg btn-full">
+          Acepto y Entiendo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL 2: PREMIO POR DESCARGA (15 DÍAS GRATIS)
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="prizeModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-box prize-modal">
+      <div class="prize-content">
+        <div class="prize-emoji">🎉</div>
+        <h2>¡Felicitaciones!</h2>
+        <p class="prize-subtitle">Por descargar desde nuestro portal oficial te has ganado:</p>
+        <div class="prize-badge">
+          <span class="prize-days">15</span>
+          <span class="prize-text">DÍAS DE USO<br>TOTALMENTE GRATIS</span>
+        </div>
+        <p class="prize-description">
+          Tu período de prueba comenzará automáticamente al instalar la aplicación en tu equipo. ¡Disfruta de todas las funciones sin restricciones!
+        </p>
+        <button id="closePrizeBtn" class="btn-primary btn-full btn-lg" style="margin-top: 8px;">
+          Continuar y Calificar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL 3: INVITACIÓN A CALIFICAR LA APP
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="ratingModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-box rating-modal">
+      <button class="modal-close" id="closeRatingModal" aria-label="Cerrar">✕</button>
+      <div class="rating-content">
+        <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+        <h2>¿Nos ayudas con tu opinión?</h2>
+        <p>Tu valoración nos ayuda a seguir perfeccionando SIGTAD PRO y creando herramientas seguras para comerciantes.</p>
+
+        <div class="rating-buttons">
+          <a id="ratePlayStore" href="#" target="_blank" rel="noopener" class="btn-rating btn-android">
+            <span>▶️ Calificar en Google Play Store</span>
+          </a>
+          <a id="rateGoogle" href="https://search.google.com/local/writereview?placeid=YOUR_PLACE_ID" target="_blank" rel="noopener" class="btn-rating btn-google">
+            <span>🌐 Calificar en Google</span>
+          </a>
+        </div>
+
+        <button id="skipRatingBtn" class="btn-text">Ahora no, tal vez más tarde</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL 4: INICIO DE SESIÓN / REGISTRO (OPCIONAL)
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="authModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-box auth-modal">
+      <button class="modal-close" id="closeAuthModal" aria-label="Cerrar">✕</button>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
+        <button class="auth-tab" data-tab="register">Registrarse</button>
+      </div>
+
+      <!-- Formulario Login -->
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <label for="loginEmail">Correo Electrónico</label>
+          <input type="email" id="loginEmail" required placeholder="tu@correo.com" />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••" />
+        </div>
+        <div id="loginMessage" class="auth-message"></div>
+        <button type="submit" class="btn-primary btn-full">Ingresar a mi Cuenta</button>
+      </form>
+
+      <!-- Formulario Registro -->
+      <form id="registerForm" class="auth-form" style="display: none;">
+        <div class="form-group">
+          <label for="registerName">Nombre o Negocio</label>
+          <input type="text" id="registerName" required placeholder="Ej. Mi Bodega / Juan Pérez" />
+        </div>
+        <div class="form-group">
+          <label for="registerEmail">Correo Electrónico</label>
+          <input type="email" id="registerEmail" required placeholder="tu@correo.com" />
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Contraseña</label>
+          <input type="password" id="registerPassword" required minlength="6" placeholder="Mínimo 6 caracteres" />
+        </div>
+        <div class="form-check">
+          <input type="checkbox" id="subscribeNewsletter" checked />
+          <label for="subscribeNewsletter">Deseo recibir actualizaciones y promociones exclusivas</label>
+        </div>
+        <div id="registerMessage" class="auth-message"></div>
+        <button type="submit" class="btn-primary btn-full">Crear Cuenta Gratuita</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts en orden de dependencia -->
+  <script src="js/config.js"></script>
+  <script src="js/counter.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
