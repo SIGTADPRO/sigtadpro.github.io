@@ -4,6 +4,7 @@
 
 let _authClient = null;
 let currentUser = null;
+let pendingConfirmEmail = '';
 
 function initAuth() {
   if (typeof SUPABASE_URL === 'undefined' || SUPABASE_URL.includes('YOUR_PROJECT') || !window.supabase) {
@@ -51,9 +52,15 @@ async function handleLogin(e) {
   }
 
   _showMsg(msg, 'info', '⏳ Verificando credenciales...');
-  const { error } = await _authClient.auth.signInWithPassword({ email, password });
+  const { data, error } = await _authClient.auth.signInWithPassword({ email, password });
 
   if (error) {
+    // Si el error es por falta de confirmación de correo
+    if (error.message.toLowerCase().includes('email not confirmed')) {
+      closeModal('authModal');
+      setTimeout(() => openEmailConfirmModal(email), 300);
+      return;
+    }
     _showMsg(msg, 'error', `❌ ${_translateError(error.message)}`);
   } else {
     _showMsg(msg, 'success', '✅ ¡Sesión iniciada con éxito!');
@@ -96,8 +103,51 @@ async function handleRegister(e) {
   }
 
   _notifyAdmin(name, email);
-  _showMsg(msg, 'success', '✅ ¡Registro exitoso! Revisa tu bandeja de entrada.');
-  setTimeout(() => closeModal('authModal'), 2200);
+
+  // Si Supabase no devolvió sesión automática, requiere verificación de correo
+  if (!data?.session) {
+    closeModal('authModal');
+    setTimeout(() => openEmailConfirmModal(email), 300);
+  } else {
+    _showMsg(msg, 'success', '✅ ¡Registro exitoso! Sesión iniciada.');
+    setTimeout(() => closeModal('authModal'), 1400);
+  }
+}
+
+// ─── MODAL DE CONFIRMACIÓN DE EMAIL ───────────────────────────
+function openEmailConfirmModal(email) {
+  pendingConfirmEmail = email || '';
+  const badge = document.getElementById('confirmTargetEmail');
+  if (badge) badge.textContent = pendingConfirmEmail || 'tu correo registrado';
+  
+  const resendMsg = document.getElementById('resendMessage');
+  if (resendMsg) {
+    resendMsg.textContent = '';
+    resendMsg.className = 'auth-message';
+  }
+  openModal('emailConfirmModal');
+}
+
+async function handleResendConfirmation() {
+  const msg = document.getElementById('resendMessage');
+  if (!_authClient || !pendingConfirmEmail) {
+    _showMsg(msg, 'error', '❌ No se pudo identificar el correo para el reenvío.');
+    return;
+  }
+  _showMsg(msg, 'info', '⏳ Enviando nuevo enlace de activación...');
+  try {
+    const { error } = await _authClient.auth.resend({
+      type: 'signup',
+      email: pendingConfirmEmail
+    });
+    if (error) {
+      _showMsg(msg, 'error', `❌ ${_translateError(error.message)}`);
+    } else {
+      _showMsg(msg, 'success', '📨 ¡Nuevo enlace enviado! Revisa tu bandeja y carpeta SPAM.');
+    }
+  } catch(e) {
+    _showMsg(msg, 'error', '❌ Error al solicitar el reenvío.');
+  }
 }
 
 // ─── LOGOUT / MENÚ DE USUARIO ─────────────────────────────────
@@ -160,5 +210,6 @@ function _translateError(msg) {
   if (msg.includes('Email not confirmed')) return 'Por favor confirma tu correo electrónico.';
   if (msg.includes('User already registered')) return 'Este correo ya tiene una cuenta registrada.';
   if (msg.includes('Password should be')) return 'La contraseña debe tener al menos 6 caracteres.';
+  if (msg.includes('rate limit')) return 'Demasiadas solicitudes. Espera unos minutos antes de reintentar.';
   return msg;
 }

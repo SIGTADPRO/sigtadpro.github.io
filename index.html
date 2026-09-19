@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -566,6 +566,54 @@
         <div id="registerMessage" class="auth-message"></div>
         <button type="submit" class="btn-primary btn-full">Crear Cuenta Gratuita</button>
       </form>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL 5: CONFIRMACIÓN DE CORREO ELECTRÓNICO OBLIGATORIA
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="emailConfirmModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-box email-confirm-modal">
+      <button class="modal-close" id="closeEmailConfirmModal" aria-label="Cerrar">✕</button>
+      
+      <div class="email-confirm-content">
+        <div class="email-confirm-icon">📬</div>
+        <h2>¡Confirma tu Correo Electrónico!</h2>
+        <p class="email-confirm-subtitle">
+          Para garantizar la seguridad de tu cuenta, hemos enviado un enlace de activación a:
+        </p>
+        <div class="email-target-badge" id="confirmTargetEmail">tu@correo.com</div>
+
+        <div class="instructions-steps">
+          <div class="step-item">
+            <span class="step-num">1</span>
+            <div><strong>Abre tu bandeja de entrada:</strong> Busca el mensaje de activación de <em>SIGTAD PRO</em> o <em>Supabase</em>.</div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">2</span>
+            <div><strong>Revisa la carpeta de SPAM:</strong> Si no lo ves en 1 minuto, verifica en <em>Correo no deseado (Spam)</em> o <em>Promociones</em>.</div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">3</span>
+            <div><strong>Haz clic en el enlace:</strong> Pulsa sobre el enlace o botón de confirmación en el correo para activar tu cuenta.</div>
+          </div>
+          <div class="step-item">
+            <span class="step-num">4</span>
+            <div><strong>Regresa e ingresa:</strong> Una vez confirmado tu correo, podrás iniciar sesión con tu contraseña normalmente.</div>
+          </div>
+        </div>
+
+        <div id="resendMessage" class="auth-message" style="width: 100%;"></div>
+
+        <div class="email-confirm-actions">
+          <button id="resendEmailBtn" class="btn-outline btn-full">
+            🔄 Reenviar Enlace de Activación
+          </button>
+          <button id="gotItEmailBtn" class="btn-primary btn-full">
+            ✅ Entendido, Ir a Iniciar Sesión
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

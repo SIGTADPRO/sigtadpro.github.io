@@ -1050,3 +1050,81 @@ section { padding: var(--section-pad) 24px; }
   .counter-number { font-size: 2.3rem; }
   .prize-days { font-size: 3.8rem; }
 }
+
+/* ─── MODAL CONFIRMACIÓN DE EMAIL ────────────────────────────── */
+.email-confirm-modal {
+  max-width: 480px;
+  padding: 32px 26px;
+  text-align: center;
+}
+.email-confirm-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.email-confirm-icon {
+  font-size: 3.5rem;
+  animation: bounceIn 0.8s ease;
+}
+.email-confirm-modal h2 {
+  font-size: 1.55rem;
+  color: var(--blue-bright);
+}
+.email-confirm-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.email-target-badge {
+  background: rgba(79, 111, 255, 0.15);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 8px 18px;
+  word-break: break-all;
+}
+.instructions-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  width: 100%;
+  margin: 6px 0;
+}
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.step-item strong { color: var(--text-primary); }
+.step-num {
+  background: var(--blue);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.email-confirm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}

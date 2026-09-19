@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // SIGTAD PRO — LÓGICA PRINCIPAL (UI, Modales, Eventos)
 // ═══════════════════════════════════════════════════════════════
 
@@ -202,6 +202,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('closeAuthModal')?.addEventListener('click', () => closeModal('authModal'));
   document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
   document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
+
+  // Modal confirmación de correo
+  document.getElementById('closeEmailConfirmModal')?.addEventListener('click', () => closeModal('emailConfirmModal'));
+  document.getElementById('resendEmailBtn')?.addEventListener('click', () => {
+    if (typeof handleResendConfirmation === 'function') handleResendConfirmation();
+  });
+  document.getElementById('gotItEmailBtn')?.addEventListener('click', () => {
+    closeModal('emailConfirmModal');
+    setTimeout(() => {
+      // Abrir modal de auth en la pestaña de login
+      const tabLogin = document.querySelector('.auth-tab[data-tab="login"]');
+      if (tabLogin) tabLogin.click();
+      openModal('authModal');
+    }, 300);
+  });
 
   // Modales: cerrar al hacer clic en overlay exterior (excepto términos)
   document.querySelectorAll('.modal-overlay').forEach(modal => {
