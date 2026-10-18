@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Política de Privacidad | SIGTAD PRO</title>
-  <meta name="description" content="Política de Privacidad oficial de la aplicación SIGTAD POS PRO." />
+  <meta name="description" content="Política de Privacidad oficial y términos de seguridad de datos de la aplicación SIGTAD POS PRO." />
   <meta name="theme-color" content="#080818" />
 
   <!-- Favicon -->
@@ -14,43 +14,70 @@
   <link rel="stylesheet" href="css/styles.css" />
   <style>
     .privacy-container {
-      max-width: 800px;
-      margin: 120px auto 60px;
+      max-width: 860px;
+      margin: 110px auto 60px;
       padding: 40px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--glow-blue);
+      background: var(--bg-card, #121226);
+      border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+      border-radius: var(--radius-lg, 16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
     .privacy-container h1 {
       font-size: 2.2rem;
-      margin-bottom: 20px;
-      color: var(--blue-bright);
+      margin-bottom: 10px;
+      color: var(--blue-bright, #6366f1);
       text-align: center;
+    }
+    .privacy-container .version-tag {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted, #94a3b8);
+      margin-bottom: 30px;
     }
     .privacy-content {
       font-size: 1rem;
-      color: var(--text-secondary);
+      color: var(--text-secondary, #cbd5e1);
       line-height: 1.8;
     }
+    .privacy-content h2 {
+      font-size: 1.3rem;
+      color: #ffffff;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 6px;
+    }
     .privacy-content p {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+    }
+    .privacy-content ul {
+      margin: 10px 0 20px 24px;
+    }
+    .privacy-content li {
+      margin-bottom: 8px;
     }
     .privacy-content strong {
-      color: var(--text-primary);
+      color: #ffffff;
     }
     .back-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      color: var(--blue-light);
+      color: var(--blue-light, #818cf8);
       text-decoration: none;
       font-weight: 600;
       margin-bottom: 20px;
       transition: color 0.3s;
     }
     .back-btn:hover {
-      color: var(--blue-bright);
+      color: var(--blue-bright, #a5b4fc);
+    }
+    .contact-box {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 12px;
+      padding: 18px 24px;
+      margin-top: 25px;
     }
   </style>
 </head>
@@ -77,27 +104,104 @@
         <a href="index.html" class="back-btn">← Volver a la página principal</a>
         
         <h1>Política de Privacidad</h1>
+        <div class="version-tag">
+          <strong>Última actualización:</strong> Octubre 2026 &bull; Aplicable a <strong>SIGTAD PRO v5.3.5</strong> y versiones superiores
+        </div>
         
         <div class="privacy-content">
-          <p><strong>Última actualización:</strong> Septiembre 2026</p>
-          
           <p>
-            <strong>SIGTAD POS PRO</strong> respeta su privacidad. La aplicación no recopila, vende ni comparte datos personales con terceros. 
+            En <strong>SIGTAD PRO</strong> (desarrollado por <strong>Abg. Edinson Pereira</strong>), valoramos y protegemos la privacidad de nuestros usuarios y la de sus clientes comerciales. Esta Política de Privacidad describe de manera transparente qué datos maneja la aplicación móvil, bajo qué marco técnico opera y cuáles son los derechos de control de la información por parte de los usuarios, en estricto cumplimiento de las directrices y normativas para desarrolladores de <strong>Google Play Store</strong>.
           </p>
 
+          <h2>1. Filosofía de Privacidad y Arquitectura Offline-First</h2>
           <p>
-            <strong>Uso de la Cámara:</strong><br>
-            El uso del permiso de la cámara en nuestra aplicación se destina exclusivamente al escaneo local de códigos de barras y códigos QR de productos para agilizar el proceso de venta e inventario. Las imágenes de la cámara no son grabadas, almacenadas ni transmitidas a ningún servidor externo bajo ninguna circunstancia.
+            <strong>SIGTAD PRO</strong> es una solución de Punto de Venta (POS) y control de inventario diseñada bajo un paradigma de <em>almacenamiento estrictamente local y descentralizado</em>. No operamos bases de datos centralizadas en la nube donde se recopilen las ventas, transacciones o inventarios de los comercios. Toda la base de datos operativa reside y se procesa de forma exclusiva dentro del almacenamiento privado del dispositivo mediante tecnología SQLite / Drift.
           </p>
 
+          <h2>2. Permisos del Dispositivo y Uso de Hardware</h2>
+          <p>La aplicación solicita únicamente los permisos indispensables para cumplir con sus funciones esenciales de punto de venta:</p>
+          <ul>
+            <li>
+              <strong>Cámara (<code>android.permission.CAMERA</code>):</strong><br>
+              Se utiliza exclusivamente para el escaneo instantáneo en vivo de códigos de barras (EAN, UPC, Code128) y códigos QR en productos mediante el visor de cámara integrado. La cámara procesa los códigos en la memoria volátil del dispositivo en tiempo real. <strong>Bajo ninguna circunstancia se graban videos, se capturan fotos personales ni se transmiten transmisiones ópticas a servidores remotos.</strong>
+            </li>
+            <li>
+              <strong>Acceso a Fotos y Galería (<code>READ_MEDIA_IMAGES</code>):</strong><br>
+              Se requiere para que el usuario, de manera voluntaria, pueda seleccionar imágenes desde la galería de su dispositivo a fin de ilustrar los productos de su catálogo. Dichas imágenes se redimensionan y se resguardan de forma local en la base de datos interna de la app.
+            </li>
+            <li>
+              <strong>Acceso a Red e Internet (<code>INTERNET</code> y <code>ACCESS_NETWORK_STATE</code>):</strong><br>
+              Requeridos para tres finalidades específicas:
+              <ol>
+                <li><strong>Sincronización en Red Local (LAN):</strong> Conectar terminales secundarias al terminal principal dentro de la misma red Wi-Fi del negocio (puerto local 8080).</li>
+                <li><strong>Sincronización MQTT opcional:</strong> Enlazar sucursales mediante brokers de mensajería telemática configurados de forma voluntaria por el administrador del establecimiento.</li>
+                <li><strong>Consulta de Tasa Oficial de Cambio (BCV):</strong> Obtener la tasa referencial oficial mediante endpoints públicos en línea para el cálculo de equivalencias multimoneda.</li>
+              </ol>
+            </li>
+          </ul>
+
+          <h2>3. Datos Recopilados y Almacenamiento Local</h2>
+          <p>Durante la operación normal del software comercial, se almacenan los siguientes datos de forma 100% local:</p>
+          <ul>
+            <li><strong>Catálogo e Inventario:</strong> Nombres de productos, códigos de barra, categorías, unidades de medida, costos y precios de venta.</li>
+            <li><strong>Registros de Transacciones:</strong> Historial de ventas, métodos de pago, notas de crédito, arqueos de caja y utilidades.</li>
+            <li><strong>Libreta de Clientes y Deudores (Fiados):</strong> Para facilitar la administración de créditos comerciales, el usuario puede registrar voluntariamente el <em>nombre</em> y <em>número de teléfono</em> de sus clientes. Esta información permanece exclusivamente dentro del teléfono o tableta del comerciante.</li>
+            <li><strong>Identificadores de Dispositivo:</strong> Identificador UUID único de clúster generado de manera aleatoria al inicializar el dispositivo para gestionar roles jerárquicos (Terminal Principal, Caja Secundaria o Supervisor).</li>
+          </ul>
+
+          <h2>4. Servicios de Terceros y Enlaces Externos</h2>
+          <ul>
+            <li>
+              <strong>Consulta de Tasa de Cambio (API BCV):</strong> La aplicación consulta periódicamente información pública de tasas cambiarias a través de fuentes abiertas (como <code>chitty-bcv-api</code>). Dicha consulta es una solicitud GET anónima y <strong>no transmite ningún dato personal, comercial, de hardware ni financiero del usuario</strong>.
+            </li>
+            <li>
+              <strong>Emisión de Tickets y Soporte por WhatsApp:</strong> La aplicación incluye accesos directos para facilitar el envío de recibos digitales o solicitar soporte técnico a través del protocolo oficial de WhatsApp (<code>wa.me</code>). Esta interacción abre directamente la aplicación WhatsApp en el dispositivo del usuario; SIGTAD no interviene en el canal de mensajería cifrado de dicha plataforma.
+            </li>
+          </ul>
+
+          <h2>5. Política de No Comercialización y No Rastreo</h2>
           <p>
-            <strong>Almacenamiento de Datos:</strong><br>
-            Toda la información generada por la aplicación, incluyendo bases de datos de ventas, inventarios, registros de caja y datos de clientes, se almacena de forma estricta y exclusiva <strong>de forma local en el dispositivo del usuario</strong>. 
+            <strong>SIGTAD PRO NO vende, no alquila, no transfiere ni comercializa datos personales o comerciales a terceros, corredores de datos ni agencias de publicidad.</strong> La aplicación carece totalmente de SDKs de rastreo publicitario, analítica invasiva o plataformas de monetización basadas en datos del usuario.
           </p>
-          
+
+          <h2>6. Retención y Eliminación Definitiva de Datos</h2>
           <p>
-            Al utilizar SIGTAD POS PRO, usted acepta los términos descritos en esta política de privacidad. Para consultas o soporte adicional, puede contactarnos a través de los canales oficiales publicados en nuestro sitio web.
+            Dado que la información se aloja íntegramente en el almacenamiento local del dispositivo:
           </p>
+          <ul>
+            <li><strong>Retención:</strong> Los datos se conservan de forma indefinida mientras el usuario mantenga instalada la aplicación y no ejecute un formateo o purga de su base de datos.</li>
+            <li>
+              <strong>Eliminación de Datos:</strong> El usuario tiene control total e inmediato para suprimir todos sus registros en cualquier instante mediante dos vías:
+              <ol>
+                <li>Desde el sistema operativo Android: dirigiéndose a <em>Ajustes &gt; Aplicaciones &gt; SIGTAD PRO &gt; Almacenamiento &gt; Borrar datos</em> (esto destruye de forma irreversible todas las tablas locales).</li>
+                <li>Desinstalando la aplicación del dispositivo.</li>
+              </ol>
+            </li>
+          </ul>
+
+          <h2>7. Privacidad de Menores</h2>
+          <p>
+            SIGTAD PRO es un software de gestión empresarial y punto de venta para negocios comerciales, por lo que no está dirigido a niños ni menores de 13 años (o la edad mínima legal en su país). No recopilamos conscientemente datos de menores de edad.
+          </p>
+
+          <h2>8. Modificaciones a esta Política</h2>
+          <p>
+            Nos reservamos el derecho de actualizar esta política de privacidad ante mejoras técnicas o cambios normativos. Cualquier modificación entrará en vigor inmediatamente tras su publicación en esta página web oficial y se reflejará en las notas de versión de Google Play Console.
+          </p>
+
+          <div class="contact-box">
+            <h2 style="margin-top:0; border:none; padding:0;">9. Contacto y Consultas de Privacidad</h2>
+            <p>
+              Si tiene inquietudes, preguntas o solicitudes acerca de esta política o del manejo de sus datos, puede ponerse en contacto directo con el responsable de desarrollo:
+            </p>
+            <p style="margin-bottom:0;">
+              &bull; <strong>Responsable:</strong> Abg. Edinson Pereira<br>
+              &bull; <strong>Correo Electrónico:</strong> <a href="mailto:edinsonalberto2002@gmail.com" style="color:var(--blue-light,#818cf8);">edinsonalberto2002@gmail.com</a><br>
+              &bull; <strong>WhatsApp Oficial de Soporte:</strong> +58 412 883 59 35<br>
+              &bull; <strong>Sitio Web Oficial:</strong> <a href="https://sigtad.com" style="color:var(--blue-light,#818cf8);">https://sigtad.com</a>
+            </p>
+          </div>
+
         </div>
       </div>
     </section>
@@ -111,7 +215,7 @@
       <div class="footer-brand">
         <img src="assets/logo.png" alt="SIGTAD PRO" class="footer-logo" />
         <div>
-          <h3>SIGTAD PRO v4.0.3</h3>
+          <h3>SIGTAD PRO v5.3.5</h3>
           <p>Motor SIGTAD-V1<sup>®</sup> &copy; 2026. Todos los derechos reservados.</p>
         </div>
       </div>
@@ -123,4 +227,3 @@
 
 </body>
 </html>
-
