@@ -772,7 +772,7 @@
     <div class="modal-box auth-modal">
       <button class="modal-close" id="closeAuthModal" aria-label="Cerrar">✕</button>
 
-      <div class="auth-tabs">
+      <div class="auth-tabs" id="authTabsContainer">
         <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
         <button class="auth-tab" data-tab="register">Registrarse</button>
       </div>
@@ -812,6 +812,32 @@
         <div id="registerMessage" class="auth-message"></div>
         <button type="submit" class="btn-primary btn-full">Crear Cuenta Gratuita</button>
       </form>
+
+      <!-- Vista de Perfil de Usuario Activo -->
+      <div id="profileView" class="auth-form" style="display: none;">
+        <div class="profile-card">
+          <div class="profile-avatar">👤</div>
+          <h3 id="profileName" class="profile-name">Mi Cuenta</h3>
+          <p id="profileEmail" class="profile-email">usuario@correo.com</p>
+          <div class="profile-status-badge">
+            <span class="status-dot"></span> Sesión activa en SIGTAD PRO
+          </div>
+          <div class="profile-details-box">
+            <div class="profile-info-row">
+              <span class="profile-info-label">Estado de Cuenta</span>
+              <span class="profile-info-val highlight-green">Verificada</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">Novedades y Soporte</span>
+              <span class="profile-info-val" id="profileNewsletterStatus">Habilitado</span>
+            </div>
+          </div>
+          <div id="profileMessage" class="auth-message"></div>
+          <button id="logoutBtn" type="button" class="btn-outline btn-full profile-logout-btn">
+            🚪 Cerrar Sesión
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

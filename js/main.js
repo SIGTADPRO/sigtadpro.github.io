@@ -198,8 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('skipRatingBtn')?.addEventListener('click', () => closeModal('ratingModal'));
 
   document.getElementById('navAuthBtn')?.addEventListener('click', () => {
-    if (typeof currentUser !== 'undefined' && currentUser) {
-      showUserMenu();
+    if (typeof openAuthModal === 'function') {
+      openAuthModal();
     } else {
       openModal('authModal');
     }
@@ -208,6 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('closeAuthModal')?.addEventListener('click', () => closeModal('authModal'));
   document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
   document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
+  document.getElementById('logoutBtn')?.addEventListener('click', () => {
+    if (typeof handleLogout === 'function') handleLogout();
+  });
 
   // Modal confirmación de correo
   document.getElementById('closeEmailConfirmModal')?.addEventListener('click', () => closeModal('emailConfirmModal'));
