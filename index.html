@@ -96,9 +96,11 @@
     <section id="que-somos" class="info-section">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title section-title-flex">
-            <img src="assets/icons/no-cuadernos.svg" alt="No más cuadernos" class="title-svg-icon" />
-            <span>¡No más Cuadernos!</span>
+          <h2 class="section-title">
+            <span class="title-locked-group">
+              <img src="assets/icons/no-cuadernos.svg" alt="No más cuadernos" class="title-svg-icon" />
+              <span>¡No más Cuadernos!</span>
+            </span>
           </h2>
           <p class="section-subtitle"><strong>Potencia</strong>, <strong>seguridad</strong> y <strong>versatilidad técnica</strong> adaptada a la escala de tu emprendimiento.</p>
         </div>
@@ -119,15 +121,118 @@
           </div>
 
           <!-- Card 2: ¿Qué hace SIGTAD PRO? -->
-          <div class="info-card card-featured">
+          <div class="info-card card-featured card-carousel-card">
             <div class="card-header-inline">
               <img src="assets/icons/pos-software.svg" alt="Software SIGTAD PRO" class="card-inline-svg" />
               <h3 class="card-title">¿Qué hace <span class="highlight">SIGTAD</span> <span class="highlight-purple">PRO</span>?</h3>
             </div>
-            <div class="app-features-placeholder">
-              <p class="card-text">
-                El sistema informático definitivo para el <strong>control total de tu comercio</strong>: simulación de caja inteligente, administración de ventas, fiados y finanzas sin conexión a internet.
-              </p>
+            <p class="card-text carousel-intro-text">
+              Se trata de un <strong>sistema automático para el control interno</strong> de tu negocio:
+            </p>
+
+            <!-- Carrusel de Barajas Horizontal -->
+            <div class="carousel-container" id="sigtadCarousel">
+              <div class="carousel-track" id="carouselTrack">
+                <!-- Slide 1 -->
+                <div class="carousel-slide" data-slide="0">
+                  <div class="slide-info">
+                    <h4 class="slide-title">Simulación de Caja</h4>
+                    <p class="slide-desc">Con <strong>cálculo automático</strong> en distintas monedas y elección entre pago de <strong>contado o a crédito</strong>.</p>
+                  </div>
+                  <div class="slide-visual">
+                    <div class="baraja-card baraja-single">
+                      <img src="assets/barajas/baraja-1-caja.jpeg" alt="Simulación de Caja" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="carousel-slide" data-slide="1">
+                  <div class="slide-info">
+                    <h4 class="slide-title">Control de Ingresos y Gastos</h4>
+                    <p class="slide-desc">Supervisa tus <strong>ingresos, gastos</strong> y el <strong>margen de ganancia</strong> de tu negocio en tiempo real.</p>
+                  </div>
+                  <div class="slide-visual">
+                    <div class="baraja-card baraja-single baraja-tilt-left">
+                      <img src="assets/barajas/baraja-2-ingresos.jpeg" alt="Control de Ingresos y Gastos" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="carousel-slide" data-slide="2">
+                  <div class="slide-info">
+                    <h4 class="slide-title">Inventario y Catálogo</h4>
+                    <p class="slide-desc">Catálogo de productos con alertas visuales de <strong class="badge-surtir">«surtir»</strong> y <strong class="badge-agotado">«agotado»</strong> integradas.</p>
+                  </div>
+                  <div class="slide-visual">
+                    <div class="baraja-card baraja-single">
+                      <img src="assets/barajas/baraja-3-inventario.jpeg" alt="Inventario y Catálogo de Productos" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Slide 4 -->
+                <div class="carousel-slide" data-slide="3">
+                  <div class="slide-info">
+                    <h4 class="slide-title">Clientes y Deudores</h4>
+                    <p class="slide-desc">¡En este local <strong>SÍ SE FÍA!</strong> Registra deudores, abonos parciales y saldos pendientes.</p>
+                  </div>
+                  <div class="slide-visual">
+                    <div class="baraja-card baraja-single baraja-tilt-left">
+                      <img src="assets/barajas/baraja-4-clientes.jpeg" alt="Control de Clientes y Deudores" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Slide 5 -->
+                <div class="carousel-slide" data-slide="4">
+                  <div class="slide-info">
+                    <h4 class="slide-title">Control de Ventas</h4>
+                    <p class="slide-desc">Consulte, audite y <strong>revierta tickets de venta</strong> con registro histórico detallado.</p>
+                  </div>
+                  <div class="slide-visual">
+                    <div class="baraja-card baraja-single">
+                      <img src="assets/barajas/baraja-5-ventas.jpeg" alt="Control de Ventas" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Slide 6 (Manojo de 3 Barajas) -->
+                <div class="carousel-slide" data-slide="5">
+                  <div class="slide-info">
+                    <h4 class="slide-title">¡Y muchas funciones más!</h4>
+                    <p class="slide-desc">Licenciamiento flexible, tasas referenciales, <strong>múltiples métodos de pago</strong> y respaldo offline.</p>
+                  </div>
+                  <div class="slide-visual">
+                    <div class="barajas-fanned">
+                      <div class="baraja-card card-fanned-left">
+                        <img src="assets/barajas/baraja-6-licencia.jpeg" alt="Licencia" />
+                      </div>
+                      <div class="baraja-card card-fanned-center">
+                        <img src="assets/barajas/baraja-7-config.jpeg" alt="Configuración" />
+                      </div>
+                      <div class="baraja-card card-fanned-right">
+                        <img src="assets/barajas/baraja-8-pagos.jpeg" alt="Métodos de Pago" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Controles: Flechas y 6 Puntitos -->
+              <div class="carousel-footer">
+                <button class="carousel-nav-btn prev-btn" id="carouselPrev" aria-label="Baraja anterior">&#10094;</button>
+                <div class="carousel-dots" id="carouselDots">
+                  <button class="carousel-dot active" data-index="0" aria-label="Baraja 1: Caja"></button>
+                  <button class="carousel-dot" data-index="1" aria-label="Baraja 2: Ingresos"></button>
+                  <button class="carousel-dot" data-index="2" aria-label="Baraja 3: Inventario"></button>
+                  <button class="carousel-dot" data-index="3" aria-label="Baraja 4: Deudores"></button>
+                  <button class="carousel-dot" data-index="4" aria-label="Baraja 5: Ventas"></button>
+                  <button class="carousel-dot" data-index="5" aria-label="Baraja 6: Más funciones"></button>
+                </div>
+                <button class="carousel-nav-btn next-btn" id="carouselNext" aria-label="Siguiente baraja">&#10095;</button>
+              </div>
             </div>
           </div>
 
@@ -246,8 +351,11 @@
 
           <!-- Previsualización Video Promocional (YouTube Shorts) -->
           <div class="referidos-video">
-            <h3 class="video-promo-title">Video Promocional</h3>
-            <div class="video-wrapper video-shorts">
+            <div class="video-promo-header">
+              <span class="video-promo-badge"><span class="pulse-dot"></span> SPOT OFICIAL EN 60 SEGUNDOS</span>
+              <h3 class="video-promo-title"><span class="highlight-cyan">VIDEO</span> <span class="highlight-gold">PROMOCIONAL</span></h3>
+            </div>
+            <div class="video-wrapper video-shorts video-glow-border">
               <iframe
                 src="https://www.youtube-nocookie.com/embed/7xEdINe2bjI"
                 title="SIGTAD PRO - Video Promocional"

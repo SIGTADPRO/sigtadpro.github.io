@@ -696,12 +696,12 @@ section { padding: var(--section-pad) 24px; }
 .feature-list { display: flex; flex-direction: column; gap: 8px; }
 
 /* ─── Encabezados y SVG en Bloque 1 ─── */
-.section-title-flex {
+.title-locked-group {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 14px;
+  white-space: nowrap;
 }
 .title-svg-icon {
   width: 44px;
@@ -734,10 +734,220 @@ section { padding: var(--section-pad) 24px; }
 .highlight-purple {
   color: var(--purple-light);
 }
-.app-features-placeholder {
+
+/* ─── CARRUSEL DE BARAJAS HORIZONTAL (¿Qué hace SIGTAD PRO?) ─── */
+.card-carousel-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-intro-text {
+  margin-bottom: 4px;
+}
+
+.carousel-container {
+  width: 100%;
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: 6px;
+}
+
+.carousel-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  gap: 14px;
+  padding: 4px 2px;
+}
+.carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(13, 13, 40, 0.65);
+  border: 1px solid rgba(79, 111, 255, 0.25);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-sizing: border-box;
+  min-height: 220px;
+}
+
+.slide-info {
+  flex: 1 1 54%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slide-title {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--blue-bright);
+  line-height: 1.25;
+}
+
+.slide-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.slide-desc strong {
+  color: var(--text-primary);
+}
+
+.badge-surtir {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+.badge-agotado {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.slide-visual {
+  flex: 0 0 46%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 195px;
+}
+
+/* Naipe individual / Baraja */
+.baraja-card {
+  width: 92px;
+  height: 190px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 212, 255, 0.45);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.85);
+  background: #000;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.baraja-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.baraja-single {
+  transform: rotate(3deg);
+}
+.baraja-single:hover {
+  transform: rotate(0deg) scale(1.05);
+  box-shadow: 0 10px 28px rgba(0, 212, 255, 0.35);
+}
+
+.baraja-tilt-left {
+  transform: rotate(-3deg);
+}
+.baraja-tilt-left:hover {
+  transform: rotate(0deg) scale(1.05);
+  box-shadow: 0 10px 28px rgba(0, 212, 255, 0.35);
+}
+
+/* Manojo de 3 Barajas (Slide 6) */
+.barajas-fanned {
+  position: relative;
+  width: 140px;
+  height: 190px;
+}
+.barajas-fanned .baraja-card {
+  position: absolute;
+  top: 6px;
+  width: 78px;
+  height: 170px;
+}
+
+.card-fanned-left {
+  left: 0;
+  transform: rotate(-14deg) translateY(4px);
+  z-index: 1;
+}
+.card-fanned-center {
+  left: 31px;
+  top: 0 !important;
+  transform: rotate(0deg) translateY(-2px);
+  z-index: 3;
+  box-shadow: 0 10px 26px rgba(0, 212, 255, 0.45);
+}
+.card-fanned-right {
+  left: 62px;
+  transform: rotate(14deg) translateY(4px);
+  z-index: 2;
+}
+
+/* Controles de Navegación del Carrusel */
+.carousel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.carousel-nav-btn {
+  background: rgba(79, 111, 255, 0.15);
+  border: 1px solid var(--border);
+  color: var(--blue-bright);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  transition: all var(--transition);
+}
+.carousel-nav-btn:hover {
+  background: var(--blue);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+}
+
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition);
+}
+.carousel-dot:hover {
+  background: rgba(0, 212, 255, 0.6);
+}
+.carousel-dot.active {
+  background: var(--blue-bright);
+  width: 20px;
+  border-radius: 6px;
+  box-shadow: 0 0 10px #00d4ff;
 }
 .feature-list li { font-size: 0.9rem; color: var(--text-secondary); }
 
@@ -889,24 +1099,24 @@ section { padding: var(--section-pad) 24px; }
 
 /* Diagrama de referidos */
 .referral-flow-container {
-  max-width: 960px;
-  margin: 0 auto 36px;
+  max-width: 520px;
+  margin: 0 auto 28px;
   text-align: center;
-  padding: 8px 16px;
+  padding: 6px 14px;
   display: flex;
   justify-content: center;
 }
 
 .referral-flow-img {
   width: 100%;
-  max-width: 840px;
+  max-width: 490px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0 16px rgba(0, 212, 255, 0.35)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
+  filter: drop-shadow(0 0 14px rgba(0, 212, 255, 0.35)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
   transition: transform var(--transition);
 }
 .referral-flow-img:hover {
-  transform: scale(1.015);
+  transform: scale(1.02);
 }
 
 .referidos-layout {
@@ -972,23 +1182,52 @@ section { padding: var(--section-pad) 24px; }
 .referidos-video {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   opacity: 0;
   transform: translateY(24px);
   transition: all 0.6s ease 0.2s;
 }
 .referidos-video.visible { opacity: 1; transform: translateY(0); }
 
-.video-promo-title {
-  font-size: 1.45rem;
+.video-promo-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.video-promo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #f87171;
+  font-size: 0.74rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--blue-bright), var(--purple-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 0.03em;
-  text-shadow: 0 0 25px rgba(0, 212, 255, 0.3);
+  letter-spacing: 0.08em;
+  padding: 4px 14px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  background: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ef4444;
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+
+.video-promo-title {
+  font-size: 1.65rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
   text-align: center;
+  text-shadow: 0 0 18px rgba(0, 212, 255, 0.75), 0 0 35px rgba(251, 191, 36, 0.4);
 }
 
 .video-wrapper {
@@ -998,6 +1237,15 @@ section { padding: var(--section-pad) 24px; }
   border: 1px solid var(--border);
   box-shadow: var(--glow-blue);
   background: #000;
+}
+.video-glow-border {
+  border: 2px solid rgba(0, 212, 255, 0.5) !important;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.35), 0 10px 30px rgba(0, 0, 0, 0.8) !important;
+  transition: all var(--transition);
+}
+.video-glow-border:hover {
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.55), 0 12px 35px rgba(0, 0, 0, 0.9) !important;
 }
 .video-wrapper iframe {
   display: block;
@@ -1177,6 +1425,32 @@ section { padding: var(--section-pad) 24px; }
   .counter-number { font-size: 2.3rem; }
   .store-badge-img { max-width: 225px; }
   .prize-days { font-size: 3.8rem; }
+
+  .carousel-slide {
+    padding: 10px 8px;
+    gap: 8px;
+  }
+  .slide-title {
+    font-size: 0.95rem;
+  }
+  .slide-desc {
+    font-size: 0.78rem;
+  }
+  .baraja-card {
+    width: 80px;
+    height: 165px;
+  }
+  .barajas-fanned {
+    width: 120px;
+    height: 165px;
+  }
+  .barajas-fanned .baraja-card {
+    width: 66px;
+    height: 145px;
+  }
+  .card-fanned-left { left: 0; }
+  .card-fanned-center { left: 27px; }
+  .card-fanned-right { left: 54px; }
 }
 
 /* ─── MODAL CONFIRMACIÓN DE EMAIL ────────────────────────────── */

@@ -218,6 +218,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 300);
   });
 
+  // Inicializar carrusel de barajas
+  initCardsCarousel();
+
   // Modales: cerrar al hacer clic en overlay exterior (excepto términos)
   document.querySelectorAll('.modal-overlay').forEach(modal => {
     modal.addEventListener('click', (e) => {
@@ -227,3 +230,68 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+// ─── CARRUSEL HORIZONTAL DE BARAJAS ────────────────────────────
+function initCardsCarousel() {
+  const track = document.getElementById('carouselTrack');
+  const dots = document.querySelectorAll('.carousel-dot');
+  const prevBtn = document.getElementById('carouselPrev');
+  const nextBtn = document.getElementById('carouselNext');
+  if (!track || !dots.length) return;
+
+  const slides = track.querySelectorAll('.carousel-slide');
+  let currentIndex = 0;
+
+  function updateActiveDot(index) {
+    currentIndex = index;
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+  }
+
+  function goToSlide(index) {
+    if (index < 0) index = 0;
+    if (index >= slides.length) index = slides.length - 1;
+    const targetSlide = slides[index];
+    if (targetSlide) {
+      track.scrollTo({
+        left: targetSlide.offsetLeft - track.offsetLeft,
+        behavior: 'smooth'
+      });
+      updateActiveDot(index);
+    }
+  }
+
+  // Clic en dots
+  dots.forEach((dot) => {
+    dot.addEventListener('click', () => {
+      const idx = parseInt(dot.getAttribute('data-index') || '0', 10);
+      goToSlide(idx);
+    });
+  });
+
+  // Flechas
+  prevBtn?.addEventListener('click', () => goToSlide(currentIndex - 1));
+  nextBtn?.addEventListener('click', () => goToSlide(currentIndex + 1));
+
+  // Escuchar scroll para sincronizar dot activo automáticamente
+  let scrollTimeout = null;
+  track.addEventListener('scroll', () => {
+    if (scrollTimeout) cancelAnimationFrame(scrollTimeout);
+    scrollTimeout = requestAnimationFrame(() => {
+      const scrollPos = track.scrollLeft;
+      let closestIdx = 0;
+      let minDiff = Infinity;
+
+      slides.forEach((slide, idx) => {
+        const slideOffset = slide.offsetLeft - track.offsetLeft;
+        const diff = Math.abs(slideOffset - scrollPos);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestIdx = idx;
+        }
+      });
+      updateActiveDot(closestIdx);
+    });
+  }, { passive: true });
+}
