@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://sigtad.com/</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://sigtad.com/assets/icons/icon-512x512.png</image:loc>
+      <image:title>SIGTAD PRO - Software de Control Interno Offline</image:title>
+      <image:caption>Logo e Icono Oficial de SIGTAD PRO desarrollado por Edinson Pereira (MaxiTHN)</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://sigtad.com/privacidad.html</loc>
+    <lastmod>2026-10-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
