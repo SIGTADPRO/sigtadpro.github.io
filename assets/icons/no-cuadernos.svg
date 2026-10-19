@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
+  <defs>
+    <filter id="redXGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.5" flood-color="#ef4444" flood-opacity="0.8"/>
+    </filter>
+    <linearGradient id="notebookGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e2246"/>
+      <stop offset="100%" stop-color="#12142e"/>
+    </linearGradient>
+    <linearGradient id="pencilGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Cuaderno / Libreta con espiral -->
+  <g opacity="0.85">
+    <!-- Tapa del cuaderno -->
+    <rect x="12" y="8" width="34" height="46" rx="4" fill="url(#notebookGrad)" stroke="#7c9aff" stroke-width="2"/>
+    <!-- Margen vertical -->
+    <line x1="22" y1="8" x2="22" y2="54" stroke="#4f6fff" stroke-width="1.5" stroke-dasharray="2 2"/>
+    <!-- Líneas del cuaderno -->
+    <line x1="25" y1="18" x2="41" y2="18" stroke="#9999cc" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="25" y1="26" x2="41" y2="26" stroke="#9999cc" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="25" y1="34" x2="41" y2="34" stroke="#9999cc" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="25" y1="42" x2="38" y2="42" stroke="#9999cc" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Anillos espirales -->
+    <circle cx="12" cy="14" r="2.5" fill="#e8e8ff"/>
+    <circle cx="12" cy="22" r="2.5" fill="#e8e8ff"/>
+    <circle cx="12" cy="30" r="2.5" fill="#e8e8ff"/>
+    <circle cx="12" cy="38" r="2.5" fill="#e8e8ff"/>
+    <circle cx="12" cy="46" r="2.5" fill="#e8e8ff"/>
+  </g>
+
+  <!-- Lápiz diagonal -->
+  <g transform="rotate(-30 40 34)" opacity="0.9">
+    <rect x="36" y="10" width="7" height="34" rx="1.5" fill="url(#pencilGrad)" stroke="#b45309" stroke-width="1"/>
+    <!-- Borrador arriba -->
+    <rect x="36" y="8" width="7" height="4" rx="1" fill="#f43f5e"/>
+    <!-- Punta abajo -->
+    <polygon points="36,44 43,44 39.5,50" fill="#fed7aa"/>
+    <polygon points="38.5,48 40.5,48 39.5,50" fill="#1e1e1e"/>
+  </g>
+
+  <!-- Gran X Roja de Prohibición / Descarte con resplandor -->
+  <g filter="url(#redXGlow)">
+    <line x1="10" y1="10" x2="54" y2="54" stroke="#ef4444" stroke-width="5.5" stroke-linecap="round"/>
+    <line x1="54" y1="10" x2="10" y2="54" stroke="#ef4444" stroke-width="5.5" stroke-linecap="round"/>
+  </g>
+</svg>

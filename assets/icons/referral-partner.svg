@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" fill="none">
+  <defs>
+    <linearGradient id="partnerGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <filter id="partnerGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#fbbf24" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#partnerGlow)">
+    <!-- Escudo / Placa de Socio Verificado -->
+    <path d="M24 4 L38 10 V23 C38 32 24 42 24 42 C24 42 10 32 10 23 V10 L24 4 Z" fill="rgba(251, 191, 36, 0.08)" stroke="url(#partnerGrad)" stroke-width="2.2" stroke-linejoin="round"/>
+
+    <!-- Apretón de Manos / Alianza Empresarial -->
+    <!-- Mano izquierda -->
+    <path d="M14 21 L19 26 L23 23 L18 18 L14 21 Z" fill="#fbbf24"/>
+    <!-- Mano derecha enlazada -->
+    <path d="M34 21 L29 26 L24 22 L28 18 L34 21 Z" fill="#f59e0b"/>
+    <!-- Dedos entrelazados centro -->
+    <path d="M21 24 L24 27 L27 24" stroke="#111130" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Estrella / Moneda de Comisión arriba -->
+    <circle cx="24" cy="14" r="3.5" fill="#00d4ff"/>
+    <text x="24" y="16" font-size="6" font-weight="900" text-anchor="middle" fill="#040410" font-family="sans-serif">%</text>
+
+    <!-- Nodos de red de referidos abajo -->
+    <circle cx="19" cy="33" r="1.8" fill="#7c9aff"/>
+    <circle cx="29" cy="33" r="1.8" fill="#7c9aff"/>
+    <circle cx="24" cy="36" r="1.8" fill="#a78bfa"/>
+    <line x1="19" y1="33" x2="24" y2="36" stroke="#4f6fff" stroke-width="1.2"/>
+    <line x1="29" y1="33" x2="24" y2="36" stroke="#4f6fff" stroke-width="1.2"/>
+  </g>
+</svg>
