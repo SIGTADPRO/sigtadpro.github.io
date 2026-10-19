@@ -54,8 +54,8 @@ function closeModal(id) {
 // ─── DESCARGAS ────────────────────────────────────────────────
 function triggerWindowsDownload() {
   const a = document.createElement('a');
-  a.href = (typeof WINDOWS_DOWNLOAD_URL !== 'undefined') ? WINDOWS_DOWNLOAD_URL : './SIGTAD_PRO_Setup_v5.3.5.exe';
-  a.download = 'SIGTAD_PRO_Setup_v5.3.5.exe';
+  a.href = (typeof WINDOWS_DOWNLOAD_URL !== 'undefined') ? WINDOWS_DOWNLOAD_URL : './SIGTAD_PRO_Setup_v5.3.5+12 (Windows).exe';
+  a.download = 'SIGTAD_PRO_Setup_v5.3.5+12 (Windows).exe';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
