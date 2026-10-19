@@ -13,7 +13,8 @@ const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
 const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
 
 // ─── ADMIN ─────────────────────────────────────────────────────
-const ADMIN_PASSWORD = 'sigtad_admin_2026';
+const ADMIN_PASSWORD = '110702';
+
 
 // ─── CONTACTO ──────────────────────────────────────────────────
 const WHATSAPP_NUMBER = '584128835935';

@@ -131,7 +131,7 @@
     function handleAdminLogin(e) {
       e.preventDefault();
       const input = document.getElementById('adminPasswordInput').value;
-      const expected = (typeof ADMIN_PASSWORD !== 'undefined') ? ADMIN_PASSWORD : 'sigtad_admin_2026';
+      const expected = (typeof ADMIN_PASSWORD !== 'undefined') ? ADMIN_PASSWORD : '110702';
 
       if (input === expected) {
         document.getElementById('adminAuthBox').style.display = 'none';
@@ -143,6 +143,11 @@
     }
 
     async function loadDashboardStats() {
+      // Indicadores visuales de carga inicial
+      document.getElementById('adminRealWin').textContent = '...';
+      document.getElementById('adminRealAnd').textContent = '...';
+      document.getElementById('adminRealTotal').textContent = '...';
+
       // Obtener datos reales de Supabase o Local
       const real = await fetchRealCount();
       const artificial = getArtificialCount();
@@ -155,24 +160,48 @@
       document.getElementById('adminArtificial').textContent = artificial;
       document.getElementById('adminDisplayed').textContent = totalVisible;
 
-      // Cargar suscriptores si Supabase está activo
+      // Cargar suscriptores (vía SDK o REST directo)
+      let subscribers = [];
       if (_supabase) {
-        const { data, error } = await _supabase
-          .from('subscribers')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        const cont = document.getElementById('subscribersListContainer');
-        if (error || !data || data.length === 0) {
-          cont.innerHTML = '<p style="color: var(--text-muted);">Aún no hay registros en la tabla subscribers.</p>';
-        } else {
-          let html = '<table class="subscribers-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th></tr></thead><tbody>';
-          data.forEach(sub => {
-            html += `<tr><td>${sub.name || 'Sin nombre'}</td><td><strong>${sub.email}</strong></td><td>${new Date(sub.created_at).toLocaleDateString('es-VE')}</td></tr>`;
-          });
-          html += '</tbody></table>';
-          cont.innerHTML = html;
+        try {
+          const { data, error } = await _supabase
+            .from('subscribers')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (!error && data && data.length > 0) {
+            subscribers = data;
+          }
+        } catch(e) {
+          console.warn('[SIGTAD Admin] Fallo SDK suscriptores:', e);
         }
+      }
+
+      if (subscribers.length === 0 && typeof SUPABASE_URL !== 'undefined') {
+        try {
+          const res = await fetch(`${SUPABASE_URL}/rest/v1/subscribers?select=*&order=created_at.desc`, {
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            }
+          });
+          if (res.ok) {
+            subscribers = await res.json();
+          }
+        } catch(e) {
+          console.warn('[SIGTAD Admin] Fallo REST suscriptores:', e);
+        }
+      }
+
+      const cont = document.getElementById('subscribersListContainer');
+      if (!subscribers || subscribers.length === 0) {
+        cont.innerHTML = '<p style="color: var(--text-muted);">Aún no hay registros en la tabla subscribers.</p>';
+      } else {
+        let html = '<table class="subscribers-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th></tr></thead><tbody>';
+        subscribers.forEach(sub => {
+          html += `<tr><td>${sub.name || 'Sin nombre'}</td><td><strong>${sub.email}</strong></td><td>${new Date(sub.created_at).toLocaleDateString('es-VE')}</td></tr>`;
+        });
+        html += '</tbody></table>';
+        cont.innerHTML = html;
       }
     }
   </script>

@@ -44,12 +44,13 @@ function getArtificialCount() {
 
 // ─── SUPABASE INIT ─────────────────────────────────────────────
 function _initSupabase() {
+  if (_supabase) return _supabase;
   if (typeof SUPABASE_URL === 'undefined' || SUPABASE_URL.includes('YOUR_PROJECT') || !window.supabase) {
-    console.log('[SIGTAD] Supabase no configurado o script no cargado → modo local');
     return null;
   }
   try {
-    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    return _supabase;
   } catch(e) {
     console.error('[SIGTAD] Error iniciando Supabase:', e);
     return null;
@@ -58,26 +59,58 @@ function _initSupabase() {
 
 // ─── FETCH REAL COUNT ──────────────────────────────────────────
 async function fetchRealCount() {
-  if (!_supabase) {
-    // Si no hay backend, recuperamos de localStorage local para pruebas
-    const savedWin = parseInt(localStorage.getItem('sigtad_real_win') || '0', 10);
-    const savedAnd = parseInt(localStorage.getItem('sigtad_real_and') || '0', 10);
-    return { windows: savedWin, android: savedAnd };
+  if (!_supabase && typeof _initSupabase === 'function') {
+    _supabase = _initSupabase();
   }
-  try {
-    const { data, error } = await _supabase
-      .from('download_stats')
-      .select('real_windows, real_android')
-      .eq('id', 1)
-      .single();
-    if (error) throw error;
-    return { windows: data.real_windows || 0, android: data.real_android || 0 };
-  } catch(err) {
-    console.warn('[SIGTAD] No se pudo leer stats remotas:', err.message);
-    const savedWin = parseInt(localStorage.getItem('sigtad_real_win') || '0', 10);
-    const savedAnd = parseInt(localStorage.getItem('sigtad_real_and') || '0', 10);
-    return { windows: savedWin, android: savedAnd };
+
+  // 1. Intento vía SDK Supabase
+  if (_supabase) {
+    try {
+      const { data, error } = await _supabase
+        .from('download_stats')
+        .select('real_windows, real_android')
+        .eq('id', 1)
+        .single();
+      if (!error && data) {
+        const win = Number(data.real_windows) || 0;
+        const and = Number(data.real_android) || 0;
+        localStorage.setItem('sigtad_real_win', win);
+        localStorage.setItem('sigtad_real_and', and);
+        return { windows: win, android: and };
+      }
+    } catch(err) {
+      console.warn('[SIGTAD] Lectura vía SDK falló, probando REST directo:', err.message);
+    }
   }
+
+  // 2. Fallback de alta resiliencia: Consulta REST directa vía fetch()
+  if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined') {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/download_stats?id=eq.1&select=real_windows,real_android`, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (rows && rows.length > 0) {
+          const win = Number(rows[0].real_windows) || 0;
+          const and = Number(rows[0].real_android) || 0;
+          localStorage.setItem('sigtad_real_win', win);
+          localStorage.setItem('sigtad_real_and', and);
+          return { windows: win, android: and };
+        }
+      }
+    } catch(fetchErr) {
+      console.warn('[SIGTAD] Lectura REST directa falló:', fetchErr.message);
+    }
+  }
+
+  // 3. Fallback local de caché
+  const savedWin = parseInt(localStorage.getItem('sigtad_real_win') || '0', 10);
+  const savedAnd = parseInt(localStorage.getItem('sigtad_real_and') || '0', 10);
+  return { windows: savedWin, android: savedAnd };
 }
 
 // ─── INCREMENT ─────────────────────────────────────────────────
