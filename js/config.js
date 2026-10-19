@@ -30,8 +30,11 @@ const PLAY_STORE_URL       = '';
 const GOOGLE_REVIEW_URL = 'https://search.google.com/local/writereview?placeid=YOUR_PLACE_ID';
 
 // ─── CONTADOR ARTIFICIAL ────────────────────────────────────────
-// Fórmula: BASE + FACTOR * ln(días + 1)
-// Día 0→30 | Día 30→99 | Día 90→120 | Día 180→134 | Día 365→148
-const COUNTER_LAUNCH_DATE   = new Date('2026-01-15');
-const COUNTER_BASE          = 30;
-const COUNTER_GROWTH_FACTOR = 20;
+// Base sembrada (~320) + crecimiento progresivo determinístico de 1 a 3 descargas por día
+const COUNTER_BASE_DATE        = new Date('2026-10-18T00:00:00');
+const COUNTER_BASE_ARTIFICIAL = 320; // Alrededor de 300 y un poco más
+
+// Compatibilidad hacia atrás
+const COUNTER_LAUNCH_DATE   = COUNTER_BASE_DATE;
+const COUNTER_BASE          = COUNTER_BASE_ARTIFICIAL;
+

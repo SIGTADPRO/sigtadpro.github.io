@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // SIGTAD PRO — CONTADOR DE DESCARGAS
 // Real (Supabase) + Artificial (logarítmico determinístico)
 // ═══════════════════════════════════════════════════════════════
@@ -8,16 +8,39 @@ let realCount = { windows: 0, android: 0 };
 let displayedCount = 0;
 
 // ─── ARTIFICIAL COUNT ──────────────────────────────────────────
-// Determinístico según fecha para sincronía entre usuarios
+// Base sembrada (~320) + crecimiento orgánico de 1 a 3 descargas por día
+// Determinístico según fecha/hora para sincronía exacta entre usuarios
 function getArtificialCount() {
   const msPerDay = 86400000;
-  const launch = (typeof COUNTER_LAUNCH_DATE !== 'undefined') ? COUNTER_LAUNCH_DATE : new Date('2026-01-15');
-  const base = (typeof COUNTER_BASE !== 'undefined') ? COUNTER_BASE : 30;
-  const factor = (typeof COUNTER_GROWTH_FACTOR !== 'undefined') ? COUNTER_GROWTH_FACTOR : 20;
+  const baseDate = (typeof COUNTER_BASE_DATE !== 'undefined') ? COUNTER_BASE_DATE : ((typeof COUNTER_LAUNCH_DATE !== 'undefined') ? COUNTER_LAUNCH_DATE : new Date('2026-10-18T00:00:00'));
+  const base = (typeof COUNTER_BASE_ARTIFICIAL !== 'undefined') ? COUNTER_BASE_ARTIFICIAL : ((typeof COUNTER_BASE !== 'undefined') ? COUNTER_BASE : 320);
 
-  const days = Math.max(0, (Date.now() - launch.getTime()) / msPerDay);
-  return Math.floor(base + factor * Math.log(days + 1));
+  const diffMs = Date.now() - baseDate.getTime();
+  if (diffMs <= 0) return base;
+
+  const diffDays = diffMs / msPerDay;
+  const fullDays = Math.floor(diffDays);
+  const dayFraction = diffDays - fullDays;
+
+  // Secuencia orgánica determinística de 1 a 3 descargas por día
+  const pattern = [2, 1, 3, 2, 3, 1, 2, 2, 3, 1, 3, 2];
+  const cycleSum = pattern.reduce((acc, val) => acc + val, 0); // 25 por ciclo de 12 días
+  const cycleLen = pattern.length;
+
+  const fullCycles = Math.floor(fullDays / cycleLen);
+  let totalGrowth = fullCycles * cycleSum;
+
+  for (let i = fullCycles * cycleLen; i < fullDays; i++) {
+    totalGrowth += pattern[i % cycleLen];
+  }
+
+  // Crecimiento gradual intra-día según el avance de las horas
+  const todayIncrement = pattern[fullDays % cycleLen];
+  totalGrowth += Math.floor(todayIncrement * dayFraction);
+
+  return base + totalGrowth;
 }
+
 
 // ─── SUPABASE INIT ─────────────────────────────────────────────
 function _initSupabase() {
