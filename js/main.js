@@ -135,6 +135,12 @@ function initScrollAnimations() {
   const elements = document.querySelectorAll('.info-card, .download-card, .contact-item, .referidos-info, .referidos-video');
   if (!elements.length) return;
 
+  // En pantallas móviles o si no soporta observer, visibilidad inmediata
+  if (window.innerWidth < 768 || typeof IntersectionObserver === 'undefined') {
+    elements.forEach(el => el.classList.add('visible'));
+    return;
+  }
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -142,7 +148,7 @@ function initScrollAnimations() {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.15 });
+  }, { threshold: 0.05, rootMargin: '40px' });
 
   elements.forEach(el => observer.observe(el));
 }

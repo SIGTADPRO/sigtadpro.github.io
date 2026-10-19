@@ -654,34 +654,35 @@ section { padding: var(--section-pad) 24px; }
 /* ─── BLOQUE 1: INFORMATIVO ──────────────────────────────────── */
 .info-section {
   background: var(--bg-secondary);
-  padding: var(--section-pad) 24px;
+  padding: 46px 24px;
 }
 
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  align-items: stretch;
 }
 
 .info-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 32px 28px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   transition: all var(--transition);
-  opacity: 0;
-  transform: translateY(24px);
+  opacity: 1;
+  transform: none;
 }
-.info-card.visible { opacity: 1; transform: translateY(0); }
+.info-card.visible { opacity: 1; transform: none; }
 .info-card:hover {
   border-color: var(--border-bright);
   background: var(--bg-card-hover);
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   box-shadow: var(--glow-blue);
 }
 
@@ -691,21 +692,22 @@ section { padding: var(--section-pad) 24px; }
 }
 
 .card-icon { font-size: 2.3rem; }
-.card-title { font-size: 1.25rem; color: var(--text-primary); }
-.card-text { font-size: 0.92rem; color: var(--text-secondary); line-height: 1.7; }
+.card-title { font-size: 1.2rem; color: var(--text-primary); }
+.card-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
 .feature-list { display: flex; flex-direction: column; gap: 8px; }
 
 /* ─── Encabezados y SVG en Bloque 1 ─── */
-.title-locked-group {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  white-space: nowrap;
+.title-inline-icon {
+  width: 1.18em;
+  height: 1.18em;
+  vertical-align: -0.16em;
+  margin-right: 8px;
+  display: inline-block;
+  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.45));
 }
 .title-svg-icon {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   vertical-align: middle;
   filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.4));
 }
@@ -717,19 +719,21 @@ section { padding: var(--section-pad) 24px; }
   border-bottom: 1px solid rgba(79, 111, 255, 0.12);
 }
 .card-inline-svg {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   object-fit: contain;
 }
 .combo-svg {
-  width: 64px;
-  height: 32px;
+  width: 70px;
+  height: 26px;
+  flex-shrink: 0;
+  object-fit: contain;
 }
 .card-highlight-gold {
   color: var(--gold);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.98rem;
 }
 .highlight-purple {
   color: var(--purple-light);
@@ -742,7 +746,8 @@ section { padding: var(--section-pad) 24px; }
 }
 
 .carousel-intro-text {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  font-size: 0.88rem;
 }
 
 .carousel-container {
@@ -750,8 +755,8 @@ section { padding: var(--section-pad) 24px; }
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 6px;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .carousel-track {
@@ -761,8 +766,8 @@ section { padding: var(--section-pad) 24px; }
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  gap: 14px;
-  padding: 4px 2px;
+  gap: 12px;
+  padding: 2px;
 }
 .carousel-track::-webkit-scrollbar {
   display: none;
@@ -776,33 +781,33 @@ section { padding: var(--section-pad) 24px; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   background: rgba(13, 13, 40, 0.65);
   border: 1px solid rgba(79, 111, 255, 0.25);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 10px 12px;
   box-sizing: border-box;
-  min-height: 220px;
+  min-height: 155px;
 }
 
 .slide-info {
-  flex: 1 1 54%;
+  flex: 1 1 56%;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .slide-title {
-  font-size: 1.02rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--blue-bright);
-  line-height: 1.25;
+  line-height: 1.22;
 }
 
 .slide-desc {
-  font-size: 0.82rem;
+  font-size: 0.79rem;
   color: var(--text-secondary);
-  line-height: 1.45;
+  line-height: 1.38;
 }
 .slide-desc strong {
   color: var(--text-primary);
@@ -822,21 +827,21 @@ section { padding: var(--section-pad) 24px; }
 }
 
 .slide-visual {
-  flex: 0 0 46%;
+  flex: 0 0 44%;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 195px;
+  min-height: 146px;
 }
 
 /* Naipe individual / Baraja */
 .baraja-card {
-  width: 92px;
-  height: 190px;
-  border-radius: 10px;
+  width: 75px;
+  height: 145px;
+  border-radius: 8px;
   overflow: hidden;
   border: 1px solid rgba(0, 212, 255, 0.45);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8);
   background: #000;
   transition: transform var(--transition), box-shadow var(--transition);
 }
@@ -852,7 +857,7 @@ section { padding: var(--section-pad) 24px; }
 }
 .baraja-single:hover {
   transform: rotate(0deg) scale(1.05);
-  box-shadow: 0 10px 28px rgba(0, 212, 255, 0.35);
+  box-shadow: 0 8px 22px rgba(0, 212, 255, 0.35);
 }
 
 .baraja-tilt-left {
@@ -860,37 +865,37 @@ section { padding: var(--section-pad) 24px; }
 }
 .baraja-tilt-left:hover {
   transform: rotate(0deg) scale(1.05);
-  box-shadow: 0 10px 28px rgba(0, 212, 255, 0.35);
+  box-shadow: 0 8px 22px rgba(0, 212, 255, 0.35);
 }
 
 /* Manojo de 3 Barajas (Slide 6) */
 .barajas-fanned {
   position: relative;
-  width: 140px;
-  height: 190px;
+  width: 108px;
+  height: 145px;
 }
 .barajas-fanned .baraja-card {
   position: absolute;
   top: 6px;
-  width: 78px;
-  height: 170px;
+  width: 56px;
+  height: 130px;
 }
 
 .card-fanned-left {
   left: 0;
-  transform: rotate(-14deg) translateY(4px);
+  transform: rotate(-13deg) translateY(3px);
   z-index: 1;
 }
 .card-fanned-center {
-  left: 31px;
+  left: 26px;
   top: 0 !important;
   transform: rotate(0deg) translateY(-2px);
   z-index: 3;
-  box-shadow: 0 10px 26px rgba(0, 212, 255, 0.45);
+  box-shadow: 0 8px 20px rgba(0, 212, 255, 0.45);
 }
 .card-fanned-right {
-  left: 62px;
-  transform: rotate(14deg) translateY(4px);
+  left: 52px;
+  transform: rotate(13deg) translateY(3px);
   z-index: 2;
 }
 
@@ -899,22 +904,22 @@ section { padding: var(--section-pad) 24px; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding-top: 4px;
+  gap: 10px;
+  padding-top: 2px;
 }
 
 .carousel-nav-btn {
   background: rgba(79, 111, 255, 0.15);
   border: 1px solid var(--border);
   color: var(--blue-bright);
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   transition: all var(--transition);
 }
 .carousel-nav-btn:hover {
@@ -1223,11 +1228,12 @@ section { padding: var(--section-pad) 24px; }
 }
 
 .video-promo-title {
-  font-size: 1.65rem;
+  font-size: 2rem;
   font-weight: 900;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-align: center;
-  text-shadow: 0 0 18px rgba(0, 212, 255, 0.75), 0 0 35px rgba(251, 191, 36, 0.4);
+  margin-bottom: 12px;
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.8), 0 0 38px rgba(251, 191, 36, 0.45);
 }
 
 .video-wrapper {
@@ -1370,8 +1376,14 @@ section { padding: var(--section-pad) 24px; }
 }
 
 @media (max-width: 768px) {
-  :root { --section-pad: 54px; }
+  :root { --section-pad: 42px; }
   .hamburger { display: flex; }
+
+  /* Asegurar visibilidad inmediata en móviles evitando cualquier vacío */
+  .info-card, .download-card, .contact-item, .referidos-info, .referidos-video {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 
   .nav-links {
     display: none;
@@ -1390,18 +1402,18 @@ section { padding: var(--section-pad) 24px; }
   .nav-link { padding: 12px 16px; font-size: 1rem; width: 100%; text-align: center; }
   .btn-nav-auth { width: 100%; margin-left: 0; padding: 12px; }
 
-  .cards-grid { grid-template-columns: 1fr; }
+  .cards-grid { grid-template-columns: 1fr; gap: 16px; }
   .section-title-flex { gap: 10px; }
-  .title-svg-icon { width: 38px; height: 38px; }
+  .title-inline-icon { width: 1.15em; height: 1.15em; margin-right: 6px; }
   .card-header-inline { gap: 10px; }
-  .combo-svg { width: 56px; height: 28px; }
+  .combo-svg { width: 62px; height: 24px; }
 
   .download-buttons { flex-direction: column; align-items: center; }
   .download-card { max-width: 100%; min-width: unset; width: 100%; }
   .store-badge-img { max-width: 260px; }
 
   .referral-flow-container { margin-bottom: 24px; padding: 4px 6px; }
-  .video-promo-title { font-size: 1.3rem; }
+  .video-promo-title { font-size: 1.65rem; }
 
   .contact-grid { grid-template-columns: 1fr; }
   .contact-qr { order: -1; }
@@ -1418,39 +1430,50 @@ section { padding: var(--section-pad) 24px; }
 @media (max-width: 480px) {
   .hero-title { font-size: 1.85rem; }
   .section-title { font-size: 1.55rem; }
-  .title-svg-icon { width: 32px; height: 32px; }
-  .combo-svg { width: 48px; height: 24px; }
-  .card-title { font-size: 1.15rem; }
-  .info-card { padding: 22px 18px; }
+  .title-inline-icon { width: 1.12em; height: 1.12em; margin-right: 6px; }
+  .combo-svg { width: 54px; height: 22px; }
+  .card-title { font-size: 1.12rem; }
+  .info-card { padding: 18px 16px; gap: 10px; }
   .counter-number { font-size: 2.3rem; }
   .store-badge-img { max-width: 225px; }
   .prize-days { font-size: 3.8rem; }
+  .video-promo-title { font-size: 1.45rem; }
 
   .carousel-slide {
-    padding: 10px 8px;
+    padding: 8px 10px;
     gap: 8px;
+    min-height: 132px;
+  }
+  .slide-info {
+    gap: 2px;
   }
   .slide-title {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
+    line-height: 1.18;
   }
   .slide-desc {
-    font-size: 0.78rem;
+    font-size: 0.74rem;
+    line-height: 1.32;
+  }
+  .slide-visual {
+    min-height: 125px;
   }
   .baraja-card {
-    width: 80px;
-    height: 165px;
+    width: 62px;
+    height: 122px;
+    border-radius: 6px;
   }
   .barajas-fanned {
-    width: 120px;
-    height: 165px;
+    width: 90px;
+    height: 122px;
   }
   .barajas-fanned .baraja-card {
-    width: 66px;
-    height: 145px;
+    width: 48px;
+    height: 108px;
   }
   .card-fanned-left { left: 0; }
-  .card-fanned-center { left: 27px; }
-  .card-fanned-right { left: 54px; }
+  .card-fanned-center { left: 21px; }
+  .card-fanned-right { left: 42px; }
 }
 
 /* ─── MODAL CONFIRMACIÓN DE EMAIL ────────────────────────────── */
