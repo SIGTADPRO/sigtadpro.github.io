@@ -28,7 +28,7 @@ const WINDOWS_DOWNLOAD_URL = './SIGTAD_PRO_Setup_v5.3.6.exe';
 const PLAY_STORE_URL       = '';
 
 // ─── CALIFICACIÓN ──────────────────────────────────────────────
-const GOOGLE_REVIEW_URL = 'https://search.google.com/local/writereview?placeid=YOUR_PLACE_ID';
+const GOOGLE_REVIEW_URL = '#';
 
 // ─── CONTADOR ARTIFICIAL ────────────────────────────────────────
 // Base sembrada (~320) + crecimiento progresivo determinístico de 1 a 3 descargas por día

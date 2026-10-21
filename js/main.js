@@ -199,6 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Eventos de botones
   document.getElementById('acceptTermsBtn')?.addEventListener('click', acceptTerms);
+  const rateGoogleBtn = document.getElementById('rateGoogle');
+  if (rateGoogleBtn) {
+    rateGoogleBtn.href = (typeof GOOGLE_REVIEW_URL !== 'undefined' && GOOGLE_REVIEW_URL) ? GOOGLE_REVIEW_URL : '#';
+  }
   document.getElementById('closeQueHaceModal')?.addEventListener('click', () => closeModal('queHaceModal'));
   document.getElementById('btnOpenQueHaceModal')?.addEventListener('click', () => openModal('queHaceModal'));
   document.getElementById('openQueHaceLauncher')?.addEventListener('click', () => openModal('queHaceModal'));
@@ -240,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Inicializar carrusel de barajas
-  initCardsCarousel();
+  initAllCarousels();
 
   // Modales: cerrar al hacer clic en overlay exterior (excepto términos)
   document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -252,12 +256,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ─── CARRUSEL HORIZONTAL DE BARAJAS ────────────────────────────
-function initCardsCarousel() {
-  const track = document.getElementById('carouselTrack');
-  const dots = document.querySelectorAll('.carousel-dot');
-  const prevBtn = document.getElementById('carouselPrev');
-  const nextBtn = document.getElementById('carouselNext');
+// ─── CARRUSEL HORIZONTAL DE BARAJAS (MULTI-INSTANCIA) ───────────
+function initCardsCarousel(container) {
+  if (!container) return;
+  const track = container.querySelector('.carousel-track');
+  const dots = container.querySelectorAll('.carousel-dot');
+  const prevBtn = container.querySelector('.prev-btn');
+  const nextBtn = container.querySelector('.next-btn');
   if (!track || !dots.length) return;
 
   const slides = track.querySelectorAll('.carousel-slide');
@@ -283,7 +288,6 @@ function initCardsCarousel() {
     }
   }
 
-  // Clic en dots
   dots.forEach((dot) => {
     dot.addEventListener('click', () => {
       const idx = parseInt(dot.getAttribute('data-index') || '0', 10);
@@ -291,11 +295,9 @@ function initCardsCarousel() {
     });
   });
 
-  // Flechas
   prevBtn?.addEventListener('click', () => goToSlide(currentIndex - 1));
   nextBtn?.addEventListener('click', () => goToSlide(currentIndex + 1));
 
-  // Escuchar scroll para sincronizar dot activo automáticamente
   let scrollTimeout = null;
   track.addEventListener('scroll', () => {
     if (scrollTimeout) cancelAnimationFrame(scrollTimeout);
@@ -303,7 +305,6 @@ function initCardsCarousel() {
       const scrollPos = track.scrollLeft;
       let closestIdx = 0;
       let minDiff = Infinity;
-
       slides.forEach((slide, idx) => {
         const slideOffset = slide.offsetLeft - track.offsetLeft;
         const diff = Math.abs(slideOffset - scrollPos);
@@ -315,4 +316,8 @@ function initCardsCarousel() {
       updateActiveDot(closestIdx);
     });
   }, { passive: true });
+}
+
+function initAllCarousels() {
+  document.querySelectorAll('.carousel-container').forEach(initCardsCarousel);
 }
