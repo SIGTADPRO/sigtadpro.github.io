@@ -21,12 +21,21 @@ function checkTermsAccepted() {
   const accepted = localStorage.getItem('sigtadpro_terms_v403');
   if (!accepted) {
     openModal('termsModal');
+  } else {
+    // Si ya fueron aceptados previamente, lanzamos directamente el modal de demostración
+    setTimeout(() => {
+      openModal('queHaceModal');
+    }, 300);
   }
 }
 
 function acceptTerms() {
   localStorage.setItem('sigtadpro_terms_v403', 'true');
   closeModal('termsModal');
+  // Justo después de aceptar los términos, lanzamos el modal de demostración
+  setTimeout(() => {
+    openModal('queHaceModal');
+  }, 400);
 }
 
 // ─── GESTIÓN DE MODALES ───────────────────────────────────────
@@ -54,8 +63,8 @@ function closeModal(id) {
 // ─── DESCARGAS ────────────────────────────────────────────────
 function triggerWindowsDownload() {
   const a = document.createElement('a');
-  a.href = (typeof WINDOWS_DOWNLOAD_URL !== 'undefined') ? WINDOWS_DOWNLOAD_URL : './SIGTAD_PRO_Setup_v5.3.5+12 (Windows).exe';
-  a.download = 'SIGTAD_PRO_Setup_v5.3.5+12 (Windows).exe';
+  a.href = (typeof WINDOWS_DOWNLOAD_URL !== 'undefined') ? WINDOWS_DOWNLOAD_URL : './SIGTAD_PRO_Setup_v5.3.6.exe';
+  a.download = 'SIGTAD_PRO_Setup_v5.3.6.exe';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -190,6 +199,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Eventos de botones
   document.getElementById('acceptTermsBtn')?.addEventListener('click', acceptTerms);
+  document.getElementById('closeQueHaceModal')?.addEventListener('click', () => closeModal('queHaceModal'));
+  document.getElementById('btnOpenQueHaceModal')?.addEventListener('click', () => openModal('queHaceModal'));
+  document.getElementById('openQueHaceLauncher')?.addEventListener('click', () => openModal('queHaceModal'));
   document.getElementById('btnDownloadWindows')?.addEventListener('click', triggerWindowsDownload);
   document.getElementById('btnDownloadAndroid')?.addEventListener('click', triggerAndroidDownload);
 
