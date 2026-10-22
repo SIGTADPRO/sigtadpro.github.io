@@ -81,7 +81,10 @@ function triggerAndroidDownload() {
   if (targetUrl) {
     window.open(targetUrl, '_blank');
   } else {
-    alert('¡La versión en Google Play Store estará disponible muy pronto! Mientras tanto, puedes solicitar el APK por WhatsApp.');
+    const waPlayStoreUrl = (typeof WHATSAPP_PLAYSTORE_LINK !== 'undefined' && WHATSAPP_PLAYSTORE_LINK.trim() !== '')
+      ? WHATSAPP_PLAYSTORE_LINK
+      : `https://wa.me/${typeof WHATSAPP_NUMBER !== 'undefined' ? WHATSAPP_NUMBER : '584128835935'}?text=${encodeURIComponent('¡Hola Maxi! Vengo de la web sigtad.com y me gustaría solicitar acceso a SIGTAD PRO en Google Play Store para probar la aplicación en mi teléfono Android.')}`;
+    window.open(waPlayStoreUrl, '_blank');
   }
 
   if (typeof incrementCounter === 'function') {

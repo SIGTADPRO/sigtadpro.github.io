@@ -20,6 +20,8 @@ const ADMIN_PASSWORD = '110702';
 const WHATSAPP_NUMBER = '584128835935';
 const WHATSAPP_MSG    = encodeURIComponent('Hola SIGTAD PRO, me interesa...');
 const WHATSAPP_LINK   = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`;
+const WHATSAPP_PLAYSTORE_MSG  = encodeURIComponent('¡Hola Maxi! Vengo de la web sigtad.com y me gustaría solicitar acceso a SIGTAD PRO en Google Play Store para probar la aplicación en mi teléfono Android.');
+const WHATSAPP_PLAYSTORE_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_PLAYSTORE_MSG}`;
 const PHONE_NUMBER    = '+58 412 883 59 35';
 const ADMIN_EMAIL     = 'sigtadpro@gmail.com';
 
