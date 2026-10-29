@@ -4,7 +4,7 @@
         xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://sigtad.com/</loc>
-    <lastmod>2026-10-27</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -13,10 +13,10 @@
       <image:caption>Logo e Icono Oficial de SIGTAD PRO desarrollado por Abg. Edinson Pereira (MaxiTHN)</image:caption>
     </image:image>
     <video:video>
-      <video:thumbnail_loc>https://img.youtube.com/vi/7xEdINe2bjI/hqdefault.jpg</video:thumbnail_loc>
+      <video:thumbnail_loc>https://img.youtube.com/vi/vj6wxb3jCos/hqdefault.jpg</video:thumbnail_loc>
       <video:title>SIGTAD PRO - Video Promocional Oficial</video:title>
       <video:description>Conoce en 60 segundos por qué SIGTAD PRO es la mejor opción de software de control interno y punto de venta offline.</video:description>
-      <video:player_loc>https://www.youtube-nocookie.com/embed/7xEdINe2bjI</video:player_loc>
+      <video:player_loc>https://www.youtube-nocookie.com/embed/vj6wxb3jCos</video:player_loc>
       <video:duration>60</video:duration>
       <video:publication_date>2026-01-15T08:00:00+00:00</video:publication_date>
       <video:family_friendly>yes</video:family_friendly>
