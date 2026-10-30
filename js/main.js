@@ -61,14 +61,7 @@ function closeModal(id) {
 }
 
 // ─── DESCARGAS ────────────────────────────────────────────────
-function triggerWindowsDownload() {
-  const a = document.createElement('a');
-  a.href = (typeof WINDOWS_DOWNLOAD_URL !== 'undefined') ? WINDOWS_DOWNLOAD_URL : './SIGTAD_PRO_Setup_v5.3.6.exe';
-  a.download = 'SIGTAD_PRO_Setup_v5.3.6.exe';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
+function handleWindowsDownloadClick() {
   if (typeof incrementCounter === 'function') {
     incrementCounter('windows');
   }
@@ -209,7 +202,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('closeQueHaceModal')?.addEventListener('click', () => closeModal('queHaceModal'));
   document.getElementById('btnOpenQueHaceModal')?.addEventListener('click', () => openModal('queHaceModal'));
   document.getElementById('openQueHaceLauncher')?.addEventListener('click', () => openModal('queHaceModal'));
-  document.getElementById('btnDownloadWindows')?.addEventListener('click', triggerWindowsDownload);
+  const btnWin = document.getElementById('btnDownloadWindows');
+  if (btnWin) {
+    if (typeof WINDOWS_DOWNLOAD_URL !== 'undefined' && WINDOWS_DOWNLOAD_URL) {
+      btnWin.href = WINDOWS_DOWNLOAD_URL;
+    }
+    btnWin.addEventListener('click', handleWindowsDownloadClick);
+  }
   document.getElementById('btnDownloadAndroid')?.addEventListener('click', triggerAndroidDownload);
 
   document.getElementById('closePrizeBtn')?.addEventListener('click', closePrizeAndOpenRating);
