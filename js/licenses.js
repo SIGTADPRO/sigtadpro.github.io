@@ -346,9 +346,21 @@ async function handleCreateLicenseRequest(e) {
 }
 
 // ─── MODAL DE LLAVE (TXT, WHATSAPP, QR) ────────────────────────
-function openLicenseModal(licenseId) {
-  const lic = _userLicenses.find(l => l.id === licenseId);
-  if (!lic) return;
+async function openLicenseModal(licenseId) {
+  let lic = _userLicenses.find(l => String(l.id) === String(licenseId));
+  if (!lic && _supabaseClient) {
+    try {
+      const { data } = await _supabaseClient.from('license_requests').select('*').eq('id', licenseId).single();
+      if (data) lic = data;
+    } catch(e) {
+      console.warn('[SIGTAD] Fallback al buscar licencia:', e);
+    }
+  }
+
+  if (!lic) {
+    alert('No fue posible cargar los datos de esta licencia. Por favor refresca la página.');
+    return;
+  }
   _currentModalLicense = lic;
 
   const modal = document.getElementById('licenseKeyModal');
@@ -356,29 +368,37 @@ function openLicenseModal(licenseId) {
   const durationLabel = document.getElementById('modalDurationLabel');
   const keyDisplay = document.getElementById('modalLicenseKeyDisplay');
 
-  if (branchTitle) branchTitle.textContent = `Licencia — ${lic.branch_name}`;
+  if (branchTitle) branchTitle.textContent = `Licencia — ${lic.branch_name || 'Sucursal'}`;
   if (durationLabel) durationLabel.textContent = `Periodo de Vigencia: ${lic.duration_label || 'Activa'}`;
   if (keyDisplay) keyDisplay.textContent = lic.license_key || 'CLAVE-NO-GENERADA';
 
-  // Renderizar código QR
-  const qrBox = document.getElementById('qrcodeBox');
-  if (qrBox) {
-    qrBox.innerHTML = '';
-    if (typeof QRCode !== 'undefined' && lic.license_key) {
-      new QRCode(qrBox, {
-        text: lic.license_key,
-        width: 140,
-        height: 140,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.M
-      });
-    }
-  }
-
+  // Mostrar el modal primero para respuesta visual inmediata
   if (modal) {
     modal.style.display = 'flex';
     modal.classList.add('modal-visible');
+  }
+
+  // Renderizar código QR de forma 100% segura contra excepciones
+  const qrBox = document.getElementById('qrcodeBox');
+  if (qrBox) {
+    qrBox.innerHTML = '';
+    if (lic.license_key) {
+      try {
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(qrBox, {
+            text: lic.license_key,
+            width: 140,
+            height: 140,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: (typeof QRCode.CorrectLevel !== 'undefined' ? QRCode.CorrectLevel.L : 1)
+          });
+        }
+      } catch(qrErr) {
+        console.warn('[SIGTAD] QR no generado por longitud de llave:', qrErr);
+        qrBox.innerHTML = '<span style="font-size:0.75rem; color:#94a3b8; display:block; padding: 6px;">(Código QR omitido: usa "Copiar Llave" o descarga el archivo .txt)</span>';
+      }
+    }
   }
 }
 
@@ -390,6 +410,11 @@ function closeLicenseModal() {
   }
   _currentModalLicense = null;
 }
+
+window.openLicenseModal = openLicenseModal;
+window.closeLicenseModal = closeLicenseModal;
+window.openNewTicketModal = openNewTicketModal;
+window.closeNewTicketModal = closeNewTicketModal;
 
 function copyLicenseKey() {
   if (!_currentModalLicense?.license_key) return;

@@ -6,10 +6,13 @@
   <title>Portal de Licencias & Soporte — SIGTAD PRO®</title>
   <meta name="description" content="Portal oficial para comercios registrados en SIGTAD PRO. Solicita licencias por sucursal, descarga tus llaves de activación y comunícate con soporte técnico." />
   <meta name="robots" content="noindex, nofollow" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/favicon-48x48.png" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=5.3.7" />
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- QRCode.js para generación nativa de códigos QR -->
@@ -525,10 +528,42 @@
       margin-bottom: 0 !important;
     }
 
-    /* Modal de Llave */
+    /* Modal de Llave y Tickets Blindados */
+    .modal-overlay {
+      position: fixed !important;
+      inset: 0 !important;
+      background: rgba(4, 4, 18, 0.88) !important;
+      backdrop-filter: blur(8px) !important;
+      z-index: 9999 !important;
+      display: none;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 16px !important;
+      opacity: 1 !important;
+    }
+    .modal-overlay.modal-visible {
+      display: flex !important;
+      opacity: 1 !important;
+    }
+    .modal-box {
+      background: #0d0d28 !important;
+      border: 1px solid rgba(79, 111, 255, 0.45) !important;
+      border-radius: 20px !important;
+      box-shadow: 0 0 45px rgba(79, 111, 255, 0.25), 0 25px 60px rgba(0, 0, 0, 0.9) !important;
+      max-height: 92vh !important;
+      overflow-y: auto !important;
+      position: relative !important;
+      width: 100% !important;
+      color: #ffffff !important;
+    }
     .key-modal-box {
-      max-width: 500px;
-      text-align: center;
+      max-width: 520px !important;
+      padding: 32px 24px 26px !important;
+      text-align: center !important;
+    }
+    .ticket-modal-box {
+      max-width: 480px !important;
+      padding: 28px 24px !important;
     }
     .key-display {
       background: #000000;
@@ -867,7 +902,7 @@
   <!-- ══════════════════════════════════════════════════════════════
        MODAL 1: VER LLAVE DE LICENCIA (Descarga, WhatsApp, QR)
        ══════════════════════════════════════════════════════════════ -->
-  <div id="licenseKeyModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;">
+  <div id="licenseKeyModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;" onclick="if(event.target === this) closeLicenseModal()">
     <div class="modal-box key-modal-box">
       <button class="modal-close" onclick="closeLicenseModal()">✕</button>
 
@@ -907,8 +942,8 @@
   <!-- ══════════════════════════════════════════════════════════════
        MODAL 2: CREAR NUEVO TICKET DE SOPORTE
        ══════════════════════════════════════════════════════════════ -->
-  <div id="newTicketModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;">
-    <div class="modal-box" style="max-width: 480px;">
+  <div id="newTicketModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;" onclick="if(event.target === this) closeNewTicketModal()">
+    <div class="modal-box ticket-modal-box">
       <button class="modal-close" onclick="closeNewTicketModal()">✕</button>
 
       <h3 style="margin-bottom: 4px; font-size: 1.15rem;">💬 Abrir Ticket de Soporte</h3>
@@ -938,6 +973,6 @@
 
   <!-- Scripts del Portal -->
   <script src="js/config.js"></script>
-  <script src="js/licenses.js"></script>
+  <script src="js/licenses.js?v=5.3.7"></script>
 </body>
 </html>
