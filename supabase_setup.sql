@@ -68,6 +68,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+-- Conceder permisos explícitos
+GRANT ALL ON TABLE public.profiles TO postgres, service_role;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.profiles TO authenticated, anon;
+
 -- POLÍTICAS RLS BLINDADAS (Cero fugas de datos):
 -- Un usuario solo puede ver su propio perfil; el Administrador oficial puede auditar todos
 DROP POLICY IF EXISTS "Usuarios consultan solo su propio perfil" ON public.profiles;
@@ -87,9 +91,10 @@ USING (auth.uid() = id);
 DROP POLICY IF EXISTS "Usuarios insertan su propio perfil" ON public.profiles;
 CREATE POLICY "Usuarios insertan su propio perfil"
 ON public.profiles FOR INSERT
-WITH CHECK (auth.uid() = id);
+WITH CHECK (auth.uid() = id OR auth.uid() IS NULL);
 
--- TRIGGER AUTOMÁTICO: Crear perfil al registrarse un usuario en auth.users
+-- TRIGGER AUTOMÁTICO DEFENSIVO: Crear perfil al registrarse un usuario en auth.users
+-- Utiliza raw_app_meta_data y captura excepciones para que NUNCA bloquee la autenticación
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -112,22 +117,27 @@ BEGIN
         COALESCE(new.raw_user_meta_data->>'business_name', ''),
         COALESCE(new.raw_user_meta_data->>'address', ''),
         COALESCE(new.raw_user_meta_data->>'phone', ''),
-        new.email,
-        COALESCE(new.app_metadata->>'provider', 'email')
+        COALESCE(new.email, ''),
+        COALESCE(new.raw_app_meta_data->>'provider', 'email')
     )
     ON CONFLICT (id) DO UPDATE SET
-        full_name = EXCLUDED.full_name,
+        full_name = CASE WHEN EXCLUDED.full_name <> '' THEN EXCLUDED.full_name ELSE profiles.full_name END,
         business_name = CASE WHEN EXCLUDED.business_name <> '' THEN EXCLUDED.business_name ELSE profiles.business_name END,
         address = CASE WHEN EXCLUDED.address <> '' THEN EXCLUDED.address ELSE profiles.address END,
         phone = CASE WHEN EXCLUDED.phone <> '' THEN EXCLUDED.phone ELSE profiles.phone END,
+        email = CASE WHEN EXCLUDED.email <> '' THEN EXCLUDED.email ELSE profiles.email END,
         updated_at = timezone('utc'::text, now());
     RETURN new;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Resiliencia defensiva: Si ocurre cualquier inconsistencia de campos, no bloquear el login/registro
+        RETURN new;
 END;
 $$;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
-    AFTER INSERT OR UPDATE ON auth.users
+    AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- 4. TABLA DE SUSCRIPTORES (Corrección de vulnerabilidad de lectura abierta)
@@ -139,6 +149,8 @@ CREATE TABLE IF NOT EXISTS public.subscribers (
 );
 
 ALTER TABLE public.subscribers ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON TABLE public.subscribers TO postgres, service_role;
+GRANT SELECT, INSERT ON TABLE public.subscribers TO authenticated, anon;
 
 -- Permitir insertar suscriptores desde la web pública
 DROP POLICY IF EXISTS "Permitir registro de suscriptores" ON public.subscribers;
@@ -148,6 +160,7 @@ WITH CHECK (true);
 
 -- CIERRE DE BRECHA: Solo el Administrador puede listar la tabla subscribers
 DROP POLICY IF EXISTS "Permitir lectura de suscriptores" ON public.subscribers;
+DROP POLICY IF EXISTS "Permitir lectura exclusiva a administrador" ON public.subscribers;
 CREATE POLICY "Permitir lectura exclusiva a administrador"
 ON public.subscribers FOR SELECT
 USING (
@@ -171,12 +184,15 @@ CREATE TABLE IF NOT EXISTS public.license_requests (
 );
 
 ALTER TABLE public.license_requests ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON TABLE public.license_requests TO postgres, service_role;
+GRANT SELECT, INSERT ON TABLE public.license_requests TO authenticated, anon;
 
--- El usuario solo ve sus propias solicitudes
+DROP POLICY IF EXISTS "Usuarios ven sus solicitudes de licencias" ON public.license_requests;
 CREATE POLICY "Usuarios ven sus solicitudes de licencias"
 ON public.license_requests FOR SELECT
 USING (auth.uid() = user_id OR auth.jwt() ->> 'email' = 'sigtadpro@gmail.com');
 
+DROP POLICY IF EXISTS "Usuarios crean sus solicitudes de licencias" ON public.license_requests;
 CREATE POLICY "Usuarios crean sus solicitudes de licencias"
 ON public.license_requests FOR INSERT
 WITH CHECK (auth.uid() = user_id);

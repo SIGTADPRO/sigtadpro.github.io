@@ -26,11 +26,28 @@ function initAuth() {
       }
       _updateAuthUI();
 
-      // Si viene recién logueado con Google y la URL tiene hash tokens, limpiarla limpiamente
-      if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
-        window.history.replaceState(null, document.title, window.location.pathname);
+      // Si viene recién logueado con Google y la URL tiene tokens o código, limpiarla limpiamente
+      if (event === 'SIGNED_IN') {
+        if (window.location.hash.includes('access_token') || window.location.search.includes('code=')) {
+          window.history.replaceState(null, document.title, window.location.pathname);
+        }
       }
     });
+
+    // Detectar si Google devolvió algún error en el callback
+    const urlParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.startsWith('#') ? window.location.hash.substring(1) : '');
+    const oauthError = urlParams.get('error_description') || hashParams.get('error_description');
+    if (oauthError) {
+      const cleanDesc = decodeURIComponent(oauthError).replace(/\+/g, ' ');
+      console.warn('[SIGTAD OAuth Error]:', cleanDesc);
+      window.history.replaceState(null, document.title, window.location.pathname);
+      setTimeout(() => {
+        openAuthModal('login');
+        const msg = document.getElementById('loginMessage');
+        if (msg) _showMsg(msg, 'error', `❌ Aviso de autenticación: ${cleanDesc}`);
+      }, 400);
+    }
 
     // Restaurar sesión persistente de localStorage
     _authClient.auth.getSession().then(async ({ data: { session } }) => {
