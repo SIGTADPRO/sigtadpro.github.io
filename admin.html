@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIGTAD PRO — Panel de Control Interno</title>
+  <title>SIGTAD PRO — Panel de Control Interno Blindado</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
@@ -12,59 +12,65 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { padding-top: 40px; }
-    .admin-container { max-width: 900px; margin: 0 auto; padding: 24px; }
+    .admin-container { max-width: 1050px; margin: 0 auto; padding: 24px; }
     .login-box {
-      max-width: 400px; margin: 80px auto; background: var(--bg-card);
+      max-width: 420px; margin: 70px auto; background: var(--bg-card);
       border: 1px solid var(--border-bright); border-radius: var(--radius-lg);
       padding: 32px; box-shadow: var(--glow-blue); text-align: center;
     }
     .stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px; margin: 28px 0;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px; margin: 24px 0;
     }
     .stat-card {
       background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 24px; text-align: center;
+      border-radius: var(--radius); padding: 20px; text-align: center;
     }
     .stat-card.highlight-card { border-color: var(--gold); }
-    .stat-num { font-size: 2.8rem; font-weight: 800; line-height: 1; margin: 10px 0; }
+    .stat-num { font-size: 2.6rem; font-weight: 800; line-height: 1; margin: 10px 0; }
     .stat-real { color: #10b981; }
     .stat-art { color: #a78bfa; }
     .stat-total { color: var(--blue-bright); }
     .subscribers-table {
-      width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.9rem;
+      width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.88rem;
     }
     .subscribers-table th, .subscribers-table td {
-      padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left;
+      padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: left;
     }
-    .subscribers-table th { background: rgba(255,255,255,0.04); color: var(--text-secondary); }
+    .subscribers-table th { background: rgba(255,255,255,0.04); color: var(--text-secondary); font-weight: 600; }
+    .badge-provider {
+      display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.76rem; font-weight: 600;
+    }
+    .badge-google { background: rgba(66, 133, 244, 0.2); color: #8ab4f8; border: 1px solid rgba(66, 133, 244, 0.4); }
+    .badge-email  { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .table-responsive { width: 100%; overflow-x: auto; }
   </style>
 </head>
 <body>
 
   <div class="admin-container">
-    <!-- Bloque de Autenticación Local -->
+    <!-- Bloque de Autenticación de Administrador -->
     <div id="adminAuthBox" class="login-box">
       <img src="assets/logo.png" alt="Logo" style="width: 70px; margin: 0 auto 16px;" />
       <h2>Panel Privado SIGTAD PRO</h2>
       <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 8px 0 20px;">
-        Acceso exclusivo para el administrador
+        Acceso exclusivo blindado para el Administrador
       </p>
       <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
         <div class="form-group" style="text-align: left; margin-bottom: 16px;">
-          <label>Contraseña de Administrador</label>
-          <input type="password" id="adminPasswordInput" placeholder="Ingresa tu clave" required />
+          <label>Credencial Maestra de Administrador</label>
+          <input type="password" id="adminPasswordInput" placeholder="Ingresa tu clave de acceso" required />
         </div>
-        <button type="submit" class="btn-primary btn-full">Acceder al Panel</button>
+        <button type="submit" class="btn-primary btn-full">Acceder al Panel Seguro</button>
       </form>
     </div>
 
     <!-- Panel de Métricas (Oculto hasta autenticar) -->
     <div id="adminDashboard" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
         <div>
-          <h2>📊 Auditoría de Descargas & Usuarios</h2>
-          <p style="color: var(--text-secondary); font-size: 0.9rem;">Diferenciación estricta entre pulsaciones reales y conteo artificial</p>
+          <h2>📊 Auditoría de Descargas & Usuarios Registrados</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Panel blindado con métricas verídicas y registros comerciales</p>
         </div>
         <div>
           <button onclick="location.reload()" class="btn-outline">🔄 Actualizar</button>
@@ -77,14 +83,14 @@
         <div class="stat-card">
           <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Windows</span>
           <div class="stat-num stat-real" id="adminRealWin">0</div>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">Pulsaciones al instalador .exe</p>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Descargas instalador .exe</p>
         </div>
 
         <!-- Reales Android -->
         <div class="stat-card">
           <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Android</span>
           <div class="stat-num stat-real" id="adminRealAnd">0</div>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">Redirecciones a Play Store</p>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Clics a Google Play</p>
         </div>
 
         <!-- Total Real -->
@@ -98,27 +104,32 @@
         <div class="stat-card">
           <span style="font-size: 0.8rem; color: var(--purple-light); font-weight: 700; text-transform: uppercase;">Conteo Artificial</span>
           <div class="stat-num stat-art" id="adminArtificial">0</div>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">Crecimiento orgánico (1 a 3 / día)</p>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Base + 1 a 3 / día</p>
         </div>
 
         <!-- Total Visible en la Web -->
         <div class="stat-card highlight-card">
           <span style="font-size: 0.8rem; color: var(--gold); font-weight: 700; text-transform: uppercase;">Visible al Público</span>
           <div class="stat-num stat-total" id="adminDisplayed">0</div>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">Real + Artificial combinado</p>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Real + Artificial</p>
         </div>
       </div>
 
-      <!-- Sección de Suscriptores / Usuarios Registrados -->
-      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-top: 32px;">
-        <h3>👥 Base de Datos de Suscriptores y Registros</h3>
-        <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 4px 0 16px;">
-          Usuarios que crearon cuenta o solicitaron recibir noticias (vía Supabase)
-        </p>
+      <!-- Sección de Usuarios Registrados y Perfiles Comerciales -->
+      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-top: 28px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h3>👥 Base de Datos de Usuarios y Comercios</h3>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 4px 0 16px;">
+              Información de clientes registrados mediante Google OAuth y Formulario Seguro
+            </p>
+          </div>
+          <span id="profilesCountBadge" style="background: rgba(79, 111, 255, 0.15); color: var(--blue-bright); padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">0 usuarios</span>
+        </div>
 
-        <div id="subscribersListContainer">
+        <div class="table-responsive" id="subscribersListContainer">
           <p style="color: var(--text-muted); font-size: 0.9rem;">
-            Conecta tus credenciales de Supabase en <code>js/config.js</code> para listar los registros en vivo.
+            Cargando registros cifrados de Supabase...
           </p>
         </div>
       </div>
@@ -138,12 +149,11 @@
         document.getElementById('adminDashboard').style.display = 'block';
         loadDashboardStats();
       } else {
-        alert('Contraseña incorrecta.');
+        alert('Credencial incorrecta.');
       }
     }
 
     async function loadDashboardStats() {
-      // Indicadores visuales de carga inicial
       document.getElementById('adminRealWin').textContent = '...';
       document.getElementById('adminRealAnd').textContent = '...';
       document.getElementById('adminRealTotal').textContent = '...';
@@ -160,49 +170,113 @@
       document.getElementById('adminArtificial').textContent = artificial;
       document.getElementById('adminDisplayed').textContent = totalVisible;
 
-      // Cargar suscriptores (vía SDK o REST directo)
-      let subscribers = [];
+      // Cargar usuarios desde la tabla blindada `profiles` (o fallback a `subscribers`)
+      let users = [];
       if (_supabase) {
         try {
           const { data, error } = await _supabase
-            .from('subscribers')
+            .from('profiles')
             .select('*')
             .order('created_at', { ascending: false });
           if (!error && data && data.length > 0) {
-            subscribers = data;
+            users = data;
           }
         } catch(e) {
-          console.warn('[SIGTAD Admin] Fallo SDK suscriptores:', e);
+          console.warn('[SIGTAD Admin] Fallo SDK profiles:', e);
         }
-      }
 
-      if (subscribers.length === 0 && typeof SUPABASE_URL !== 'undefined') {
-        try {
-          const res = await fetch(`${SUPABASE_URL}/rest/v1/subscribers?select=*&order=created_at.desc`, {
-            headers: {
-              'apikey': SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+        // Si profiles aún no tiene registros, intentar leer subscribers
+        if (users.length === 0) {
+          try {
+            const { data: subData } = await _supabase
+              .from('subscribers')
+              .select('*')
+              .order('created_at', { ascending: false });
+            if (subData && subData.length > 0) {
+              users = subData.map(s => ({
+                full_name: s.name,
+                email: s.email,
+                business_name: 'No especificado',
+                address: 'No especificada',
+                phone: 'No especificado',
+                auth_provider: 'email',
+                created_at: s.created_at
+              }));
             }
-          });
-          if (res.ok) {
-            subscribers = await res.json();
+          } catch(e) {
+            console.warn('[SIGTAD Admin] Fallo SDK subscribers:', e);
           }
-        } catch(e) {
-          console.warn('[SIGTAD Admin] Fallo REST suscriptores:', e);
         }
       }
 
       const cont = document.getElementById('subscribersListContainer');
-      if (!subscribers || subscribers.length === 0) {
-        cont.innerHTML = '<p style="color: var(--text-muted);">Aún no hay registros en la tabla subscribers.</p>';
-      } else {
-        let html = '<table class="subscribers-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Fecha</th></tr></thead><tbody>';
-        subscribers.forEach(sub => {
-          html += `<tr><td>${sub.name || 'Sin nombre'}</td><td><strong>${sub.email}</strong></td><td>${new Date(sub.created_at).toLocaleDateString('es-VE')}</td></tr>`;
-        });
-        html += '</tbody></table>';
-        cont.innerHTML = html;
+      const badge = document.getElementById('profilesCountBadge');
+      if (badge) badge.textContent = `${users.length} usuario${users.length === 1 ? '' : 's'}`;
+
+      if (!users || users.length === 0) {
+        cont.innerHTML = '<p style="color: var(--text-muted); padding: 12px 0;">Aún no hay usuarios registrados en la base de datos de Supabase.</p>';
+        return;
       }
+
+      // Renderizado seguro contra ataques XSS mediante creación de elementos del DOM
+      const table = document.createElement('table');
+      table.className = 'subscribers-table';
+
+      const thead = document.createElement('thead');
+      thead.innerHTML = '<tr><th>Nombre</th><th>Negocio</th><th>Dirección</th><th>Teléfono</th><th>Correo</th><th>Acceso</th><th>Fecha</th></tr>';
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      users.forEach(u => {
+        const tr = document.createElement('tr');
+
+        // Nombre
+        const tdName = document.createElement('td');
+        tdName.textContent = u.full_name || 'Sin nombre';
+        tr.appendChild(tdName);
+
+        // Negocio
+        const tdBus = document.createElement('td');
+        tdBus.textContent = u.business_name || '—';
+        tr.appendChild(tdBus);
+
+        // Dirección
+        const tdAddr = document.createElement('td');
+        tdAddr.textContent = u.address || '—';
+        tr.appendChild(tdAddr);
+
+        // Teléfono
+        const tdPhone = document.createElement('td');
+        tdPhone.textContent = u.phone || '—';
+        tr.appendChild(tdPhone);
+
+        // Correo
+        const tdEmail = document.createElement('td');
+        const strongEmail = document.createElement('strong');
+        strongEmail.textContent = u.email || '—';
+        tdEmail.appendChild(strongEmail);
+        tr.appendChild(tdEmail);
+
+        // Acceso (Provider)
+        const tdProv = document.createElement('td');
+        const provSpan = document.createElement('span');
+        const isGoogle = (u.auth_provider === 'google');
+        provSpan.className = `badge-provider ${isGoogle ? 'badge-google' : 'badge-email'}`;
+        provSpan.textContent = isGoogle ? 'Google G' : 'Email';
+        tdProv.appendChild(provSpan);
+        tr.appendChild(tdProv);
+
+        // Fecha
+        const tdDate = document.createElement('td');
+        tdDate.textContent = u.created_at ? new Date(u.created_at).toLocaleDateString('es-VE') : '—';
+        tr.appendChild(tdDate);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      cont.innerHTML = '';
+      cont.appendChild(table);
     }
   </script>
 </body>

@@ -903,38 +903,98 @@
 
       <!-- Formulario Login -->
       <form id="loginForm" class="auth-form">
+        <!-- Botón Google OAuth -->
+        <button type="button" class="btn-google-oauth btnGoogleAuthAction">
+          <svg class="google-icon-svg" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.27v3.14C3.26 21.36 7.33 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.59H1.27C.46 8.21 0 10.05 0 12s.46 3.79 1.27 5.41l4.01-3.14z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.27 6.59l4.01 3.14c.95-2.83 3.6-4.98 6.72-4.98z"/>
+          </svg>
+          <span>Continuar con Google</span>
+        </button>
+
+        <div class="auth-divider"><span>o con tu correo y clave</span></div>
+
         <div class="form-group">
           <label for="loginEmail">Correo Electrónico</label>
-          <input type="email" id="loginEmail" required placeholder="tu@correo.com" />
+          <input type="email" id="loginEmail" required placeholder="tu@correo.com" autocomplete="email" />
         </div>
         <div class="form-group">
           <label for="loginPassword">Contraseña</label>
-          <input type="password" id="loginPassword" required placeholder="••••••••" />
+          <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password" />
         </div>
         <div id="loginMessage" class="auth-message"></div>
         <button type="submit" class="btn-primary btn-full">Ingresar a mi Cuenta</button>
       </form>
 
-      <!-- Formulario Registro -->
+      <!-- Formulario Registro Blindado -->
       <form id="registerForm" class="auth-form" style="display: none;">
-        <div class="form-group">
-          <label for="registerName">Nombre o Negocio</label>
-          <input type="text" id="registerName" required placeholder="Ej. Mi Bodega / Juan Pérez" />
+        <!-- Botón Google OAuth -->
+        <button type="button" class="btn-google-oauth btnGoogleAuthAction">
+          <svg class="google-icon-svg" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.27v3.14C3.26 21.36 7.33 24 12 24z"/>
+            <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.59H1.27C.46 8.21 0 10.05 0 12s.46 3.79 1.27 5.41l4.01-3.14z"/>
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.27 6.59l4.01 3.14c.95-2.83 3.6-4.98 6.72-4.98z"/>
+          </svg>
+          <span>Registrarse con Google</span>
+        </button>
+
+        <div class="auth-divider"><span>o con tus datos comerciales</span></div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="registerName">Nombre y Apellido</label>
+            <input type="text" id="registerName" required placeholder="Ej. Juan Pérez" autocomplete="name" />
+          </div>
+          <div class="form-group">
+            <label for="registerBusinessName">Nombre del Negocio</label>
+            <input type="text" id="registerBusinessName" required placeholder="Ej. Bodega La Bendición" />
+          </div>
         </div>
-        <div class="form-group">
-          <label for="registerEmail">Correo Electrónico</label>
-          <input type="email" id="registerEmail" required placeholder="tu@correo.com" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="registerAddress">Dirección Comercial</label>
+            <input type="text" id="registerAddress" required placeholder="Ej. Av. Bolívar, Calle 4, Local 2" />
+          </div>
+          <div class="form-group">
+            <label for="registerPhone">Teléfono / WhatsApp</label>
+            <input type="tel" id="registerPhone" required placeholder="Ej. +58 412 1234567" autocomplete="tel" />
+          </div>
         </div>
-        <div class="form-group">
-          <label for="registerPassword">Contraseña</label>
-          <input type="password" id="registerPassword" required minlength="6" placeholder="Mínimo 6 caracteres" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="registerEmail">Correo Electrónico</label>
+            <input type="email" id="registerEmail" required placeholder="tu@correo.com" autocomplete="email" />
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Contraseña</label>
+            <input type="password" id="registerPassword" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+          </div>
         </div>
+
+        <!-- Sello Oficial de Confidencialidad y Privacidad -->
+        <div class="privacy-seal-box">
+          <span class="privacy-seal-icon" aria-hidden="true">🔒</span>
+          <div class="privacy-seal-text">
+            <strong>Garantía de Confidencialidad y Blindaje de Datos</strong>
+            Tus datos comerciales y personales están protegidos con cifrado de grado bancario. SIGTAD PRO garantiza que tu información jamás será compartida, vendida ni utilizada para fines ilícitos o publicitarios de terceros. Consulta nuestra <a href="privacidad.html" target="_blank" rel="noopener">Política de Privacidad</a>.
+          </div>
+        </div>
+
         <div class="form-check">
           <input type="checkbox" id="subscribeNewsletter" checked />
-          <label for="subscribeNewsletter">Deseo recibir actualizaciones y promociones exclusivas</label>
+          <label for="subscribeNewsletter">Deseo recibir soporte prioritario, avisos de seguridad y novedades del sistema</label>
         </div>
+
+        <!-- Contenedor Captcha / Turnstile Anti-Bots -->
+        <div id="registerCaptchaContainer" class="captcha-container" style="display: none;"></div>
+
         <div id="registerMessage" class="auth-message"></div>
-        <button type="submit" class="btn-primary btn-full">Crear Cuenta Gratuita</button>
+        <button type="submit" class="btn-primary btn-full">Crear Cuenta y Proteger mi Negocio</button>
       </form>
 
       <!-- Vista de Perfil de Usuario Activo -->
@@ -944,16 +1004,24 @@
           <h3 id="profileName" class="profile-name">Mi Cuenta</h3>
           <p id="profileEmail" class="profile-email">usuario@correo.com</p>
           <div class="profile-status-badge">
-            <span class="status-dot"></span> Sesión activa en SIGTAD PRO
+            <span class="status-dot"></span> Sesión activa y protegida
           </div>
           <div class="profile-details-box">
             <div class="profile-info-row">
-              <span class="profile-info-label">Estado de Cuenta</span>
-              <span class="profile-info-val highlight-green">Verificada</span>
+              <span class="profile-info-label">Comercio</span>
+              <span class="profile-info-val" id="profileBusiness">No asignado</span>
             </div>
             <div class="profile-info-row">
-              <span class="profile-info-label">Novedades y Soporte</span>
-              <span class="profile-info-val" id="profileNewsletterStatus">Habilitado</span>
+              <span class="profile-info-label">Dirección</span>
+              <span class="profile-info-val" id="profileAddress">No asignada</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">Teléfono / WhatsApp</span>
+              <span class="profile-info-val" id="profilePhone">No asignado</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">Método de Acceso</span>
+              <span class="profile-info-val highlight-green" id="profileProvider">Email Seguro</span>
             </div>
           </div>
           <div id="profileMessage" class="auth-message"></div>

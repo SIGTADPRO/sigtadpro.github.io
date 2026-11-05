@@ -244,10 +244,25 @@ h1, h2, h3, h4 {
 .shield-icon { font-size: 1.5rem; }
 
 /* Auth */
-.auth-modal { max-width: 440px; padding: 28px; }
+.auth-modal {
+  max-width: 480px;
+  width: 95%;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 28px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--blue) rgba(255,255,255,0.05);
+}
+.auth-modal::-webkit-scrollbar {
+  width: 6px;
+}
+.auth-modal::-webkit-scrollbar-thumb {
+  background: var(--blue);
+  border-radius: 4px;
+}
 .auth-tabs {
   display: flex;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   background: rgba(255,255,255,0.04);
   border-radius: 10px;
   padding: 4px;
@@ -271,36 +286,155 @@ h1, h2, h3, h4 {
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 13px;
 }
+
+/* Botón Google OAuth Oficial */
+.btn-google-oauth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: #ffffff;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.btn-google-oauth:hover {
+  background: #f9fafb;
+  box-shadow: 0 4px 14px rgba(66, 133, 244, 0.25);
+  transform: translateY(-1px);
+}
+.btn-google-oauth:active {
+  transform: translateY(0);
+}
+.btn-google-oauth .google-icon-svg {
+  flex-shrink: 0;
+}
+
+/* Divisor Visual de Autenticación */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 6px 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.auth-divider:not(:empty)::before {
+  margin-right: 12px;
+}
+.auth-divider:not(:empty)::after {
+  margin-left: 12px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 520px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 13px;
+  }
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
-.form-group label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+.form-group label {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
 .form-group input {
   background: rgba(255,255,255,0.05);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 10px 14px;
   color: var(--text-primary);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   outline: none;
+  transition: border-color var(--transition);
 }
-.form-group input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(79,111,255,0.2); }
+.form-group input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(79,111,255,0.2);
+}
 .form-check {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
+  line-height: 1.4;
 }
 .form-check input[type=checkbox] {
-  width: 16px; height: 16px;
+  width: 16px;
+  height: 16px;
   accent-color: var(--blue);
   cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
 }
+
+/* Sello de Privacidad y Confidencialidad */
+.privacy-seal-box {
+  background: rgba(79, 111, 255, 0.07);
+  border: 1px solid rgba(79, 111, 255, 0.25);
+  border-radius: 10px;
+  padding: 11px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.78rem;
+  color: #c7d2fe;
+  line-height: 1.45;
+  margin-top: 2px;
+}
+.privacy-seal-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.privacy-seal-text strong {
+  color: #ffffff;
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.82rem;
+}
+.privacy-seal-text a {
+  color: var(--blue-bright);
+  text-decoration: underline;
+}
+
+/* Contenedor Captcha */
+.captcha-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 65px;
+  margin: 4px 0;
+}
+
 .auth-message {
   font-size: 0.85rem;
   padding: 8px 12px;

@@ -15,6 +15,12 @@ const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
 // ─── ADMIN ─────────────────────────────────────────────────────
 const ADMIN_PASSWORD = '110702';
 
+// ─── SEGURIDAD & BOT PROTECTION (CAPTCHA) ─────────────────────
+// Compatible con Cloudflare Turnstile (recomendado) o Google reCAPTCHA v2
+const CAPTCHA_ENABLED  = false; // Cambiar a true tras ingresar tu clave de sitio
+const CAPTCHA_PROVIDER = 'turnstile'; // 'turnstile' o 'recaptcha'
+const CAPTCHA_SITE_KEY = ''; // Clave de sitio pública de Cloudflare o Google
+
 
 // ─── CONTACTO ──────────────────────────────────────────────────
 const WHATSAPP_NUMBER = '584128835935';
