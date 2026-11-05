@@ -283,15 +283,14 @@ function _initProfileInteractions() {
     btnToggle.onclick = () => {
       if (detailsBox) detailsBox.style.display = 'none';
       if (editForm) editForm.style.display = 'flex';
-      btnToggle.style.display = 'none';
     };
   }
 
   if (btnCancel) {
     btnCancel.onclick = () => {
-      if (detailsBox) detailsBox.style.display = 'block';
+      if (detailsBox) detailsBox.style.display = 'flex';
       if (editForm) editForm.style.display = 'none';
-      if (btnToggle) btnToggle.style.display = 'block';
+      if (btnToggle) btnToggle.style.display = 'inline-flex';
     };
   }
 
@@ -349,9 +348,9 @@ async function handleUpdateProfile(e) {
         const detailsBox = document.getElementById('profileDetailsBox');
         const editForm   = document.getElementById('editProfileForm');
         const btnToggle  = document.getElementById('btnToggleEditProfile');
-        if (detailsBox) detailsBox.style.display = 'block';
+        if (detailsBox) detailsBox.style.display = 'flex';
         if (editForm)   editForm.style.display   = 'none';
-        if (btnToggle)  btnToggle.style.display  = 'block';
+        if (btnToggle)  btnToggle.style.display  = 'inline-flex';
         _renderUserProfile();
       }, 700);
     }

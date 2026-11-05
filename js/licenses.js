@@ -296,7 +296,7 @@ async function handleCreateLicenseRequest(e) {
   } finally {
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.textContent = '🚀 Enviar Solicitud de Licencia a Maxi';
+      submitBtn.textContent = 'Enviar Solicitud a Maxi';
     }
   }
 }

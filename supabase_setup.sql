@@ -177,7 +177,12 @@ USING (
 );
 
 -- 6. TABLA DE LICENCIAS POR SUCURSAL CON UUID INMUTABLE (ANTI-FRAUDE)
-CREATE TABLE IF NOT EXISTS public.license_requests (
+-- Limpieza defensiva de tablas temporales anteriores si existían con esquema desactualizado
+DROP TABLE IF EXISTS public.ticket_messages CASCADE;
+DROP TABLE IF EXISTS public.support_tickets CASCADE;
+DROP TABLE IF EXISTS public.license_requests CASCADE;
+
+CREATE TABLE public.license_requests (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     user_email TEXT NOT NULL,
@@ -238,7 +243,7 @@ USING (
 );
 
 -- 7. TABLAS DE MESA DE AYUDA Y SOPORTE EN TIEMPO REAL (TICKETS & CHAT)
-CREATE TABLE IF NOT EXISTS public.support_tickets (
+CREATE TABLE public.support_tickets (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     user_email TEXT NOT NULL,
@@ -263,7 +268,7 @@ USING (
     OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
 );
 
-CREATE TABLE IF NOT EXISTS public.ticket_messages (
+CREATE TABLE public.ticket_messages (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     ticket_id UUID REFERENCES public.support_tickets(id) ON DELETE CASCADE NOT NULL,
     sender_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -292,5 +297,18 @@ USING (
     )
 );
 
--- Habilitar Supabase Realtime para chat en vivo
-ALTER PUBLICATION supabase_realtime ADD TABLE public.ticket_messages;
+-- Habilitar Supabase Realtime para chat en vivo de forma segura e idempotente
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_publication_tables 
+        WHERE pubname = 'supabase_realtime' 
+        AND schemaname = 'public' 
+        AND tablename = 'ticket_messages'
+    ) THEN
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.ticket_messages;
+    END IF;
+END $$;
+
+-- 8. RECARGA INMEDIATA DE CACHÉ DE ESQUEMAS EN SUPABASE (POSTGREST)
+NOTIFY pgrst, 'reload schema';

@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SIGTAD PRO — Panel de Control Interno Blindado (MaxiTHN)</title>
   <meta name="robots" content="noindex, nofollow" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/favicon-48x48.png" />
@@ -13,6 +16,20 @@
   <style>
     body { padding-top: 20px; }
     .admin-container { max-width: 1180px; margin: 0 auto; padding: 20px; }
+    @media (max-width: 680px) {
+      body { padding-top: 10px; }
+      .admin-container { padding: 12px 10px; }
+      .admin-nav-tabs { gap: 4px; margin: 14px 0 18px; }
+      .admin-tab-btn { padding: 8px 12px; font-size: 0.82rem; }
+      .admin-header-actions { flex-wrap: wrap; width: 100%; gap: 6px !important; }
+      .admin-header-actions button, .admin-header-actions a {
+        flex: 1 1 auto;
+        text-align: center;
+        justify-content: center;
+        padding: 6px 10px !important;
+        font-size: 0.78rem !important;
+      }
+    }
     .login-box {
       max-width: 420px; margin: 70px auto; background: var(--bg-card);
       border: 1px solid var(--border-bright); border-radius: var(--radius-lg);
@@ -120,19 +137,22 @@
             Auditoría de descargas, emisión de licencias por sucursal y soporte en tiempo real.
           </p>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <button id="btnEnableNotifications" onclick="requestNotificationPermission()" class="btn-outline" style="padding: 8px 14px; font-size: 0.85rem;">
-            🔔 Activar Notificaciones
+        <div class="admin-header-actions" style="display: flex; gap: 8px; align-items: center;">
+          <button id="btnEnableNotifications" onclick="requestNotificationPermission()" class="btn-outline" style="padding: 7px 12px; font-size: 0.83rem;">
+            🔔 Notificaciones
           </button>
-          <button onclick="location.reload()" class="btn-outline" style="padding: 8px 14px; font-size: 0.85rem;">
-            🔄 Actualizar
+          <button onclick="location.reload()" class="btn-outline" style="padding: 7px 12px; font-size: 0.83rem;">
+            🔄 Refrescar
           </button>
-          <a href="licencias.html" class="btn-outline" style="padding: 8px 14px; font-size: 0.85rem;">
+          <a href="licencias.html" class="btn-outline" style="padding: 7px 12px; font-size: 0.83rem;">
             🔑 Ver Portal Cliente
           </a>
-          <a href="index.html" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">
+          <a href="index.html" class="btn-primary" style="padding: 7px 14px; font-size: 0.83rem;">
             Volver a la Web
           </a>
+          <button onclick="handleAdminLogout()" class="btn-danger-discrete" style="padding: 7px 10px; font-size: 0.83rem;" title="Cerrar sesión de administrador">
+            🚪 Salir
+          </button>
         </div>
       </div>
 
@@ -354,21 +374,41 @@
     let _activeAdminTicketId = null;
     let _adminRealtimeChat = null;
 
+    const ADMIN_SESSION_KEY = 'sigtad_admin_authenticated';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true') {
+        unlockAdminDashboard();
+      }
+    });
+
+    function unlockAdminDashboard() {
+      const authBox = document.getElementById('adminAuthBox');
+      const dash = document.getElementById('adminDashboard');
+      if (authBox) authBox.style.display = 'none';
+      if (dash) dash.style.display = 'block';
+      loadDashboardStats();
+      loadAdminLicenses();
+      loadAdminTickets();
+      listenGlobalRealtimeSupport();
+    }
+
     function handleAdminLogin(e) {
       e.preventDefault();
       const input = document.getElementById('adminPasswordInput').value;
       const expected = (typeof ADMIN_PASSWORD !== 'undefined') ? ADMIN_PASSWORD : '110702';
 
       if (input === expected) {
-        document.getElementById('adminAuthBox').style.display = 'none';
-        document.getElementById('adminDashboard').style.display = 'block';
-        loadDashboardStats();
-        loadAdminLicenses();
-        loadAdminTickets();
-        listenGlobalRealtimeSupport();
+        sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+        unlockAdminDashboard();
       } else {
         alert('Credencial incorrecta.');
       }
+    }
+
+    function handleAdminLogout() {
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      window.location.reload();
     }
 
     function switchAdminTab(tabId) {
@@ -521,7 +561,14 @@
         cont.appendChild(table);
       } catch(err) {
         console.error('[SIGTAD Admin] Error al cargar licencias:', err);
-        cont.innerHTML = `<p style="color:#f87171;">❌ Error al sincronizar licencias: ${err.message}</p>`;
+        cont.innerHTML = `
+          <div style="padding: 16px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; color: #fca5a5;">
+            <p style="margin: 0 0 8px 0;">❌ Error al sincronizar licencias: ${escapeHtml(err.message)}</p>
+            <button class="btn-outline" style="padding: 4px 12px; font-size: 0.8rem;" onclick="loadAdminLicenses()">
+              🔄 Reintentar
+            </button>
+          </div>
+        `;
       }
     }
 
@@ -630,6 +677,16 @@
         });
       } catch(err) {
         console.error('[SIGTAD Admin] Error al cargar tickets:', err);
+        if (listEl) {
+          listEl.innerHTML = `
+            <div style="padding: 14px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; color: #fca5a5; font-size: 0.82rem; text-align: center;">
+              <p style="margin: 0 0 6px 0;">❌ Error al sincronizar tickets</p>
+              <button class="btn-outline" style="padding: 3px 10px; font-size: 0.75rem;" onclick="loadAdminTickets()">
+                🔄 Reintentar
+              </button>
+            </div>
+          `;
+        }
       }
     }
 

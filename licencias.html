@@ -65,7 +65,7 @@
     .portal-user-badge {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .merchant-chip {
@@ -73,12 +73,57 @@
       border: 1px solid rgba(79, 70, 229, 0.4);
       padding: 6px 14px;
       border-radius: 999px;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       font-weight: 600;
       color: #93c5fd;
       display: flex;
       align-items: center;
       gap: 8px;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .portal-nav-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-portal-home, .btn-portal-exit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 13px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all var(--transition);
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .btn-portal-home {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+    .btn-portal-home:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--blue-bright);
+      color: #ffffff;
+    }
+    .btn-portal-exit {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      color: #fca5a5;
+    }
+    .btn-portal-exit:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #ffffff;
     }
 
     /* Banner de Bienvenida y Métricas */
@@ -515,6 +560,93 @@
       gap: 10px;
       margin-top: 14px;
     }
+
+    .uuid-tip-box {
+      margin-top: 20px;
+      padding: 12px 14px;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.22);
+      border-radius: var(--radius);
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    /* ─── AJUSTES RESPONSIVOS EN MÓVIL Y PANTALLAS PEQUEÑAS ────────── */
+    @media (max-width: 680px) {
+      .portal-nav {
+        padding: 10px 14px;
+        gap: 8px;
+      }
+      .portal-brand {
+        gap: 8px;
+        font-size: 1rem;
+      }
+      .portal-brand img {
+        width: 28px;
+        height: 28px;
+      }
+      /* Ocultar el chip duplicado de texto largo en barra superior móvil */
+      .merchant-chip {
+        display: none !important;
+      }
+      .portal-nav-actions {
+        gap: 6px;
+      }
+      .btn-portal-home, .btn-portal-exit {
+        padding: 6px 10px;
+        font-size: 0.78rem;
+      }
+      .portal-container {
+        padding: 14px 12px 40px;
+      }
+      .portal-hero {
+        padding: 18px 14px;
+        margin: 12px 0 18px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+      }
+      .portal-hero-text h1 {
+        font-size: 1.35rem;
+      }
+      .portal-stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        width: 100%;
+      }
+      .portal-stat-pill {
+        min-width: 0;
+        padding: 8px 4px;
+      }
+      .portal-stat-pill .val {
+        font-size: 1.3rem;
+      }
+      .portal-stat-pill .lbl {
+        font-size: 0.65rem;
+      }
+      .portal-tabs {
+        gap: 4px;
+        margin-bottom: 16px;
+      }
+      .tab-btn {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        gap: 4px;
+      }
+      .request-container {
+        padding: 20px 14px;
+      }
+      .security-notice-box {
+        padding: 10px 12px;
+        font-size: 0.82rem;
+      }
+      .licenses-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -530,12 +662,14 @@
       <div class="merchant-chip" id="navMerchantChip">
         <span>🏢</span> <span id="navMerchantName">Cargando...</span>
       </div>
-      <a href="index.html" class="btn-outline" style="padding: 7px 14px; font-size: 0.85rem;">
-        ← Inicio
-      </a>
-      <button id="btnPortalLogout" class="btn-danger-discrete" style="padding: 7px 10px; font-size: 0.85rem;">
-        🚪 Salir
-      </button>
+      <div class="portal-nav-actions">
+        <a href="index.html" class="btn-portal-home" title="Ir al Inicio">
+          <span>←</span> <span>Inicio</span>
+        </a>
+        <button id="btnPortalLogout" class="btn-portal-exit" title="Cerrar sesión">
+          <span>🚪</span> <span>Salir</span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -561,7 +695,7 @@
       <section class="portal-hero">
         <div class="portal-hero-text">
           <h1 id="heroBusinessTitle">Mi Comercio</h1>
-          <p>Gestión blindada de llaves por sucursal, activación offline y soporte directo con MaxiTHN.</p>
+          <p>Licencias por sucursal y soporte técnico directo.</p>
         </div>
 
         <div class="portal-stats-row">
@@ -583,13 +717,13 @@
       <!-- Pestañas de Navegación -->
       <nav class="portal-tabs">
         <button class="tab-btn active" data-tab="tabLicenses">
-          <span>🔑</span> Mis Licencias & Sucursales
+          <span>🔑</span> Licencias
         </button>
         <button class="tab-btn" data-tab="tabRequest">
-          <span>➕</span> Solicitar Licencia
+          <span>➕</span> Nueva Licencia
         </button>
         <button class="tab-btn" data-tab="tabSupport">
-          <span>💬</span> Soporte Técnico & Tickets
+          <span>💬</span> Soporte Técnico
         </button>
       </nav>
 
@@ -599,13 +733,10 @@
       <section id="tabLicenses" class="tab-content active">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h3>Mis Sucursales Registradas</h3>
-            <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 2px 0 0 0;">
-              Consulta el estado de tus licencias, periodos de vigencia y obtén tu llave de activación.
-            </p>
+            <h3 style="margin: 0;">Mis Sucursales</h3>
           </div>
-          <button class="btn-primary" onclick="switchPortalTab('tabRequest')">
-            ➕ Solicitar Nueva Licencia
+          <button class="btn-primary" onclick="switchPortalTab('tabRequest')" style="padding: 8px 16px; font-size: 0.88rem;">
+            ➕ Nueva Licencia
           </button>
         </div>
 
@@ -622,8 +753,8 @@
            ══════════════════════════════════════════════════════════════ -->
       <section id="tabRequest" class="tab-content">
         <div class="request-container">
-          <h2 style="font-size: 1.45rem; margin-bottom: 8px;">➕ Solicitar Licencia por Sucursal</h2>
-          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
+          <h2 style="font-size: 1.35rem; margin-bottom: 6px;">Solicitar Licencia por Sucursal</h2>
+          <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 18px;">
             Vincula un equipo físico a tu comercio mediante su identificador único (UUID).
           </p>
 
@@ -642,35 +773,28 @@
             <div class="security-notice-box">
               <div class="icon">🛡️</div>
               <div>
-                <strong>Aviso de Seguridad e Inmutabilidad:</strong>
-                <p>
-                  Por razones de seguridad comercial y prevención de fraudes, <strong>el UUID ingresado quedará blindado e inmutable</strong> una vez registrada la solicitud. No podrá ser cambiado posteriormente, garantizando que la licencia corresponda a la máquina designada.
-                </p>
+                <strong>Aviso de Seguridad:</strong>
+                <p>El UUID quedará blindado e inmutable tras el envío para garantizar la seguridad de tu licencia.</p>
               </div>
             </div>
 
-            <div class="form-checkbox" style="margin-bottom: 20px;">
+            <div class="form-checkbox" style="margin-bottom: 18px;">
               <input type="checkbox" id="confirmUuidCheck" required />
-              <label for="confirmUuidCheck" style="font-size: 0.85rem; color: #cbd5e1;">
-                He verificado que el UUID corresponde fielmente al equipo donde operará el sistema.
+              <label for="confirmUuidCheck" style="font-size: 0.84rem; color: #cbd5e1;">
+                Confirmo que el UUID corresponde al equipo asignado.
               </label>
             </div>
 
             <div id="reqMessage" class="auth-message"></div>
 
-            <button type="submit" class="btn-primary btn-full" style="padding: 14px;">
-              🚀 Enviar Solicitud de Licencia a Maxi
+            <button type="submit" class="btn-primary btn-full" style="padding: 12px; font-size: 0.95rem;">
+              Enviar Solicitud a Maxi
             </button>
           </form>
 
-          <!-- Guía para obtener el UUID -->
-          <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border);">
-            <h4 style="font-size: 0.95rem; margin-bottom: 10px; color: #93c5fd;">🔍 ¿Cómo obtener el UUID de tu máquina?</h4>
-            <ol style="font-size: 0.85rem; color: var(--text-secondary); padding-left: 20px; line-height: 1.6;">
-              <li>Abre <strong>SIGTAD PRO</strong> en la computadora donde trabajarás.</li>
-              <li>En la barra de menú superior, haz clic en <strong>Acerca de / Licencia</strong>.</li>
-              <li>Copia el código alfanumérico que dice <strong>UUID del Dispositivo</strong> y pégalo exactamente en el formulario.</li>
-            </ol>
+          <!-- Guía compacta para obtener el UUID -->
+          <div class="uuid-tip-box">
+            💡 <strong>¿Dónde ver el UUID?:</strong> En SIGTAD PRO ve a <em>Menú &gt; Acerca de / Licencia</em> y copia el código alfanumérico de tu máquina.
           </div>
         </div>
       </section>
@@ -699,11 +823,11 @@
 
           <!-- Columna Derecha: Conversación en Vivo -->
           <div class="chat-view-col">
-            <div id="emptyChatPlaceholder" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; color: var(--text-muted);">
-              <div style="font-size: 3rem; margin-bottom: 12px;">💬</div>
-              <h3>Conversaciones con Soporte</h3>
-              <p style="max-width: 360px; font-size: 0.88rem; margin-top: 6px;">
-                Selecciona un ticket de la lista o crea uno nuevo para conversar en tiempo real directamente con MaxiTHN.
+            <div id="emptyChatPlaceholder" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 16px; text-align: center; color: var(--text-muted);">
+              <div style="font-size: 2.5rem; margin-bottom: 10px;">💬</div>
+              <h3 style="font-size: 1.15rem; margin-bottom: 4px;">Atención en Vivo</h3>
+              <p style="max-width: 320px; font-size: 0.85rem; margin: 0;">
+                Selecciona o abre un ticket para chatear con MaxiTHN.
               </p>
             </div>
 
@@ -728,7 +852,7 @@
               <form id="chatSendForm" class="chat-input-bar" onsubmit="handleSendChatMessage(event)">
                 <input type="text" id="chatMessageInput" placeholder="Escribe tu mensaje a MaxiTHN..." required autocomplete="off" />
                 <button type="submit" class="btn-primary" style="padding: 10px 18px; white-space: nowrap;">
-                  Enviar 🚀
+                  Enviar
                 </button>
               </form>
             </div>
@@ -747,11 +871,11 @@
     <div class="modal-box key-modal-box">
       <button class="modal-close" onclick="closeLicenseModal()">✕</button>
 
-      <div style="font-size: 2.4rem; margin-bottom: 8px;">🔑</div>
-      <h3 id="modalBranchTitle">Licencia de Activación</h3>
-      <p id="modalDurationLabel" style="color: #a78bfa; font-weight: 700; font-size: 0.9rem; margin-bottom: 6px;">Periodo: 1 Año</p>
-      <p style="color: var(--text-secondary); font-size: 0.82rem;">
-        Esta llave está ligada de forma exclusiva a la máquina con UUID registrado.
+      <div style="font-size: 2.2rem; margin-bottom: 6px;">🔑</div>
+      <h3 id="modalBranchTitle" style="margin-bottom: 4px;">Licencia de Activación</h3>
+      <p id="modalDurationLabel" style="color: #a78bfa; font-weight: 700; font-size: 0.88rem; margin-bottom: 4px;">Periodo: 1 Año</p>
+      <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0;">
+        Llave vinculada al UUID registrado de este equipo.
       </p>
 
       <!-- Llave visual con botón de copiar -->
@@ -771,9 +895,9 @@
       </div>
 
       <!-- Renderizador de Código QR -->
-      <div style="margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px;">
-        <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 8px;">
-          Escanea este código QR desde el sistema SIGTAD PRO para activar al instante:
+      <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px;">
+        <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 8px;">
+          Escanea desde SIGTAD PRO para activar:
         </span>
         <div id="qrcodeBox" class="qr-container"></div>
       </div>
@@ -787,9 +911,9 @@
     <div class="modal-box" style="max-width: 480px;">
       <button class="modal-close" onclick="closeNewTicketModal()">✕</button>
 
-      <h3 style="margin-bottom: 6px;">💬 Abrir Ticket de Soporte</h3>
-      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 20px;">
-        MaxiTHN recibirá una notificación instantánea para atender tu consulta.
+      <h3 style="margin-bottom: 4px; font-size: 1.15rem;">💬 Abrir Ticket de Soporte</h3>
+      <p style="color: var(--text-secondary); font-size: 0.84rem; margin-bottom: 16px;">
+        MaxiTHN recibirá una notificación para atender tu consulta.
       </p>
 
       <form id="createTicketForm" onsubmit="handleCreateTicket(event)">
