@@ -313,28 +313,35 @@
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       MODAL ADMIN: EMITIR Y ENTREGAR LLAVE DE LICENCIA
+       MODAL ADMIN: EMITIR Y ENTREGAR LLAVE DE LICENCIA MANUAL
        ══════════════════════════════════════════════════════════════ -->
-  <div id="adminIssueKeyModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;">
-    <div class="modal-box" style="max-width: 520px;">
+  <div id="adminIssueKeyModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;" onclick="if(event.target === this) closeAdminIssueModal()">
+    <div class="modal-box" style="max-width: 520px; padding: 28px;">
       <button class="modal-close" onclick="closeAdminIssueModal()">✕</button>
 
-      <h3>🔑 Emitir Llave de Licencia</h3>
-      <p id="adminModalBranchSubtitle" style="color: var(--text-secondary); font-size: 0.88rem; margin: 4px 0 16px;">
+      <h3 style="margin: 0 0 4px 0;">🔑 Entrega Manual de Licencia</h3>
+      <p id="adminModalBranchSubtitle" style="color: var(--text-secondary); font-size: 0.88rem; margin: 0 0 16px 0;">
         Comercio: — | Sucursal: —
       </p>
 
       <form id="adminIssueKeyForm" onsubmit="handleSaveLicenseKey(event)">
         <input type="hidden" id="adminModalLicenseId" />
 
+        <!-- UUID con botón de copiar -->
         <div class="form-group">
-          <label>UUID de la Máquina (Blindado)</label>
-          <input type="text" id="adminModalUuidDisplay" readonly style="font-family: monospace; background: rgba(0,0,0,0.4); color: #cbd5e1;" />
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="margin: 0;">UUID de la Máquina</label>
+            <button type="button" class="btn-outline" style="padding: 2px 10px; font-size: 0.74rem;" onclick="copyAdminModalUuid()">
+              📋 Copiar UUID
+            </button>
+          </div>
+          <input type="text" id="adminModalUuidDisplay" readonly style="font-family: monospace; background: rgba(0,0,0,0.4); color: #38bdf8; letter-spacing: 1px;" />
         </div>
 
+        <!-- Selector de Vigencia y Calculadora de Fecha Destino -->
         <div class="form-group">
-          <label for="adminSelectDuration">Periodo de Vigencia / Etiqueta Visual</label>
-          <select id="adminSelectDuration" required style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; color: #ffffff;">
+          <label for="adminSelectDuration" style="margin-bottom: 6px;">Periodo de Vigencia para el Comercio</label>
+          <select id="adminSelectDuration" required onchange="updateCalculatedExpirationDate()" style="width: 100%; background: #0f172a; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; color: #ffffff;">
             <option value="15 Días (Prueba)">15 Días (Periodo de Prueba)</option>
             <option value="1 Mes">1 Mes (Mensual)</option>
             <option value="3 Meses">3 Meses (Trimestral)</option>
@@ -342,21 +349,32 @@
             <option value="1 Año" selected>1 Año (Anual)</option>
             <option value="Vitalicia">Vitalicia (De por Vida)</option>
           </select>
-        </div>
 
-        <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label for="adminInputKey" style="margin: 0;">Llave de Activación</label>
-            <button type="button" class="btn-outline" style="padding: 2px 8px; font-size: 0.74rem;" onclick="generateRandomLicenseKey()">
-              🎲 Generar Llave
+          <!-- Calculadora dinámica de fecha para el generador offline de Maxi -->
+          <div class="expiration-calc-box">
+            <div>
+              <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; display: block; letter-spacing: 0.5px;">Fecha para tu Generador (AA-MM-DD):</span>
+              <span id="calculatedDateDisplay" style="font-size: 1.15rem; font-weight: 800; color: #38bdf8; font-family: monospace; letter-spacing: 1px;">—</span>
+              <small id="calculatedDateLong" style="font-size: 0.75rem; color: var(--text-secondary); margin-left: 8px;">(—)</small>
+            </div>
+            <button type="button" class="btn-outline" style="padding: 4px 10px; font-size: 0.78rem; white-space: nowrap;" onclick="copyCalculatedDate()">
+              📋 Copiar Fecha
             </button>
           </div>
-          <input type="text" id="adminInputKey" required placeholder="SIGTAD-XXXX-XXXX-XXXX-XXXX" style="font-family: monospace; letter-spacing: 1px; color: #38bdf8;" />
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 14px;">
+        <!-- Llave Real Generada por Maxi -->
+        <div class="form-group">
+          <label for="adminInputKey" style="margin-bottom: 6px;">Llave o Código de Licencia Generado por Ti</label>
+          <textarea id="adminInputKey" rows="3" required placeholder="Pega aquí la llave que generaste en tu software para este equipo..." style="font-family: monospace; letter-spacing: 1px; color: #38bdf8; width: 100%; background: var(--bg-dark); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; resize: vertical;"></textarea>
+          <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 4px;">
+            El comercio recibirá este código en su portal y podrá copiarlo, descargarlo en .txt o recibirlo por WhatsApp.
+          </small>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 18px;">
           <button type="submit" class="btn-primary" style="flex: 1; padding: 12px;">
-            💾 Aprobar y Entregar al Comercio
+            💾 Guardar y Entregar Licencia al Comercio
           </button>
           <button type="button" class="btn-outline" onclick="closeAdminIssueModal()" style="padding: 12px;">
             Cancelar
@@ -582,21 +600,73 @@
       document.getElementById('adminSelectDuration').value = lic.duration_label || '1 Año';
       document.getElementById('adminInputKey').value = lic.license_key || '';
 
-      if (!lic.license_key) {
-        generateRandomLicenseKey();
-      }
+      updateCalculatedExpirationDate();
 
-      document.getElementById('adminIssueKeyModal').style.display = 'flex';
+      const modal = document.getElementById('adminIssueKeyModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('modal-visible');
+      }
     }
 
     function closeAdminIssueModal() {
-      document.getElementById('adminIssueKeyModal').style.display = 'none';
+      const modal = document.getElementById('adminIssueKeyModal');
+      if (modal) {
+        modal.classList.remove('modal-visible');
+        modal.style.display = 'none';
+      }
     }
 
-    function generateRandomLicenseKey() {
-      const seg = () => Math.random().toString(36).substring(2, 6).toUpperCase();
-      const key = `SIGTAD-${seg()}-${seg()}-${seg()}-${seg()}`;
-      document.getElementById('adminInputKey').value = key;
+    let _lastCalculatedDateShort = '';
+
+    function updateCalculatedExpirationDate() {
+      const duration = document.getElementById('adminSelectDuration')?.value || '1 Año';
+      const now = new Date();
+      let target = new Date(now.getTime());
+
+      if (duration.includes('15 Días')) {
+        target.setDate(target.getDate() + 15);
+      } else if (duration.includes('1 Mes')) {
+        target.setMonth(target.getMonth() + 1);
+      } else if (duration.includes('3 Meses')) {
+        target.setMonth(target.getMonth() + 3);
+      } else if (duration.includes('6 Meses')) {
+        target.setMonth(target.getMonth() + 6);
+      } else if (duration.includes('1 Año')) {
+        target.setFullYear(target.getFullYear() + 1);
+      } else if (duration.includes('Vitalicia')) {
+        target = new Date('2099-12-31');
+      }
+
+      const yy = String(target.getFullYear()).slice(-2);
+      const mm = String(target.getMonth() + 1).padStart(2, '0');
+      const dd = String(target.getDate()).padStart(2, '0');
+      const yyyy = target.getFullYear();
+
+      const shortFormat = `${yy}-${mm}-${dd}`;
+      const longFormat = `${yyyy}-${mm}-${dd}`;
+
+      _lastCalculatedDateShort = shortFormat;
+
+      const disp = document.getElementById('calculatedDateDisplay');
+      const longDisp = document.getElementById('calculatedDateLong');
+      if (disp) disp.textContent = shortFormat;
+      if (longDisp) longDisp.textContent = `(${longFormat})`;
+    }
+
+    function copyCalculatedDate() {
+      if (!_lastCalculatedDateShort) updateCalculatedExpirationDate();
+      navigator.clipboard.writeText(_lastCalculatedDateShort).then(() => {
+        alert(`📋 Fecha copiada: ${_lastCalculatedDateShort} (formato AA-MM-DD para tu generador de licencias)`);
+      });
+    }
+
+    function copyAdminModalUuid() {
+      const uuid = document.getElementById('adminModalUuidDisplay')?.value;
+      if (!uuid) return;
+      navigator.clipboard.writeText(uuid).then(() => {
+        alert('📋 UUID copiado al portapapeles. Pégalo en tu generador offline.');
+      });
     }
 
     async function handleSaveLicenseKey(e) {

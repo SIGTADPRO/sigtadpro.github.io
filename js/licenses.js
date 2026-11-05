@@ -49,6 +49,25 @@ async function initLicensesPortal() {
 
   initTabListeners();
   initLogoutListener();
+  initModalBackdropListeners();
+}
+
+function initModalBackdropListeners() {
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        if (overlay.id === 'licenseKeyModal') closeLicenseModal();
+        if (overlay.id === 'newTicketModal') closeNewTicketModal();
+      }
+    });
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeLicenseModal();
+      closeNewTicketModal();
+    }
+  });
 }
 
 function showUnauthScreen() {
@@ -332,12 +351,18 @@ function openLicenseModal(licenseId) {
     }
   }
 
-  if (modal) modal.style.display = 'flex';
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.add('modal-visible');
+  }
 }
 
 function closeLicenseModal() {
   const modal = document.getElementById('licenseKeyModal');
-  if (modal) modal.style.display = 'none';
+  if (modal) {
+    modal.classList.remove('modal-visible');
+    modal.style.display = 'none';
+  }
   _currentModalLicense = null;
 }
 
@@ -472,12 +497,18 @@ function renderTicketsList(tickets) {
 
 function openNewTicketModal() {
   const modal = document.getElementById('newTicketModal');
-  if (modal) modal.style.display = 'flex';
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.add('modal-visible');
+  }
 }
 
 function closeNewTicketModal() {
   const modal = document.getElementById('newTicketModal');
-  if (modal) modal.style.display = 'none';
+  if (modal) {
+    modal.classList.remove('modal-visible');
+    modal.style.display = 'none';
+  }
 }
 
 async function handleCreateTicket(e) {

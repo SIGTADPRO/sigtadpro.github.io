@@ -18,13 +18,19 @@ function initSplash() {
 
 // ─── TÉRMINOS Y CONDICIONES (CONTRATO LEGAL) ──────────────────
 function checkTermsAccepted() {
+  const hasAuthToken = window.location.hash.includes('access_token') || 
+                       window.location.search.includes('code=') || 
+                       window.location.search.includes('openAuth=');
+
   const accepted = localStorage.getItem('sigtadpro_terms_v403');
   if (!accepted) {
     openModal('termsModal');
-  } else {
-    // Si ya fueron aceptados previamente, lanzamos directamente el modal de demostración
+  } else if (!hasAuthToken && !(typeof currentUser !== 'undefined' && currentUser)) {
+    // Solo mostramos 'queHaceModal' a visitantes sin sesión
     setTimeout(() => {
-      openModal('queHaceModal');
+      if (!window.location.hash.includes('access_token') && !window.location.search.includes('code=')) {
+        openModal('queHaceModal');
+      }
     }, 300);
   }
 }
@@ -32,10 +38,14 @@ function checkTermsAccepted() {
 function acceptTerms() {
   localStorage.setItem('sigtadpro_terms_v403', 'true');
   closeModal('termsModal');
-  // Justo después de aceptar los términos, lanzamos el modal de demostración
-  setTimeout(() => {
-    openModal('queHaceModal');
-  }, 400);
+  const hasAuthToken = window.location.hash.includes('access_token') || 
+                       window.location.search.includes('code=') || 
+                       window.location.search.includes('openAuth=');
+  if (!hasAuthToken && !(typeof currentUser !== 'undefined' && currentUser)) {
+    setTimeout(() => {
+      openModal('queHaceModal');
+    }, 400);
+  }
 }
 
 // ─── GESTIÓN DE MODALES ───────────────────────────────────────
@@ -59,6 +69,23 @@ function closeModal(id) {
     }
   }, 300);
 }
+
+// Cerrar modales al hacer clic en el backdrop exterior o pulsar Escape
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeModal(overlay.id);
+      }
+    });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const openModalEl = document.querySelector('.modal-overlay.modal-visible');
+      if (openModalEl) closeModal(openModalEl.id);
+    }
+  });
+});
 
 // ─── DESCARGAS ────────────────────────────────────────────────
 function handleWindowsDownloadClick() {

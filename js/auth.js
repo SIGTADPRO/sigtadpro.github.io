@@ -26,10 +26,15 @@ function initAuth() {
       }
       _updateAuthUI();
 
-      // Si viene recién logueado con Google y la URL tiene tokens o código, limpiarla limpiamente
+      // Si viene recién logueado con Google y la URL tiene tokens o código, abrir inmediatamente el perfil
       if (event === 'SIGNED_IN') {
-        if (window.location.hash.includes('access_token') || window.location.search.includes('code=')) {
+        const hadOAuth = window.location.hash.includes('access_token') || window.location.search.includes('code=');
+        if (hadOAuth) {
           window.history.replaceState(null, document.title, window.location.pathname);
+          setTimeout(() => {
+            _renderUserProfile();
+            openModal('authModal');
+          }, 400);
         }
       }
     });
@@ -432,11 +437,11 @@ async function handleLogin(e) {
       _updateAuthUI();
       _showMsg(msg, 'success', '✅ ¡Sesión iniciada con éxito! Bienvenido.');
       setTimeout(() => {
-        closeModal('authModal');
         if (emailInput) emailInput.value = '';
         if (passInput) passInput.value = '';
         _showMsg(msg, '', '');
-      }, 1000);
+        _renderUserProfile();
+      }, 700);
     }
   } catch(err) {
     _showMsg(msg, 'error', `❌ Error de conexión: ${err.message}`);
@@ -550,7 +555,6 @@ async function handleRegister(e) {
       _updateAuthUI();
       _showMsg(msg, 'success', '✅ ¡Cuenta creada exitosamente! Sesión protegida iniciada.');
       setTimeout(() => {
-        closeModal('authModal');
         if (nameInput) nameInput.value = '';
         if (businessInput) businessInput.value = '';
         if (addressInput) addressInput.value = '';
@@ -558,7 +562,8 @@ async function handleRegister(e) {
         if (emailInput) emailInput.value = '';
         if (passInput) passInput.value = '';
         _showMsg(msg, '', '');
-      }, 1200);
+        _renderUserProfile();
+      }, 900);
     } else {
       closeModal('authModal');
       setTimeout(() => openEmailConfirmModal(email), 300);
