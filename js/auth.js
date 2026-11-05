@@ -60,6 +60,7 @@ function initAuth() {
 
     _initGoogleAuthButtons();
     _initCaptchaWidget();
+    _initProfileInteractions();
   } catch(e) {
     console.error('[SIGTAD] Error en initAuth:', e);
   }
@@ -97,9 +98,10 @@ function _updateAuthUI() {
   const btn = document.getElementById('navAuthBtn');
   if (!btn) return;
   if (currentUser) {
-    const name = currentProfile?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Mi Cuenta';
-    btn.textContent = `👤 ${name}`;
-    btn.title = 'Clic para ver tu perfil, negocio o cerrar sesión';
+    const business = currentProfile?.business_name?.trim();
+    const fullName = currentProfile?.full_name?.trim() || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0] || 'Mi Cuenta';
+    btn.textContent = business ? `🏢 ${business}` : `👤 ${fullName}`;
+    btn.title = 'Clic para ver tu perfil, negocio o gestionar licencias';
   } else {
     btn.textContent = 'Acceso';
     btn.title = 'Iniciar sesión o registrarse';
@@ -218,34 +220,179 @@ async function _renderUserProfile() {
   const profile = document.getElementById('profileView');
   if (profile) profile.style.display = 'block';
 
+  // Restaurar visibilidad de caja de detalles vs formulario de edición
+  const detailsBox = document.getElementById('profileDetailsBox');
+  const editForm   = document.getElementById('editProfileForm');
+  if (detailsBox) detailsBox.style.display = 'block';
+  if (editForm)   editForm.style.display   = 'none';
+
   if (!currentUser) return;
   await _fetchUserProfile();
 
-  const meta = currentUser.user_metadata || {};
-  const fullName = currentProfile?.full_name || meta.full_name || meta.name || currentUser.email?.split('@')[0] || 'Usuario SIGTAD';
+  const meta     = currentUser.user_metadata || {};
+  const business = currentProfile?.business_name?.trim() || meta.business_name?.trim() || '';
+  const fullName = currentProfile?.full_name?.trim() || meta.full_name?.trim() || meta.name?.trim() || currentUser.email?.split('@')[0] || 'Usuario SIGTAD';
   const email    = currentUser.email || '';
-  const business = currentProfile?.business_name || meta.business_name || 'Comercio Registrado';
   const address  = currentProfile?.address || meta.address || 'No especificada';
   const phone    = currentProfile?.phone || meta.phone || 'No especificado';
-  const provider = (currentUser.app_metadata?.provider === 'google') ? 'Google Account (Gmail)' : 'Email y Clave Segura';
 
   // Renderizado protegido contra XSS usando textContent
-  const nameEl     = document.getElementById('profileName');
-  const emailEl    = document.getElementById('profileEmail');
-  const busEl      = document.getElementById('profileBusiness');
-  const addrEl     = document.getElementById('profileAddress');
-  const phoneEl    = document.getElementById('profilePhone');
-  const provEl     = document.getElementById('profileProvider');
+  const nameEl  = document.getElementById('profileName');
+  const subEl   = document.getElementById('profileUserSub');
+  const emailEl = document.getElementById('profileEmail');
+  const busEl   = document.getElementById('profileBusiness');
+  const fullEl  = document.getElementById('profileFullName');
+  const addrEl  = document.getElementById('profileAddress');
+  const phoneEl = document.getElementById('profilePhone');
 
-  if (nameEl)  nameEl.textContent  = fullName;
+  // Si hay nombre de negocio, se muestra como título principal y el nombre del usuario abajo
+  if (nameEl) nameEl.textContent = business ? business : fullName;
+  if (subEl) {
+    subEl.textContent = business ? `Responsable: ${fullName}` : 'Responsable';
+    subEl.style.display = business ? 'block' : 'none';
+  }
   if (emailEl) emailEl.textContent = email;
-  if (busEl)   busEl.textContent   = business;
+  if (busEl)   busEl.textContent   = business || 'No asignado';
+  if (fullEl)  fullEl.textContent  = fullName;
   if (addrEl)  addrEl.textContent  = address;
   if (phoneEl) phoneEl.textContent = phone;
-  if (provEl)  provEl.textContent  = provider;
+
+  // Precargar campos del formulario de edición
+  const editBus   = document.getElementById('editBusinessName');
+  const editFull  = document.getElementById('editFullName');
+  const editAddr  = document.getElementById('editAddress');
+  const editPhone = document.getElementById('editPhone');
+  if (editBus)   editBus.value   = business;
+  if (editFull)  editFull.value  = fullName;
+  if (editAddr)  editAddr.value  = address === 'No especificada' ? '' : address;
+  if (editPhone) editPhone.value = phone === 'No especificado' ? '' : phone;
 
   const msg = document.getElementById('profileMessage');
   if (msg) _showMsg(msg, '', '');
+}
+
+// ─── EDICIÓN DE PERFIL EN VIVO ────────────────────────────────
+function _initProfileInteractions() {
+  const btnToggle = document.getElementById('btnToggleEditProfile');
+  const btnCancel = document.getElementById('btnCancelEditProfile');
+  const detailsBox = document.getElementById('profileDetailsBox');
+  const editForm   = document.getElementById('editProfileForm');
+  const btnDelete  = document.getElementById('btnDeleteAccount');
+
+  if (btnToggle) {
+    btnToggle.onclick = () => {
+      if (detailsBox) detailsBox.style.display = 'none';
+      if (editForm) editForm.style.display = 'flex';
+      btnToggle.style.display = 'none';
+    };
+  }
+
+  if (btnCancel) {
+    btnCancel.onclick = () => {
+      if (detailsBox) detailsBox.style.display = 'block';
+      if (editForm) editForm.style.display = 'none';
+      if (btnToggle) btnToggle.style.display = 'block';
+    };
+  }
+
+  if (editForm) {
+    editForm.onsubmit = handleUpdateProfile;
+  }
+
+  if (btnDelete) {
+    btnDelete.onclick = handleDeleteAccount;
+  }
+}
+
+async function handleUpdateProfile(e) {
+  e.preventDefault();
+  if (!_authClient || !currentUser) return;
+
+  const msg = document.getElementById('profileMessage');
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+
+  const businessName = document.getElementById('editBusinessName')?.value.trim() || '';
+  const fullName     = document.getElementById('editFullName')?.value.trim() || '';
+  const address      = document.getElementById('editAddress')?.value.trim() || '';
+  const phone        = document.getElementById('editPhone')?.value.trim() || '';
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.dataset.origText = submitBtn.textContent;
+    submitBtn.textContent = '⏳ Guardando...';
+  }
+  _showMsg(msg, 'info', '⏳ Actualizando datos del negocio en Supabase...');
+
+  try {
+    const { error } = await _authClient.from('profiles').upsert({
+      id: currentUser.id,
+      business_name: businessName,
+      full_name: fullName,
+      address: address,
+      phone: phone,
+      email: currentUser.email,
+      updated_at: new Date().toISOString()
+    });
+
+    if (error) {
+      _showMsg(msg, 'error', `❌ Error al actualizar: ${error.message}`);
+    } else {
+      await _authClient.auth.updateUser({
+        data: { business_name: businessName, full_name: fullName, address, phone }
+      });
+
+      await _fetchUserProfile();
+      _updateAuthUI();
+      _showMsg(msg, 'success', '✅ ¡Información actualizada exitosamente!');
+
+      setTimeout(() => {
+        const detailsBox = document.getElementById('profileDetailsBox');
+        const editForm   = document.getElementById('editProfileForm');
+        const btnToggle  = document.getElementById('btnToggleEditProfile');
+        if (detailsBox) detailsBox.style.display = 'block';
+        if (editForm)   editForm.style.display   = 'none';
+        if (btnToggle)  btnToggle.style.display  = 'block';
+        _renderUserProfile();
+      }, 700);
+    }
+  } catch(err) {
+    _showMsg(msg, 'error', `❌ Error inesperado: ${err.message}`);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = submitBtn.dataset.origText || '💾 Guardar';
+    }
+  }
+}
+
+// ─── ELIMINAR CUENTA (CUMPLIMIENTO POLÍTICAS GOOGLE PLAY) ─────
+async function handleDeleteAccount() {
+  if (!_authClient || !currentUser) return;
+
+  const confirmed = confirm('⚠️ ¿Estás COMPLETAMENTE SEGURO de que deseas eliminar tu cuenta?\n\nEsta acción es irreversible y borrará permanentemente tu usuario, perfil, licencias registradas y solicitudes asociadas.');
+  if (!confirmed) return;
+
+  const msg = document.getElementById('profileMessage');
+  _showMsg(msg, 'info', '⏳ Eliminando tu cuenta y datos de forma permanente...');
+
+  try {
+    const { error } = await _authClient.rpc('delete_user_account');
+    if (error) {
+      console.warn('[SIGTAD] Fallo al invocar delete_user_account RPC:', error.message);
+      await _authClient.auth.signOut();
+      alert('Tu sesión ha sido cerrada. Recuerda ejecutar el script SQL actualizado en Supabase para el borrado en cascada.');
+    } else {
+      alert('✅ Tu cuenta y todos tus datos han sido eliminados permanentemente.');
+    }
+  } catch(err) {
+    console.error('[SIGTAD] Error al eliminar cuenta:', err);
+  } finally {
+    currentUser = null;
+    currentProfile = null;
+    _updateAuthUI();
+    closeModal('authModal');
+    window.location.reload();
+  }
 }
 
 // ─── LOGIN ─────────────────────────────────────────────────────

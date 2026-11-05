@@ -1000,16 +1000,24 @@
       <!-- Vista de Perfil de Usuario Activo -->
       <div id="profileView" class="auth-form" style="display: none;">
         <div class="profile-card">
-          <div class="profile-avatar">👤</div>
-          <h3 id="profileName" class="profile-name">Mi Cuenta</h3>
+          <div class="profile-avatar">🏢</div>
+          <h3 id="profileName" class="profile-name">Mi Negocio</h3>
+          <p id="profileUserSub" class="profile-user-sub">Responsable: Usuario</p>
           <p id="profileEmail" class="profile-email">usuario@correo.com</p>
-          <div class="profile-status-badge">
-            <span class="status-dot"></span> Sesión activa y protegida
-          </div>
-          <div class="profile-details-box">
+
+          <a href="licencias.html" class="btn-primary btn-full btn-license-link">
+            <span>🔑 Portal de Licencias & Soporte</span>
+          </a>
+
+          <!-- Caja de detalles informativos -->
+          <div id="profileDetailsBox" class="profile-details-box">
             <div class="profile-info-row">
               <span class="profile-info-label">Comercio</span>
               <span class="profile-info-val" id="profileBusiness">No asignado</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">Responsable</span>
+              <span class="profile-info-val" id="profileFullName">No especificado</span>
             </div>
             <div class="profile-info-row">
               <span class="profile-info-label">Dirección</span>
@@ -1019,14 +1027,45 @@
               <span class="profile-info-label">Teléfono / WhatsApp</span>
               <span class="profile-info-val" id="profilePhone">No asignado</span>
             </div>
-            <div class="profile-info-row">
-              <span class="profile-info-label">Método de Acceso</span>
-              <span class="profile-info-val highlight-green" id="profileProvider">Email Seguro</span>
-            </div>
           </div>
+
+          <button type="button" id="btnToggleEditProfile" class="btn-outline btn-full" style="padding: 9px 14px; font-size: 0.88rem;">
+            ✏️ Editar Información de mi Negocio
+          </button>
+
+          <!-- Formulario Oculto de Edición de Perfil -->
+          <form id="editProfileForm" class="auth-form" style="display: none; width: 100%; margin-top: 8px;">
+            <div class="form-group">
+              <label for="editBusinessName">Nombre del Negocio</label>
+              <input type="text" id="editBusinessName" required placeholder="Ej. Bodega La Bendición" />
+            </div>
+            <div class="form-group">
+              <label for="editFullName">Responsable / Nombre Completo</label>
+              <input type="text" id="editFullName" required placeholder="Ej. Juan Pérez" />
+            </div>
+            <div class="form-group">
+              <label for="editAddress">Dirección Comercial</label>
+              <input type="text" id="editAddress" required placeholder="Ej. Calle 4, Local 2" />
+            </div>
+            <div class="form-group">
+              <label for="editPhone">Teléfono / WhatsApp</label>
+              <input type="tel" id="editPhone" required placeholder="Ej. +58 412 1234567" />
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+              <button type="submit" class="btn-primary" style="flex: 1; padding: 10px;">💾 Guardar</button>
+              <button type="button" id="btnCancelEditProfile" class="btn-outline" style="flex: 1; padding: 10px;">Cancelar</button>
+            </div>
+          </form>
+
           <div id="profileMessage" class="auth-message"></div>
+
           <button id="logoutBtn" type="button" class="btn-outline btn-full profile-logout-btn">
             🚪 Cerrar Sesión
+          </button>
+
+          <!-- Botón discreto de eliminación de cuenta (Cumplimiento Google Play) -->
+          <button id="btnDeleteAccount" type="button" class="btn-danger-discrete">
+            🗑️ Eliminar permanentemente mi cuenta y datos
           </button>
         </div>
       </div>

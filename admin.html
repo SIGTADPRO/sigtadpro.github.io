@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIGTAD PRO — Panel de Control Interno Blindado</title>
+  <title>SIGTAD PRO — Panel de Control Interno Blindado (MaxiTHN)</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
@@ -11,8 +11,8 @@
   <link rel="stylesheet" href="css/styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { padding-top: 40px; }
-    .admin-container { max-width: 1050px; margin: 0 auto; padding: 24px; }
+    body { padding-top: 20px; }
+    .admin-container { max-width: 1180px; margin: 0 auto; padding: 20px; }
     .login-box {
       max-width: 420px; margin: 70px auto; background: var(--bg-card);
       border: 1px solid var(--border-bright); border-radius: var(--radius-lg);
@@ -44,6 +44,51 @@
     .badge-google { background: rgba(66, 133, 244, 0.2); color: #8ab4f8; border: 1px solid rgba(66, 133, 244, 0.4); }
     .badge-email  { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
     .table-responsive { width: 100%; overflow-x: auto; }
+
+    /* Estilos de pestañas del Panel de Admin */
+    .admin-nav-tabs {
+      display: flex; gap: 8px; border-bottom: 1px solid var(--border);
+      margin: 20px 0 24px; padding-bottom: 2px; overflow-x: auto;
+    }
+    .admin-tab-btn {
+      background: transparent; border: none; color: var(--text-secondary);
+      padding: 12px 20px; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; border-bottom: 3px solid transparent;
+      transition: all var(--transition); display: flex; align-items: center; gap: 8px;
+    }
+    .admin-tab-btn:hover { color: #ffffff; background: rgba(255,255,255,0.02); }
+    .admin-tab-btn.active {
+      color: #60a5fa; border-bottom-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.08); border-radius: 8px 8px 0 0;
+    }
+    .admin-tab-content { display: none; }
+    .admin-tab-content.active { display: block; animation: fadeIn 0.2s ease-out; }
+
+    /* Mesa de Ayuda de Admin */
+    .admin-chat-layout {
+      display: grid; grid-template-columns: 360px 1fr; gap: 20px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); min-height: 620px; overflow: hidden;
+    }
+    @media (max-width: 860px) {
+      .admin-chat-layout { grid-template-columns: 1fr; }
+    }
+    .admin-tickets-col {
+      border-right: 1px solid var(--border); background: rgba(10, 10, 30, 0.6);
+      display: flex; flex-direction: column;
+    }
+    .admin-chat-bubble {
+      max-width: 80%; padding: 12px 16px; border-radius: 14px;
+      font-size: 0.9rem; line-height: 1.45; word-wrap: break-word;
+    }
+    .admin-bubble-maxi {
+      align-self: flex-end; background: linear-gradient(135deg, #4f46e5, #4338ca);
+      color: #ffffff; border-bottom-right-radius: 2px;
+    }
+    .admin-bubble-user {
+      align-self: flex-start; background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.2); color: #f1f5f9; border-bottom-left-radius: 2px;
+    }
   </style>
 </head>
 <body>
@@ -54,7 +99,7 @@
       <img src="assets/logo.png" alt="Logo" style="width: 70px; margin: 0 auto 16px;" />
       <h2>Panel Privado SIGTAD PRO</h2>
       <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 8px 0 20px;">
-        Acceso exclusivo blindado para el Administrador
+        Acceso exclusivo blindado para Abg. Edinson Pereira (MaxiTHN)
       </p>
       <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
         <div class="form-group" style="text-align: left; margin-bottom: 16px;">
@@ -65,80 +110,250 @@
       </form>
     </div>
 
-    <!-- Panel de Métricas (Oculto hasta autenticar) -->
+    <!-- Panel de Control Principal (Oculto hasta autenticar) -->
     <div id="adminDashboard" style="display: none;">
+      <!-- Cabecera -->
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
         <div>
-          <h2>📊 Auditoría de Descargas & Usuarios Registrados</h2>
-          <p style="color: var(--text-secondary); font-size: 0.9rem;">Panel blindado con métricas verídicas y registros comerciales</p>
-        </div>
-        <div>
-          <button onclick="location.reload()" class="btn-outline">🔄 Actualizar</button>
-          <a href="index.html" class="btn-primary" style="margin-left: 8px;">Volver a la Web</a>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <!-- Reales Windows -->
-        <div class="stat-card">
-          <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Windows</span>
-          <div class="stat-num stat-real" id="adminRealWin">0</div>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">Descargas instalador .exe</p>
-        </div>
-
-        <!-- Reales Android -->
-        <div class="stat-card">
-          <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Android</span>
-          <div class="stat-num stat-real" id="adminRealAnd">0</div>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">Clics a Google Play</p>
-        </div>
-
-        <!-- Total Real -->
-        <div class="stat-card" style="border-color: #10b981;">
-          <span style="font-size: 0.8rem; color: #10b981; font-weight: 700; text-transform: uppercase;">Total Reales</span>
-          <div class="stat-num stat-real" id="adminRealTotal">0</div>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">Descargas 100% verídicas</p>
-        </div>
-
-        <!-- Artificial acumulado -->
-        <div class="stat-card">
-          <span style="font-size: 0.8rem; color: var(--purple-light); font-weight: 700; text-transform: uppercase;">Conteo Artificial</span>
-          <div class="stat-num stat-art" id="adminArtificial">0</div>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">Base + 1 a 3 / día</p>
-        </div>
-
-        <!-- Total Visible en la Web -->
-        <div class="stat-card highlight-card">
-          <span style="font-size: 0.8rem; color: var(--gold); font-weight: 700; text-transform: uppercase;">Visible al Público</span>
-          <div class="stat-num stat-total" id="adminDisplayed">0</div>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">Real + Artificial</p>
-        </div>
-      </div>
-
-      <!-- Sección de Usuarios Registrados y Perfiles Comerciales -->
-      <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-top: 28px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-          <div>
-            <h3>👥 Base de Datos de Usuarios y Comercios</h3>
-            <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 4px 0 16px;">
-              Información de clientes registrados mediante Google OAuth y Formulario Seguro
-            </p>
-          </div>
-          <span id="profilesCountBadge" style="background: rgba(79, 111, 255, 0.15); color: var(--blue-bright); padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">0 usuarios</span>
-        </div>
-
-        <div class="table-responsive" id="subscribersListContainer">
-          <p style="color: var(--text-muted); font-size: 0.9rem;">
-            Cargando registros cifrados de Supabase...
+          <h2 style="margin: 0;">🛡️ Centro de Mando Oficial — SIGTAD PRO®</h2>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">
+            Auditoría de descargas, emisión de licencias por sucursal y soporte en tiempo real.
           </p>
         </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btnEnableNotifications" onclick="requestNotificationPermission()" class="btn-outline" style="padding: 8px 14px; font-size: 0.85rem;">
+            🔔 Activar Notificaciones
+          </button>
+          <button onclick="location.reload()" class="btn-outline" style="padding: 8px 14px; font-size: 0.85rem;">
+            🔄 Actualizar
+          </button>
+          <a href="licencias.html" class="btn-outline" style="padding: 8px 14px; font-size: 0.85rem;">
+            🔑 Ver Portal Cliente
+          </a>
+          <a href="index.html" class="btn-primary" style="padding: 8px 16px; font-size: 0.85rem;">
+            Volver a la Web
+          </a>
+        </div>
       </div>
+
+      <!-- Barra de Pestañas -->
+      <nav class="admin-nav-tabs">
+        <button class="admin-tab-btn active" onclick="switchAdminTab('tabAuditoria')">
+          <span>📊</span> Métricas & Comercios
+        </button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('tabLicencias')">
+          <span>🔑</span> Gestión de Licencias (<span id="adminPendingLicensesCount">0</span>)
+        </button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('tabTickets')">
+          <span>💬</span> Mesa de Ayuda / Chat (<span id="adminOpenTicketsCount">0</span>)
+        </button>
+      </nav>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           TAB 1: AUDITORÍA & MÉTRICAS
+           ══════════════════════════════════════════════════════════════ -->
+      <div id="tabAuditoria" class="admin-tab-content active">
+        <div class="stats-grid">
+          <!-- Reales Windows -->
+          <div class="stat-card">
+            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Windows</span>
+            <div class="stat-num stat-real" id="adminRealWin">0</div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">Descargas instalador .exe</p>
+          </div>
+
+          <!-- Reales Android -->
+          <div class="stat-card">
+            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Android</span>
+            <div class="stat-num stat-real" id="adminRealAnd">0</div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">Clics a Google Play</p>
+          </div>
+
+          <!-- Total Real -->
+          <div class="stat-card" style="border-color: #10b981;">
+            <span style="font-size: 0.8rem; color: #10b981; font-weight: 700; text-transform: uppercase;">Total Reales</span>
+            <div class="stat-num stat-real" id="adminRealTotal">0</div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">Descargas 100% verídicas</p>
+          </div>
+
+          <!-- Artificial acumulado -->
+          <div class="stat-card">
+            <span style="font-size: 0.8rem; color: var(--purple-light); font-weight: 700; text-transform: uppercase;">Conteo Artificial</span>
+            <div class="stat-num stat-art" id="adminArtificial">0</div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">Base + 1 a 3 / día</p>
+          </div>
+
+          <!-- Total Visible en la Web -->
+          <div class="stat-card highlight-card">
+            <span style="font-size: 0.8rem; color: var(--gold); font-weight: 700; text-transform: uppercase;">Visible al Público</span>
+            <div class="stat-num stat-total" id="adminDisplayed">0</div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">Real + Artificial</p>
+          </div>
+        </div>
+
+        <!-- Sección de Usuarios Registrados y Perfiles Comerciales -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-top: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <h3 style="margin: 0;">👥 Base de Datos de Usuarios y Comercios</h3>
+              <p style="color: var(--text-secondary); font-size: 0.88rem; margin: 4px 0 16px;">
+                Información de clientes registrados mediante Google OAuth y Formulario Seguro
+              </p>
+            </div>
+            <span id="profilesCountBadge" style="background: rgba(79, 111, 255, 0.15); color: var(--blue-bright); padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">0 usuarios</span>
+          </div>
+
+          <div class="table-responsive" id="subscribersListContainer">
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+              Cargando registros cifrados de Supabase...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           TAB 2: GESTIÓN DE LICENCIAS POR SUCURSAL
+           ══════════════════════════════════════════════════════════════ -->
+      <div id="tabLicencias" class="admin-tab-content">
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <h3 style="margin: 0;">🔑 Solicitudes de Licencias por Sucursal</h3>
+              <p style="color: var(--text-secondary); font-size: 0.88rem; margin-top: 4px;">
+                Emite y entrega llaves de activación personalizadas con el periodo de vigencia correspondiente.
+              </p>
+            </div>
+            <button class="btn-outline" onclick="loadAdminLicenses()" style="padding: 6px 14px; font-size: 0.85rem;">
+              🔄 Refrescar Licencias
+            </button>
+          </div>
+
+          <div class="table-responsive" id="adminLicensesTableContainer">
+            <p style="color: var(--text-muted); padding: 20px 0;">Cargando solicitudes de licencias...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           TAB 3: MESA DE AYUDA / TICKETS EN TIEMPO REAL
+           ══════════════════════════════════════════════════════════════ -->
+      <div id="tabTickets" class="admin-tab-content">
+        <div class="admin-chat-layout">
+          <!-- Columna Izquierda: Lista de Tickets de Comercios -->
+          <div class="admin-tickets-col">
+            <div style="padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+              <h4 style="margin: 0; font-size: 1rem;">Tickets de Comercios</h4>
+              <button class="btn-outline" onclick="loadAdminTickets()" style="padding: 4px 8px; font-size: 0.78rem;">
+                🔄
+              </button>
+            </div>
+            <div id="adminTicketsScrollList" style="flex: 1; overflow-y: auto; padding: 10px;">
+              <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 20px;">Cargando tickets...</p>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Vista y Respuesta en Tiempo Real -->
+          <div style="display: flex; flex-direction: column; background: rgba(13, 13, 35, 0.7);">
+            <div id="adminEmptyChat" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; color: var(--text-muted);">
+              <div style="font-size: 3rem; margin-bottom: 12px;">🛡️</div>
+              <h3>Mesa de Ayuda SIGTAD PRO</h3>
+              <p style="max-width: 360px; font-size: 0.88rem; margin-top: 6px;">
+                Selecciona un ticket a la izquierda para ver el historial y responder directamente al comerciante.
+              </p>
+            </div>
+
+            <div id="adminActiveChatArea" style="display: none; flex-direction: column; height: 100%;">
+              <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); background: rgba(15, 23, 42, 0.5); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h4 id="adminChatSubject" style="margin: 0; font-size: 1.05rem;">Asunto</h4>
+                  <span id="adminChatMerchantSub" style="font-size: 0.8rem; color: #93c5fd;">Comercio: —</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button id="btnToggleTicketStatus" class="btn-outline" style="padding: 4px 10px; font-size: 0.78rem;" onclick="toggleCurrentTicketStatus()">
+                    Cerrar Ticket
+                  </button>
+                </div>
+              </div>
+
+              <!-- Mensajes -->
+              <div id="adminChatMessagesBox" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; min-height: 400px; max-height: 480px;">
+              </div>
+
+              <!-- Enviar Respuesta -->
+              <form id="adminChatSendForm" onsubmit="handleAdminSendMessage(event)" style="padding: 14px 20px; border-top: 1px solid var(--border); background: rgba(15, 23, 42, 0.7); display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="adminChatMessageInput" placeholder="Escribe tu respuesta como MaxiTHN (Soporte Oficial)..." required autocomplete="off" style="flex: 1; margin: 0;" />
+                <button type="submit" class="btn-primary" style="padding: 10px 20px; white-space: nowrap;">
+                  Responder 🛡️
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL ADMIN: EMITIR Y ENTREGAR LLAVE DE LICENCIA
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="adminIssueKeyModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;">
+    <div class="modal-box" style="max-width: 520px;">
+      <button class="modal-close" onclick="closeAdminIssueModal()">✕</button>
+
+      <h3>🔑 Emitir Llave de Licencia</h3>
+      <p id="adminModalBranchSubtitle" style="color: var(--text-secondary); font-size: 0.88rem; margin: 4px 0 16px;">
+        Comercio: — | Sucursal: —
+      </p>
+
+      <form id="adminIssueKeyForm" onsubmit="handleSaveLicenseKey(event)">
+        <input type="hidden" id="adminModalLicenseId" />
+
+        <div class="form-group">
+          <label>UUID de la Máquina (Blindado)</label>
+          <input type="text" id="adminModalUuidDisplay" readonly style="font-family: monospace; background: rgba(0,0,0,0.4); color: #cbd5e1;" />
+        </div>
+
+        <div class="form-group">
+          <label for="adminSelectDuration">Periodo de Vigencia / Etiqueta Visual</label>
+          <select id="adminSelectDuration" required style="width: 100%; background: var(--bg-dark); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; color: #ffffff;">
+            <option value="15 Días (Prueba)">15 Días (Periodo de Prueba)</option>
+            <option value="1 Mes">1 Mes (Mensual)</option>
+            <option value="3 Meses">3 Meses (Trimestral)</option>
+            <option value="6 Meses">6 Meses (Semestral)</option>
+            <option value="1 Año" selected>1 Año (Anual)</option>
+            <option value="Vitalicia">Vitalicia (De por Vida)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label for="adminInputKey" style="margin: 0;">Llave de Activación</label>
+            <button type="button" class="btn-outline" style="padding: 2px 8px; font-size: 0.74rem;" onclick="generateRandomLicenseKey()">
+              🎲 Generar Llave
+            </button>
+          </div>
+          <input type="text" id="adminInputKey" required placeholder="SIGTAD-XXXX-XXXX-XXXX-XXXX" style="font-family: monospace; letter-spacing: 1px; color: #38bdf8;" />
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 14px;">
+          <button type="submit" class="btn-primary" style="flex: 1; padding: 12px;">
+            💾 Aprobar y Entregar al Comercio
+          </button>
+          <button type="button" class="btn-outline" onclick="closeAdminIssueModal()" style="padding: 12px;">
+            Cancelar
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
   <script src="js/config.js"></script>
   <script src="js/counter.js"></script>
   <script>
+    let _adminLicenses = [];
+    let _adminTickets = [];
+    let _activeAdminTicketId = null;
+    let _adminRealtimeChat = null;
+
     function handleAdminLogin(e) {
       e.preventDefault();
       const input = document.getElementById('adminPasswordInput').value;
@@ -148,17 +363,25 @@
         document.getElementById('adminAuthBox').style.display = 'none';
         document.getElementById('adminDashboard').style.display = 'block';
         loadDashboardStats();
+        loadAdminLicenses();
+        loadAdminTickets();
+        listenGlobalRealtimeSupport();
       } else {
         alert('Credencial incorrecta.');
       }
     }
 
-    async function loadDashboardStats() {
-      document.getElementById('adminRealWin').textContent = '...';
-      document.getElementById('adminRealAnd').textContent = '...';
-      document.getElementById('adminRealTotal').textContent = '...';
+    function switchAdminTab(tabId) {
+      document.querySelectorAll('.admin-nav-tabs .admin-tab-btn').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('onclick').includes(tabId));
+      });
+      document.querySelectorAll('.admin-tab-content').forEach(c => {
+        c.classList.toggle('active', c.id === tabId);
+      });
+    }
 
-      // Obtener datos reales de Supabase o Local
+    // ─── TAB 1: AUDITORÍA ──────────────────────────────────────────
+    async function loadDashboardStats() {
       const real = await fetchRealCount();
       const artificial = getArtificialCount();
       const realTotal = (real.windows || 0) + (real.android || 0);
@@ -170,7 +393,6 @@
       document.getElementById('adminArtificial').textContent = artificial;
       document.getElementById('adminDisplayed').textContent = totalVisible;
 
-      // Cargar usuarios desde la tabla blindada `profiles` (o fallback a `subscribers`)
       let users = [];
       if (_supabase) {
         try {
@@ -178,34 +400,9 @@
             .from('profiles')
             .select('*')
             .order('created_at', { ascending: false });
-          if (!error && data && data.length > 0) {
-            users = data;
-          }
+          if (!error && data) users = data;
         } catch(e) {
           console.warn('[SIGTAD Admin] Fallo SDK profiles:', e);
-        }
-
-        // Si profiles aún no tiene registros, intentar leer subscribers
-        if (users.length === 0) {
-          try {
-            const { data: subData } = await _supabase
-              .from('subscribers')
-              .select('*')
-              .order('created_at', { ascending: false });
-            if (subData && subData.length > 0) {
-              users = subData.map(s => ({
-                full_name: s.name,
-                email: s.email,
-                business_name: 'No especificado',
-                address: 'No especificada',
-                phone: 'No especificado',
-                auth_provider: 'email',
-                created_at: s.created_at
-              }));
-            }
-          } catch(e) {
-            console.warn('[SIGTAD Admin] Fallo SDK subscribers:', e);
-          }
         }
       }
 
@@ -214,69 +411,431 @@
       if (badge) badge.textContent = `${users.length} usuario${users.length === 1 ? '' : 's'}`;
 
       if (!users || users.length === 0) {
-        cont.innerHTML = '<p style="color: var(--text-muted); padding: 12px 0;">Aún no hay usuarios registrados en la base de datos de Supabase.</p>';
+        cont.innerHTML = '<p style="color: var(--text-muted); padding: 12px 0;">Aún no hay perfiles en la base de datos de Supabase.</p>';
         return;
       }
 
-      // Renderizado seguro contra ataques XSS mediante creación de elementos del DOM
       const table = document.createElement('table');
       table.className = 'subscribers-table';
-
-      const thead = document.createElement('thead');
-      thead.innerHTML = '<tr><th>Nombre</th><th>Negocio</th><th>Dirección</th><th>Teléfono</th><th>Correo</th><th>Acceso</th><th>Fecha</th></tr>';
-      table.appendChild(thead);
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Nombre / Responsable</th>
+            <th>Negocio</th>
+            <th>Dirección</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Acceso</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+      `;
 
       const tbody = document.createElement('tbody');
       users.forEach(u => {
         const tr = document.createElement('tr');
-
-        // Nombre
-        const tdName = document.createElement('td');
-        tdName.textContent = u.full_name || 'Sin nombre';
-        tr.appendChild(tdName);
-
-        // Negocio
-        const tdBus = document.createElement('td');
-        tdBus.textContent = u.business_name || '—';
-        tr.appendChild(tdBus);
-
-        // Dirección
-        const tdAddr = document.createElement('td');
-        tdAddr.textContent = u.address || '—';
-        tr.appendChild(tdAddr);
-
-        // Teléfono
-        const tdPhone = document.createElement('td');
-        tdPhone.textContent = u.phone || '—';
-        tr.appendChild(tdPhone);
-
-        // Correo
-        const tdEmail = document.createElement('td');
-        const strongEmail = document.createElement('strong');
-        strongEmail.textContent = u.email || '—';
-        tdEmail.appendChild(strongEmail);
-        tr.appendChild(tdEmail);
-
-        // Acceso (Provider)
-        const tdProv = document.createElement('td');
-        const provSpan = document.createElement('span');
         const isGoogle = (u.auth_provider === 'google');
-        provSpan.className = `badge-provider ${isGoogle ? 'badge-google' : 'badge-email'}`;
-        provSpan.textContent = isGoogle ? 'Google G' : 'Email';
-        tdProv.appendChild(provSpan);
-        tr.appendChild(tdProv);
-
-        // Fecha
-        const tdDate = document.createElement('td');
-        tdDate.textContent = u.created_at ? new Date(u.created_at).toLocaleDateString('es-VE') : '—';
-        tr.appendChild(tdDate);
-
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(u.full_name || 'Sin nombre')}</strong></td>
+          <td>${escapeHtml(u.business_name || '—')}</td>
+          <td>${escapeHtml(u.address || '—')}</td>
+          <td>${escapeHtml(u.phone || '—')}</td>
+          <td>${escapeHtml(u.email || '—')}</td>
+          <td><span class="badge-provider ${isGoogle ? 'badge-google' : 'badge-email'}">${isGoogle ? 'Google G' : 'Email'}</span></td>
+          <td>${u.created_at ? new Date(u.created_at).toLocaleDateString('es-VE') : '—'}</td>
+        `;
         tbody.appendChild(tr);
       });
 
       table.appendChild(tbody);
       cont.innerHTML = '';
       cont.appendChild(table);
+    }
+
+    // ─── TAB 2: GESTIÓN DE LICENCIAS ───────────────────────────────
+    async function loadAdminLicenses() {
+      if (!_supabase) return;
+      const cont = document.getElementById('adminLicensesTableContainer');
+      const pendingBadge = document.getElementById('adminPendingLicensesCount');
+
+      try {
+        const { data, error } = await _supabase
+          .from('license_requests')
+          .select('*')
+          .order('requested_at', { ascending: false });
+
+        if (error) throw error;
+        _adminLicenses = data || [];
+
+        const pendingCount = _adminLicenses.filter(l => l.status === 'pending').length;
+        if (pendingBadge) pendingBadge.textContent = pendingCount;
+
+        if (_adminLicenses.length === 0) {
+          cont.innerHTML = '<p style="color: var(--text-muted); padding: 16px 0;">No hay solicitudes de licencias registradas aún.</p>';
+          return;
+        }
+
+        const table = document.createElement('table');
+        table.className = 'subscribers-table';
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Comercio</th>
+              <th>Sucursal</th>
+              <th>UUID de Equipo</th>
+              <th>Estado</th>
+              <th>Vigencia</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+        `;
+
+        const tbody = document.createElement('tbody');
+        _adminLicenses.forEach(lic => {
+          const tr = document.createElement('tr');
+          const isApproved = (lic.status === 'approved');
+
+          tr.innerHTML = `
+            <td>${lic.requested_at ? new Date(lic.requested_at).toLocaleDateString('es-VE') : '—'}</td>
+            <td><strong>${escapeHtml(lic.business_name || 'Comercio')}</strong><br><small style="color:var(--text-secondary)">${escapeHtml(lic.user_email)}</small></td>
+            <td>🏢 ${escapeHtml(lic.branch_name)}</td>
+            <td><code style="font-size:0.78rem; color:#38bdf8;">${escapeHtml(lic.device_uuid)}</code></td>
+            <td>
+              <span class="badge-status ${isApproved ? 'approved' : 'pending'}" style="font-size:0.72rem; padding: 3px 8px;">
+                ${isApproved ? 'Aprobada' : 'Pendiente'}
+              </span>
+            </td>
+            <td><span style="color:#a78bfa; font-weight:600;">${escapeHtml(lic.duration_label || 'Pendiente')}</span></td>
+            <td>
+              <button class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="openAdminIssueModal('${lic.id}')">
+                ${isApproved ? '✏️ Modificar Llave' : '🔑 Emitir Llave'}
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        cont.innerHTML = '';
+        cont.appendChild(table);
+      } catch(err) {
+        console.error('[SIGTAD Admin] Error al cargar licencias:', err);
+        cont.innerHTML = `<p style="color:#f87171;">❌ Error al sincronizar licencias: ${err.message}</p>`;
+      }
+    }
+
+    function openAdminIssueModal(licenseId) {
+      const lic = _adminLicenses.find(l => l.id === licenseId);
+      if (!lic) return;
+
+      document.getElementById('adminModalLicenseId').value = lic.id;
+      document.getElementById('adminModalBranchSubtitle').textContent = `Comercio: ${lic.business_name || '—'} | Sucursal: ${lic.branch_name}`;
+      document.getElementById('adminModalUuidDisplay').value = lic.device_uuid;
+      document.getElementById('adminSelectDuration').value = lic.duration_label || '1 Año';
+      document.getElementById('adminInputKey').value = lic.license_key || '';
+
+      if (!lic.license_key) {
+        generateRandomLicenseKey();
+      }
+
+      document.getElementById('adminIssueKeyModal').style.display = 'flex';
+    }
+
+    function closeAdminIssueModal() {
+      document.getElementById('adminIssueKeyModal').style.display = 'none';
+    }
+
+    function generateRandomLicenseKey() {
+      const seg = () => Math.random().toString(36).substring(2, 6).toUpperCase();
+      const key = `SIGTAD-${seg()}-${seg()}-${seg()}-${seg()}`;
+      document.getElementById('adminInputKey').value = key;
+    }
+
+    async function handleSaveLicenseKey(e) {
+      e.preventDefault();
+      if (!_supabase) return;
+
+      const licenseId = document.getElementById('adminModalLicenseId').value;
+      const duration = document.getElementById('adminSelectDuration').value;
+      const licenseKey = document.getElementById('adminInputKey').value.trim();
+
+      if (!licenseId || !licenseKey) return;
+
+      try {
+        const { error } = await _supabase
+          .from('license_requests')
+          .update({
+            license_key: licenseKey,
+            duration_label: duration,
+            status: 'approved',
+            approved_at: new Date().toISOString()
+          })
+          .eq('id', licenseId);
+
+        if (error) throw error;
+
+        alert('✅ ¡Licencia emitida exitosamente! El comercio ya puede verla y descargarla en su portal.');
+        closeAdminIssueModal();
+        await loadAdminLicenses();
+      } catch(err) {
+        alert('❌ Error al emitir licencia: ' + err.message);
+      }
+    }
+
+    // ─── TAB 3: MESA DE AYUDA / TICKETS ────────────────────────────
+    async function loadAdminTickets() {
+      if (!_supabase) return;
+      const listEl = document.getElementById('adminTicketsScrollList');
+      const badge = document.getElementById('adminOpenTicketsCount');
+
+      try {
+        const { data, error } = await _supabase
+          .from('support_tickets')
+          .select('*')
+          .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+        _adminTickets = data || [];
+
+        const openCount = _adminTickets.filter(t => t.status !== 'closed').length;
+        if (badge) badge.textContent = openCount;
+
+        if (_adminTickets.length === 0) {
+          listEl.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 0.85rem;">No hay tickets de comercios.</p>';
+          return;
+        }
+
+        listEl.innerHTML = '';
+        _adminTickets.forEach(t => {
+          const item = document.createElement('div');
+          item.className = `ticket-item ${t.id === _activeAdminTicketId ? 'active' : ''}`;
+          item.onclick = () => selectAdminTicket(t.id);
+
+          item.innerHTML = `
+            <div class="ticket-item-subject">${escapeHtml(t.subject)}</div>
+            <div style="font-size: 0.78rem; color: #93c5fd; margin-bottom: 4px;">
+              🏢 ${escapeHtml(t.business_name || t.user_name || t.user_email)}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge-status ${t.status === 'open' ? 'approved' : 'pending'}" style="font-size: 0.68rem; padding: 2px 6px;">
+                ${t.status === 'open' ? 'Abierto' : 'Cerrado'}
+              </span>
+              <span style="font-size: 0.72rem; color: var(--text-muted);">
+                ${t.updated_at ? new Date(t.updated_at).toLocaleDateString('es-VE') : ''}
+              </span>
+            </div>
+          `;
+          listEl.appendChild(item);
+        });
+      } catch(err) {
+        console.error('[SIGTAD Admin] Error al cargar tickets:', err);
+      }
+    }
+
+    async function selectAdminTicket(ticketId) {
+      _activeAdminTicketId = ticketId;
+      const t = _adminTickets.find(x => x.id === ticketId);
+      if (!t) return;
+
+      document.querySelectorAll('#adminTicketsScrollList .ticket-item').forEach(el => {
+        el.classList.toggle('active', el.onclick.toString().includes(ticketId));
+      });
+
+      document.getElementById('adminEmptyChat').style.display = 'none';
+      document.getElementById('adminActiveChatArea').style.display = 'flex';
+      document.getElementById('adminChatSubject').textContent = t.subject;
+      document.getElementById('adminChatMerchantSub').textContent = `Comercio: ${t.business_name || t.user_name} (${t.user_email})`;
+      document.getElementById('btnToggleTicketStatus').textContent = (t.status === 'closed') ? 'Reabrir Ticket' : 'Cerrar Ticket';
+
+      await loadAdminMessages(ticketId);
+      subscribeAdminTicketChat(ticketId);
+    }
+
+    async function loadAdminMessages(ticketId) {
+      const box = document.getElementById('adminChatMessagesBox');
+      box.innerHTML = '<p style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">Cargando mensajes...</p>';
+
+      try {
+        const { data: messages, error } = await _supabase
+          .from('ticket_messages')
+          .select('*')
+          .eq('ticket_id', ticketId)
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        box.innerHTML = '';
+
+        messages.forEach(msg => appendAdminBubble(msg));
+        box.scrollTop = box.scrollHeight;
+      } catch(err) {
+        box.innerHTML = `<p style="color:#f87171;">Error: ${err.message}</p>`;
+      }
+    }
+
+    function appendAdminBubble(msg) {
+      const box = document.getElementById('adminChatMessagesBox');
+      const isAdmin = (msg.sender_role === 'admin');
+      const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+      const bubble = document.createElement('div');
+      bubble.className = `admin-chat-bubble ${isAdmin ? 'admin-bubble-maxi' : 'admin-bubble-user'}`;
+      bubble.innerHTML = `
+        <div style="font-size: 0.74rem; font-weight: 700; margin-bottom: 4px; color: ${isAdmin ? '#93c5fd' : '#38bdf8'};">
+          ${isAdmin ? '🛡️ Tú (MaxiTHN)' : `👤 ${escapeHtml(msg.sender_email)}`}
+        </div>
+        <div>${escapeHtml(msg.message)}</div>
+        <div style="font-size: 0.68rem; opacity: 0.7; text-align: right; margin-top: 4px;">${timeStr}</div>
+      `;
+      box.appendChild(bubble);
+    }
+
+    function subscribeAdminTicketChat(ticketId) {
+      if (_adminRealtimeChat) {
+        _supabase.removeChannel(_adminRealtimeChat);
+        _adminRealtimeChat = null;
+      }
+
+      _adminRealtimeChat = _supabase
+        .channel(`admin_chat_${ticketId}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'ticket_messages', filter: `ticket_id=eq.${ticketId}` },
+          (payload) => {
+            const m = payload.new;
+            if (m.sender_role !== 'admin') {
+              appendAdminBubble(m);
+              const box = document.getElementById('adminChatMessagesBox');
+              if (box) box.scrollTop = box.scrollHeight;
+              notifyIncomingMessage(`Mensaje de ${m.sender_email}`, m.message);
+            }
+          }
+        )
+        .subscribe();
+    }
+
+    async function handleAdminSendMessage(e) {
+      e.preventDefault();
+      if (!_supabase || !_activeAdminTicketId) return;
+
+      const input = document.getElementById('adminChatMessageInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+
+      const optimistic = {
+        ticket_id: _activeAdminTicketId,
+        sender_id: null,
+        sender_email: 'sigtadpro@gmail.com',
+        sender_role: 'admin',
+        message: text,
+        created_at: new Date().toISOString()
+      };
+      appendAdminBubble(optimistic);
+      const box = document.getElementById('adminChatMessagesBox');
+      if (box) box.scrollTop = box.scrollHeight;
+
+      try {
+        await _supabase
+          .from('ticket_messages')
+          .insert({
+            ticket_id: _activeAdminTicketId,
+            sender_email: 'sigtadpro@gmail.com',
+            sender_role: 'admin',
+            message: text
+          });
+
+        await _supabase
+          .from('support_tickets')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', _activeAdminTicketId);
+
+      } catch(err) {
+        alert('❌ Error al enviar mensaje: ' + err.message);
+      }
+    }
+
+    async function toggleCurrentTicketStatus() {
+      if (!_supabase || !_activeAdminTicketId) return;
+      const t = _adminTickets.find(x => x.id === _activeAdminTicketId);
+      if (!t) return;
+
+      const newStatus = (t.status === 'closed') ? 'open' : 'closed';
+      try {
+        await _supabase
+          .from('support_tickets')
+          .update({ status: newStatus, updated_at: new Date().toISOString() })
+          .eq('id', _activeAdminTicketId);
+
+        t.status = newStatus;
+        document.getElementById('btnToggleTicketStatus').textContent = (newStatus === 'closed') ? 'Reabrir Ticket' : 'Cerrar Ticket';
+        await loadAdminTickets();
+      } catch(err) {
+        alert('❌ Error al actualizar estado del ticket');
+      }
+    }
+
+    // ─── NOTIFICACIONES DE ESCRITORIO / BROWSER ───────────────────
+    function requestNotificationPermission() {
+      if (!('Notification' in window)) {
+        alert('Este navegador no soporta notificaciones de escritorio.');
+        return;
+      }
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          alert('🔔 ¡Notificaciones de escritorio activadas! Recibirás avisos cuando un comerciante abra un ticket o escriba un mensaje.');
+        }
+      });
+    }
+
+    function notifyIncomingMessage(title, body) {
+      // Audio beep
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      } catch(e) {}
+
+      // Desktop notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(`SIGTAD PRO — ${title}`, {
+          body: body,
+          icon: 'assets/icons/favicon-48x48.png'
+        });
+      }
+    }
+
+    function listenGlobalRealtimeSupport() {
+      if (!_supabase) return;
+      _supabase
+        .channel('admin_global_tickets')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'support_tickets' },
+          (payload) => {
+            notifyIncomingMessage('Nuevo Ticket de Comercio', `${payload.new.subject} (${payload.new.business_name || payload.new.user_email})`);
+            loadAdminTickets();
+          }
+        )
+        .subscribe();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
   </script>
 </body>

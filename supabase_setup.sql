@@ -20,7 +20,6 @@ ON CONFLICT (id) DO NOTHING;
 -- Habilitar RLS
 ALTER TABLE public.download_stats ENABLE ROW LEVEL SECURITY;
 
--- Permitir lectura pública de contadores
 DROP POLICY IF EXISTS "Permitir lectura publica de descargas" ON public.download_stats;
 CREATE POLICY "Permitir lectura publica de descargas"
 ON public.download_stats FOR SELECT
@@ -67,13 +66,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 );
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-
--- Conceder permisos explícitos
 GRANT ALL ON TABLE public.profiles TO postgres, service_role;
-GRANT SELECT, INSERT, UPDATE ON TABLE public.profiles TO authenticated, anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.profiles TO authenticated, anon;
 
--- POLÍTICAS RLS BLINDADAS (Cero fugas de datos):
--- Un usuario solo puede ver su propio perfil; el Administrador oficial puede auditar todos
+-- POLÍTICAS RLS BLINDADAS:
 DROP POLICY IF EXISTS "Usuarios consultan solo su propio perfil" ON public.profiles;
 CREATE POLICY "Usuarios consultan solo su propio perfil"
 ON public.profiles FOR SELECT
@@ -86,7 +82,11 @@ USING (
 DROP POLICY IF EXISTS "Usuarios actualizan solo su propio perfil" ON public.profiles;
 CREATE POLICY "Usuarios actualizan solo su propio perfil"
 ON public.profiles FOR UPDATE
-USING (auth.uid() = id);
+USING (
+    auth.uid() = id
+    OR auth.jwt() ->> 'email' = 'sigtadpro@gmail.com'
+    OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
+);
 
 DROP POLICY IF EXISTS "Usuarios insertan su propio perfil" ON public.profiles;
 CREATE POLICY "Usuarios insertan su propio perfil"
@@ -94,7 +94,6 @@ ON public.profiles FOR INSERT
 WITH CHECK (auth.uid() = id OR auth.uid() IS NULL);
 
 -- TRIGGER AUTOMÁTICO DEFENSIVO: Crear perfil al registrarse un usuario en auth.users
--- Utiliza raw_app_meta_data y captura excepciones para que NUNCA bloquee la autenticación
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -130,7 +129,6 @@ BEGIN
     RETURN new;
 EXCEPTION
     WHEN OTHERS THEN
-        -- Resiliencia defensiva: Si ocurre cualquier inconsistencia de campos, no bloquear el login/registro
         RETURN new;
 END;
 $$;
@@ -140,7 +138,19 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
--- 4. TABLA DE SUSCRIPTORES (Corrección de vulnerabilidad de lectura abierta)
+-- 4. RPC DE BORRADO SEGURO DE CUENTA (CUMPLIMIENTO GOOGLE PLAY STORE)
+CREATE OR REPLACE FUNCTION public.delete_user_account()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- Elimina al usuario actual de auth.users; la cascada borra profiles, licencias y tickets asociados
+    DELETE FROM auth.users WHERE id = auth.uid();
+END;
+$$;
+
+-- 5. TABLA DE SUSCRIPTORES
 CREATE TABLE IF NOT EXISTS public.subscribers (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
@@ -152,13 +162,11 @@ ALTER TABLE public.subscribers ENABLE ROW LEVEL SECURITY;
 GRANT ALL ON TABLE public.subscribers TO postgres, service_role;
 GRANT SELECT, INSERT ON TABLE public.subscribers TO authenticated, anon;
 
--- Permitir insertar suscriptores desde la web pública
 DROP POLICY IF EXISTS "Permitir registro de suscriptores" ON public.subscribers;
 CREATE POLICY "Permitir registro de suscriptores"
 ON public.subscribers FOR INSERT
 WITH CHECK (true);
 
--- CIERRE DE BRECHA: Solo el Administrador puede listar la tabla subscribers
 DROP POLICY IF EXISTS "Permitir lectura de suscriptores" ON public.subscribers;
 DROP POLICY IF EXISTS "Permitir lectura exclusiva a administrador" ON public.subscribers;
 CREATE POLICY "Permitir lectura exclusiva a administrador"
@@ -168,31 +176,121 @@ USING (
     OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
 );
 
--- 5. TABLA PARA SOLICITUDES DE LICENCIAS AUTODESTRUCTIVAS (FASE SIGUIENTE)
+-- 6. TABLA DE LICENCIAS POR SUCURSAL CON UUID INMUTABLE (ANTI-FRAUDE)
 CREATE TABLE IF NOT EXISTS public.license_requests (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     user_email TEXT NOT NULL,
     business_name TEXT,
-    device_fingerprint TEXT,
-    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'delivered', 'rejected', 'expired')),
-    license_hash TEXT, -- Almacenada solo con hash irreversible SHA-256
-    one_time_token TEXT, -- Token efímero que se autodestruye al usarse
+    branch_name TEXT NOT NULL,
+    device_uuid TEXT NOT NULL,
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'expired')),
+    license_key TEXT,
+    duration_label TEXT DEFAULT 'Pendiente',
     requested_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    resolved_at TIMESTAMP WITH TIME ZONE,
-    expires_at TIMESTAMP WITH TIME ZONE
+    approved_at TIMESTAMP WITH TIME ZONE,
+    viewed_at TIMESTAMP WITH TIME ZONE
 );
 
 ALTER TABLE public.license_requests ENABLE ROW LEVEL SECURITY;
 GRANT ALL ON TABLE public.license_requests TO postgres, service_role;
-GRANT SELECT, INSERT ON TABLE public.license_requests TO authenticated, anon;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.license_requests TO authenticated, anon;
 
+-- DISPARADOR ANTI-FRAUDE: Bloquea cualquier intento de modificar el UUID después de creado
+CREATE OR REPLACE FUNCTION public.protect_license_uuid()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF OLD.device_uuid IS DISTINCT FROM NEW.device_uuid THEN
+        RAISE EXCEPTION 'El UUID del equipo está blindado y no puede ser modificado después de la solicitud.';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_protect_license_uuid ON public.license_requests;
+CREATE TRIGGER trg_protect_license_uuid
+    BEFORE UPDATE ON public.license_requests
+    FOR EACH ROW EXECUTE PROCEDURE public.protect_license_uuid();
+
+-- Políticas RLS para Licencias:
 DROP POLICY IF EXISTS "Usuarios ven sus solicitudes de licencias" ON public.license_requests;
 CREATE POLICY "Usuarios ven sus solicitudes de licencias"
 ON public.license_requests FOR SELECT
-USING (auth.uid() = user_id OR auth.jwt() ->> 'email' = 'sigtadpro@gmail.com');
+USING (
+    auth.uid() = user_id 
+    OR auth.jwt() ->> 'email' = 'sigtadpro@gmail.com'
+    OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
+);
 
 DROP POLICY IF EXISTS "Usuarios crean sus solicitudes de licencias" ON public.license_requests;
 CREATE POLICY "Usuarios crean sus solicitudes de licencias"
 ON public.license_requests FOR INSERT
 WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admin actualiza licencias" ON public.license_requests;
+CREATE POLICY "Admin actualiza licencias"
+ON public.license_requests FOR UPDATE
+USING (
+    auth.jwt() ->> 'email' = 'sigtadpro@gmail.com'
+    OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
+);
+
+-- 7. TABLAS DE MESA DE AYUDA Y SOPORTE EN TIEMPO REAL (TICKETS & CHAT)
+CREATE TABLE IF NOT EXISTS public.support_tickets (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+    user_email TEXT NOT NULL,
+    user_name TEXT,
+    business_name TEXT,
+    subject TEXT NOT NULL,
+    status TEXT DEFAULT 'open' CHECK (status IN ('open', 'in_progress', 'closed')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.support_tickets ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON TABLE public.support_tickets TO postgres, service_role;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.support_tickets TO authenticated, anon;
+
+DROP POLICY IF EXISTS "Usuarios gestionan sus propios tickets" ON public.support_tickets;
+CREATE POLICY "Usuarios gestionan sus propios tickets"
+ON public.support_tickets FOR ALL
+USING (
+    auth.uid() = user_id 
+    OR auth.jwt() ->> 'email' = 'sigtadpro@gmail.com'
+    OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
+);
+
+CREATE TABLE IF NOT EXISTS public.ticket_messages (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    ticket_id UUID REFERENCES public.support_tickets(id) ON DELETE CASCADE NOT NULL,
+    sender_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    sender_email TEXT NOT NULL,
+    sender_role TEXT NOT NULL CHECK (sender_role IN ('user', 'admin')),
+    message TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.ticket_messages ENABLE ROW LEVEL SECURITY;
+GRANT ALL ON TABLE public.ticket_messages TO postgres, service_role;
+GRANT SELECT, INSERT ON TABLE public.ticket_messages TO authenticated, anon;
+
+DROP POLICY IF EXISTS "Acceso a mensajes del ticket" ON public.ticket_messages;
+CREATE POLICY "Acceso a mensajes del ticket"
+ON public.ticket_messages FOR ALL
+USING (
+    EXISTS (
+        SELECT 1 FROM public.support_tickets st
+        WHERE st.id = ticket_messages.ticket_id
+        AND (
+            st.user_id = auth.uid()
+            OR auth.jwt() ->> 'email' = 'sigtadpro@gmail.com'
+            OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
+        )
+    )
+);
+
+-- Habilitar Supabase Realtime para chat en vivo
+ALTER PUBLICATION supabase_realtime ADD TABLE public.ticket_messages;
