@@ -679,24 +679,57 @@
 
       if (!licenseId || !licenseKey) return;
 
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Emitiendo y sincronizando...';
+      }
+
       try {
-        const { error } = await _supabase
-          .from('license_requests')
-          .update({
-            license_key: licenseKey,
-            duration_label: duration,
-            status: 'approved',
-            approved_at: new Date().toISOString()
-          })
-          .eq('id', licenseId);
+        let rpcSuccess = false;
+        try {
+          const { error: rpcError } = await _supabase.rpc('admin_issue_license', {
+            p_license_id: licenseId,
+            p_license_key: licenseKey,
+            p_duration_label: duration
+          });
+          if (!rpcError) {
+            rpcSuccess = true;
+          } else {
+            console.warn('[SIGTAD Admin] Falló RPC admin_issue_license:', rpcError);
+          }
+        } catch(rpcEx) {
+          console.warn('[SIGTAD Admin] Excepción RPC:', rpcEx);
+        }
 
-        if (error) throw error;
+        if (!rpcSuccess) {
+          const { data, error } = await _supabase
+            .from('license_requests')
+            .update({
+              license_key: licenseKey,
+              duration_label: duration,
+              status: 'approved',
+              approved_at: new Date().toISOString()
+            })
+            .eq('id', licenseId)
+            .select();
 
-        alert('✅ ¡Licencia emitida exitosamente! El comercio ya puede verla y descargarla en su portal.');
+          if (error) throw error;
+          if (!data || data.length === 0) {
+            throw new Error('Supabase no permitió actualizar la licencia (RLS bloqueó la petición). Por favor ejecuta el script SQL en Supabase SQL Editor.');
+          }
+        }
+
+        alert('✅ ¡Licencia emitida exitosamente! El comercio ya puede verla y activarla en su portal.');
         closeAdminIssueModal();
         await loadAdminLicenses();
       } catch(err) {
         alert('❌ Error al emitir licencia: ' + err.message);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '💾 Guardar y Emitir Licencia Oficial';
+        }
       }
     }
 

@@ -119,9 +119,34 @@ async function loadPortalData() {
       fetchUserTickets()
     ]);
 
+    // 3. Suscribirse a cambios en tiempo real para actualizar la licencia al instante
+    subscribeUserLicenses();
+
   } catch(err) {
     console.error('[SIGTAD Licencias] Error al cargar portal:', err);
   }
+}
+
+let _licensesRealtimeChannel = null;
+
+function subscribeUserLicenses() {
+  if (!_supabaseClient || !_currentUser) return;
+  if (_licensesRealtimeChannel) {
+    _supabaseClient.removeChannel(_licensesRealtimeChannel);
+    _licensesRealtimeChannel = null;
+  }
+
+  _licensesRealtimeChannel = _supabaseClient
+    .channel(`user_licenses_${_currentUser.id}`)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'license_requests', filter: `user_id=eq.${_currentUser.id}` },
+      (payload) => {
+        console.log('[SIGTAD Realtime Licencias] Cambio de licencia:', payload);
+        fetchUserLicenses();
+      }
+    )
+    .subscribe();
 }
 
 // ─── NAVEGACIÓN DE PESTAÑAS ────────────────────────────────────
