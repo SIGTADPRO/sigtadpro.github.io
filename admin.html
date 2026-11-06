@@ -566,6 +566,7 @@
           <thead>
             <tr>
               <th>Fecha</th>
+              <th>Tipo</th>
               <th>Comercio</th>
               <th>Sucursal</th>
               <th>UUID de Equipo</th>
@@ -583,6 +584,11 @@
           const isApproved = (lic.status === 'approved');
           const isDestroyed = isApproved && (!lic.license_key || lic.viewed_at);
           const isPagoMovil = (lic.payment_method === 'pago_movil');
+          const isRenewal = (lic.request_type === 'renewal');
+
+          const typeBadge = isRenewal
+            ? `<span class="badge-status" style="background: rgba(139, 92, 246, 0.18); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.4); font-size: 0.72rem; padding: 2px 6px;">🔄 Renovación</span>`
+            : `<span class="badge-status" style="background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.35); font-size: 0.72rem; padding: 2px 6px;">➕ Nueva</span>`;
 
           const payHtml = isPagoMovil
             ? `<div><span style="color:#60a5fa; font-weight:700; font-size:0.78rem;">📱 Pago Móvil</span><br><small style="color:#cbd5e1;">Ref: <strong>#${escapeHtml(lic.payment_reference || 'S/R')}</strong></small>${lic.payment_receipt_url ? `<br><button type="button" class="btn-outline" style="padding:1px 6px; font-size:0.7rem; margin-top:2px;" onclick="viewPaymentReceipt('${lic.id}')">👁️ Ver Captura</button>` : ''}</div>`
@@ -601,6 +607,7 @@
 
           tr.innerHTML = `
             <td>${lic.requested_at ? new Date(lic.requested_at).toLocaleDateString('es-VE') : '—'}</td>
+            <td>${typeBadge}</td>
             <td><strong>${escapeHtml(lic.business_name || 'Comercio')}</strong><br><small style="color:var(--text-secondary)">${escapeHtml(lic.user_email)}</small></td>
             <td>🏢 ${escapeHtml(lic.branch_name)}</td>
             <td><code style="font-size:0.78rem; color:#38bdf8;">${escapeHtml(lic.device_uuid)}</code></td>
@@ -637,7 +644,8 @@
       if (!lic) return;
 
       document.getElementById('adminModalLicenseId').value = lic.id;
-      document.getElementById('adminModalBranchSubtitle').textContent = `Comercio: ${lic.business_name || '—'} | Sucursal: ${lic.branch_name}`;
+      const typePrefix = (lic.request_type === 'renewal') ? '🔄 [RENOVACIÓN] ' : '➕ [NUEVA] ';
+      document.getElementById('adminModalBranchSubtitle').textContent = `${typePrefix}Comercio: ${lic.business_name || '—'} | Sucursal: ${lic.branch_name}`;
       document.getElementById('adminModalUuidDisplay').value = lic.device_uuid;
       document.getElementById('adminSelectDuration').value = lic.duration_label || '1 Año';
       document.getElementById('adminInputKey').value = lic.license_key || '';

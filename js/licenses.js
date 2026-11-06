@@ -185,11 +185,12 @@ async function fetchUserLicenses() {
     _userLicenses = data || [];
 
     // Actualizar métricas
+    const uniqueUuids = new Set(_userLicenses.map(l => (l.device_uuid || l.id).trim().toUpperCase()));
     const activeCount = _userLicenses.filter(l => l.status === 'approved').length;
     const statActive = document.getElementById('statActiveLicenses');
     const statBranches = document.getElementById('statBranches');
     if (statActive) statActive.textContent = activeCount;
-    if (statBranches) statBranches.textContent = _userLicenses.length;
+    if (statBranches) statBranches.textContent = uniqueUuids.size;
 
     renderLicensesGrid(_userLicenses);
   } catch(err) {
@@ -200,6 +201,56 @@ async function fetchUserLicenses() {
       </div>`;
     }
   }
+}
+
+function calculateExpiration(approvedAt, durationLabel) {
+  if (!approvedAt || !durationLabel) return null;
+  const label = durationLabel.toLowerCase().trim();
+  if (label.includes('vitalicia') || label.includes('indefinida') || label.includes('permanente')) {
+    return {
+      isLifetime: true,
+      label: 'Acceso Vitalicio',
+      dateFormatted: 'Vitalicia (De por Vida)',
+      isExpired: false,
+      daysLeft: 999999
+    };
+  }
+
+  const start = new Date(approvedAt);
+  if (isNaN(start.getTime())) return null;
+
+  const target = new Date(start.getTime());
+  if (label.includes('15') && (label.includes('d') || label.includes('prueba'))) {
+    target.setDate(target.getDate() + 15);
+  } else if (label.includes('1 mes') || label.includes('mensual')) {
+    target.setMonth(target.getMonth() + 1);
+  } else if (label.includes('3 mes') || label.includes('trimestral')) {
+    target.setMonth(target.getMonth() + 3);
+  } else if (label.includes('6 mes') || label.includes('semestral')) {
+    target.setMonth(target.getMonth() + 6);
+  } else if (label.includes('1 a') || label.includes('anual')) {
+    target.setFullYear(target.getFullYear() + 1);
+  } else {
+    target.setFullYear(target.getFullYear() + 1);
+  }
+
+  const now = new Date();
+  const diffMs = target.getTime() - now.getTime();
+  const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  const isExpired = daysLeft <= 0;
+
+  const yyyy = target.getFullYear();
+  const mm = String(target.getMonth() + 1).padStart(2, '0');
+  const dd = String(target.getDate()).padStart(2, '0');
+  const dateFormatted = `${dd}/${mm}/${yyyy}`;
+
+  return {
+    isLifetime: false,
+    label: isExpired ? `Expiró el ${dateFormatted}` : `Vence el ${dateFormatted}`,
+    dateFormatted,
+    daysLeft,
+    isExpired
+  };
 }
 
 function renderLicensesGrid(licenses) {
@@ -222,71 +273,162 @@ function renderLicensesGrid(licenses) {
     return;
   }
 
-  grid.innerHTML = '';
+  // Agrupar licencias por terminal física (device_uuid)
+  const branchesMap = new Map();
   licenses.forEach(lic => {
-    const card = document.createElement('div');
-    card.className = `license-card status-${lic.status}`;
+    const key = (lic.device_uuid || lic.id).trim().toUpperCase();
+    if (!branchesMap.has(key)) {
+      branchesMap.set(key, []);
+    }
+    branchesMap.get(key).push(lic);
+  });
 
-    const isApproved = (lic.status === 'approved');
-    const isPending  = (lic.status === 'pending');
+  grid.innerHTML = '';
+
+  branchesMap.forEach((branchList, branchKey) => {
+    // Ordenar de más reciente a más antigua
+    branchList.sort((a, b) => new Date(b.requested_at || 0) - new Date(a.requested_at || 0));
+
+    const latestLic = branchList[0];
+    const historyList = branchList.slice(1);
+
+    const isApproved = (latestLic.status === 'approved');
+    const isPending  = (latestLic.status === 'pending');
+    const isRenewal  = (latestLic.request_type === 'renewal');
 
     const statusLabel = isApproved ? 'Aprobada & Activa' : (isPending ? 'En Revisión por Maxi' : 'Rechazada');
     const statusClass = isApproved ? 'approved' : (isPending ? 'pending' : 'rejected');
 
-    const requestedDate = lic.requested_at ? new Date(lic.requested_at).toLocaleDateString('es-VE') : '—';
-    const durationLabel = lic.duration_label || (isApproved ? 'Activa' : 'Pendiente');
+    const requestedDate = latestLic.requested_at ? new Date(latestLic.requested_at).toLocaleDateString('es-VE') : '—';
+    const durationLabel = latestLic.duration_label || (isApproved ? 'Activa' : 'Pendiente');
 
-    // Sanitización y render
+    // Calcular fecha de vencimiento
+    const calcExp = calculateExpiration(latestLic.approved_at || latestLic.requested_at, durationLabel);
+    let expPillHtml = '';
+    if (isApproved && calcExp) {
+      if (calcExp.isLifetime) {
+        expPillHtml = `<span class="exp-pill exp-lifetime">🌟 Licencia Vitalicia</span>`;
+      } else if (calcExp.isExpired) {
+        expPillHtml = `<span class="exp-pill exp-expired">⚠️ Expiró el ${calcExp.dateFormatted}</span>`;
+      } else if (calcExp.daysLeft <= 15) {
+        expPillHtml = `<span class="exp-pill exp-warning">⏳ Vence el ${calcExp.dateFormatted} (${calcExp.daysLeft} d)</span>`;
+      } else {
+        expPillHtml = `<span class="exp-pill exp-valid">✅ Vence el ${calcExp.dateFormatted} (${calcExp.daysLeft} días)</span>`;
+      }
+    }
+
+    const safeId = branchKey.replace(/[^a-zA-Z0-9]/g, '_');
+
+    const card = document.createElement('div');
+    card.className = `license-card status-${latestLic.status}`;
+
     card.innerHTML = `
       <div>
         <div class="license-header">
           <div>
-            <h4 class="branch-title">🏢 ${escapeHtml(lic.branch_name)}</h4>
-            <span class="badge-status ${statusClass}">${statusLabel}</span>
+            <h4 class="branch-title">🏢 ${escapeHtml(latestLic.branch_name)}</h4>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;">
+              <span class="badge-status ${statusClass}">${statusLabel}</span>
+              ${isRenewal ? '<span class="badge-status" style="background: rgba(139, 92, 246, 0.18); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.4); font-size: 0.72rem; padding: 2px 6px;">🔄 Renovación</span>' : ''}
+            </div>
           </div>
         </div>
 
         <div class="meta-row">
-          <span>Periodo de Vigencia:</span>
+          <span>Vigencia:</span>
           <span class="meta-val duration">${escapeHtml(durationLabel)}</span>
         </div>
 
+        ${isApproved && calcExp ? `
+          <div class="meta-row">
+            <span>Vencimiento:</span>
+            <span class="meta-val">${expPillHtml}</span>
+          </div>
+        ` : ''}
+
         <div class="meta-row">
           <span>Pago Reportado:</span>
-          <span class="meta-val">${lic.payment_method === 'pago_movil' ? `📱 Pago Móvil (Ref: #${escapeHtml(lic.payment_reference || 'S/R')})` : '💵 Efectivo'}</span>
+          <span class="meta-val">${latestLic.payment_method === 'pago_movil' ? `📱 Pago Móvil (Ref: #${escapeHtml(latestLic.payment_reference || 'S/R')})` : '💵 Efectivo'}</span>
         </div>
 
         <div class="meta-row">
-          <span>Solicitada el:</span>
+          <span>Última Solicitud:</span>
           <span class="meta-val">${requestedDate}</span>
         </div>
 
         <div class="uuid-box" title="UUID de hardware blindado">
-          <span>🔒 ${escapeHtml(lic.device_uuid)}</span>
-          <button type="button" style="background:none; border:none; color:#38bdf8; cursor:pointer;" onclick="navigator.clipboard.writeText('${escapeHtml(lic.device_uuid)}'); alert('UUID copiado al portapapeles');">📋</button>
+          <span>🔒 ${escapeHtml(latestLic.device_uuid)}</span>
+          <button type="button" style="background:none; border:none; color:#38bdf8; cursor:pointer;" onclick="navigator.clipboard.writeText('${escapeHtml(latestLic.device_uuid)}'); alert('UUID copiado al portapapeles');" title="Copiar UUID">📋</button>
         </div>
       </div>
 
-      <div style="margin-top: 16px;">
+      <div style="margin-top: 14px;">
         ${isApproved ? (
-          (!lic.license_key || lic.viewed_at) ? `
-            <div style="text-align: center; font-size: 0.8rem; color: #34d399; padding: 10px; background: rgba(16, 185, 129, 0.08); border-radius: var(--radius); border: 1px dashed rgba(52, 211, 153, 0.3);">
+          (!latestLic.license_key || latestLic.viewed_at) ? `
+            <div style="text-align: center; font-size: 0.8rem; color: #34d399; padding: 8px 10px; background: rgba(16, 185, 129, 0.08); border-radius: var(--radius); border: 1px dashed rgba(52, 211, 153, 0.3); margin-bottom: 8px;">
               🔒 Llave entregada y destruida del servidor por seguridad.
             </div>
           ` : `
-            <button class="btn-primary btn-full" onclick="openLicenseModal('${lic.id}')" style="padding: 10px; font-size: 0.88rem;">
+            <button class="btn-primary btn-full" onclick="openLicenseModal('${latestLic.id}')" style="padding: 10px; font-size: 0.88rem; margin-bottom: 8px;">
               🔑 Ver y Respaldar Llave
             </button>
           `
         ) : (isPending ? `
-          <div style="text-align: center; font-size: 0.82rem; color: #fbbf24; padding: 8px; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius);">
-            ⏳ Solicitud enviada (${lic.payment_method === 'pago_movil' ? 'Pago Móvil Ref #' + escapeHtml(lic.payment_reference || '—') : 'Efectivo'}). Maxi emitirá la llave en breve.
+          <div style="text-align: center; font-size: 0.82rem; color: #fbbf24; padding: 8px; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius); margin-bottom: 8px;">
+            ⏳ Solicitud en revisión (${latestLic.payment_method === 'pago_movil' ? 'Pago Móvil Ref #' + escapeHtml(latestLic.payment_reference || '—') : 'Efectivo'}). Maxi emitirá la llave en breve.
           </div>
         ` : `
-          <div style="text-align: center; font-size: 0.82rem; color: #f87171; padding: 8px;">
+          <div style="text-align: center; font-size: 0.82rem; color: #f87171; padding: 8px; margin-bottom: 8px;">
             ❌ Solicitud no aprobada. Contacta a soporte para más detalles.
           </div>
         `)}
+
+        ${isApproved ? `
+          <button type="button" class="btn-outline btn-full" onclick="startBranchRenewal('${escapeHtml(latestLic.branch_name)}', '${escapeHtml(latestLic.device_uuid)}')" style="padding: 8px 12px; font-size: 0.84rem; border-color: #3b82f6; color: #60a5fa;">
+            🔄 Renovar Licencia de esta Sucursal
+          </button>
+        ` : ''}
+
+        ${historyList.length > 0 ? `
+          <div style="margin-top: 12px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px;">
+            <button type="button" class="history-accordion-btn" onclick="toggleBranchHistory('hist_${safeId}')">
+              <span>📜 Historial de Licencias (${historyList.length})</span>
+              <span id="arrow_hist_${safeId}">▼</span>
+            </button>
+            <div id="hist_${safeId}" class="history-drawer" style="display: none;">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>Tipo</th>
+                    <th>Vigencia</th>
+                    <th>Pago</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${historyList.map(h => {
+                    const hIsPm = (h.payment_method === 'pago_movil');
+                    const hDate = h.requested_at ? new Date(h.requested_at).toLocaleDateString('es-VE') : '—';
+                    const hType = (h.request_type === 'renewal') ? '🔄 Renov.' : '➕ Nueva';
+                    const hStatusBadge = (h.status === 'approved')
+                      ? '<span style="color:#34d399; font-weight:600;">Aprobada</span>'
+                      : (h.status === 'pending' ? '<span style="color:#fbbf24; font-weight:600;">Pendiente</span>' : '<span style="color:#f87171; font-weight:600;">Rechazada</span>');
+                    return `
+                      <tr>
+                        <td>${hType}</td>
+                        <td>${escapeHtml(h.duration_label || '—')}</td>
+                        <td>${hIsPm ? '📱 #' + escapeHtml(h.payment_reference || 'S/R') : '💵 Ef.'}</td>
+                        <td>${hDate}</td>
+                        <td>${hStatusBadge}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ` : ''}
       </div>
     `;
 
@@ -364,9 +506,82 @@ function clearProofImage() {
   if (previewBox) previewBox.style.display = 'none';
 }
 
+// ─── GESTIÓN DE RENOVACIÓN DE SUCURSALES & HISTORIAL ─────────
+function startBranchRenewal(branchName, deviceUuid) {
+  switchPortalTab('tabRequest');
+
+  const nameInput = document.getElementById('reqBranchName');
+  const uuidInput = document.getElementById('reqDeviceUuid');
+  const typeInput = document.getElementById('reqRequestType');
+  const banner = document.getElementById('renewalNoticeBanner');
+  const bannerLabel = document.getElementById('renewalBranchLabel');
+
+  if (nameInput) {
+    nameInput.value = branchName;
+    nameInput.readOnly = true;
+    nameInput.classList.add('input-locked');
+  }
+  if (uuidInput) {
+    uuidInput.value = deviceUuid;
+    uuidInput.readOnly = true;
+    uuidInput.classList.add('input-locked');
+  }
+  if (typeInput) {
+    typeInput.value = 'renewal';
+  }
+  if (banner) banner.style.display = 'flex';
+  if (bannerLabel) bannerLabel.textContent = `"${branchName}"`;
+
+  window.scrollTo({ top: 120, behavior: 'smooth' });
+}
+
+function cancelBranchRenewal() {
+  const nameInput = document.getElementById('reqBranchName');
+  const uuidInput = document.getElementById('reqDeviceUuid');
+  const typeInput = document.getElementById('reqRequestType');
+  const banner = document.getElementById('renewalNoticeBanner');
+
+  if (nameInput) {
+    nameInput.value = '';
+    nameInput.readOnly = false;
+    nameInput.classList.remove('input-locked');
+  }
+  if (uuidInput) {
+    uuidInput.value = '';
+    uuidInput.readOnly = false;
+    uuidInput.classList.remove('input-locked');
+  }
+  if (typeInput) {
+    typeInput.value = 'new';
+  }
+  if (banner) banner.style.display = 'none';
+}
+
+function toggleBranchHistory(drawerId) {
+  const drawer = document.getElementById(drawerId);
+  const arrow = document.getElementById(`arrow_${drawerId}`);
+  if (!drawer) return;
+  const isHidden = (drawer.style.display === 'none' || !drawer.style.display);
+  drawer.style.display = isHidden ? 'block' : 'none';
+  if (arrow) arrow.textContent = isHidden ? '▲' : '▼';
+}
+
+function copyPagoMovilData() {
+  const text = `DATOS PAGO MÓVIL SIGTAD PRO:\nBanco: Banco de Venezuela (0102)\nCédula: 28573445\nTeléfono: 04128835935\nTitular: Edinson Pereira`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('📋 Datos oficiales de Pago Móvil copiados al portapapeles:\n\nBanco: Banco de Venezuela (0102)\nC.I.: V-28.573.445\nTeléfono: 0412-8835935\nTitular: Edinson Pereira');
+  }).catch(() => {
+    prompt('Copia los datos oficiales de Pago Móvil:', text);
+  });
+}
+
 window.selectPaymentMethod = selectPaymentMethod;
 window.handleProofImageSelect = handleProofImageSelect;
 window.clearProofImage = clearProofImage;
+window.startBranchRenewal = startBranchRenewal;
+window.cancelBranchRenewal = cancelBranchRenewal;
+window.toggleBranchHistory = toggleBranchHistory;
+window.copyPagoMovilData = copyPagoMovilData;
 
 // ─── FORMULARIO: CREAR SOLICITUD DE LICENCIA ──────────────────
 async function handleCreateLicenseRequest(e) {
@@ -379,6 +594,7 @@ async function handleCreateLicenseRequest(e) {
   const branchName = document.getElementById('reqBranchName')?.value.trim();
   const deviceUuid = document.getElementById('reqDeviceUuid')?.value.trim();
   const payReference = document.getElementById('reqPayReference')?.value.trim() || '';
+  const requestType = document.getElementById('reqRequestType')?.value || 'new';
 
   if (!branchName || !deviceUuid) {
     showMsg(msgBox, 'error', '❌ Por favor ingresa el nombre de la sucursal y el UUID del equipo.');
@@ -409,6 +625,7 @@ async function handleCreateLicenseRequest(e) {
         device_uuid: deviceUuid,
         status: 'pending',
         duration_label: 'Pendiente',
+        request_type: requestType,
         payment_method: _selectedPaymentMethod,
         payment_reference: _selectedPaymentMethod === 'pago_movil' ? payReference : 'Acuerdo Efectivo',
         payment_receipt_url: _proofBase64 || null
@@ -418,9 +635,12 @@ async function handleCreateLicenseRequest(e) {
 
     if (error) throw error;
 
-    showMsg(msgBox, 'success', '✅ ¡Solicitud registrada con éxito! El UUID ha quedado blindado.');
+    showMsg(msgBox, 'success', requestType === 'renewal'
+      ? '✅ ¡Solicitud de renovación enviada con éxito a Maxi!'
+      : '✅ ¡Solicitud registrada con éxito! El UUID ha quedado blindado.');
     e.target.reset();
     clearProofImage();
+    cancelBranchRenewal();
 
     // Actualizar lista y cambiar a pestaña de licencias
     setTimeout(async () => {
@@ -737,6 +957,14 @@ async function selectTicket(ticketId) {
 
   renderTicketsList(_userTickets);
 
+  // Navegación responsiva Master-Detail en dispositivos móviles (<= 820px)
+  const ticketsListCol = document.querySelector('.tickets-list-col');
+  const chatViewCol = document.querySelector('.chat-view-col');
+  if (window.innerWidth <= 820) {
+    if (ticketsListCol) ticketsListCol.classList.add('mobile-hidden');
+    if (chatViewCol) chatViewCol.classList.add('mobile-active');
+  }
+
   const placeholder = document.getElementById('emptyChatPlaceholder');
   const chatArea = document.getElementById('activeChatArea');
   const subjEl = document.getElementById('activeChatSubject');
@@ -753,6 +981,17 @@ async function selectTicket(ticketId) {
   await loadChatMessages(ticketId);
   subscribeToTicketRealtime(ticketId);
 }
+
+function backToMobileTicketsList() {
+  const ticketsListCol = document.querySelector('.tickets-list-col');
+  const chatViewCol = document.querySelector('.chat-view-col');
+  if (ticketsListCol) ticketsListCol.classList.remove('mobile-hidden');
+  if (chatViewCol) chatViewCol.classList.remove('mobile-active');
+  _activeTicketId = null;
+  renderTicketsList(_userTickets);
+}
+
+window.backToMobileTicketsList = backToMobileTicketsList;
 
 async function loadChatMessages(ticketId) {
   const box = document.getElementById('chatMessages');

@@ -191,6 +191,7 @@ CREATE TABLE IF NOT EXISTS public.license_requests (
     payment_reference TEXT,
     payment_receipt_url TEXT,
     payment_notes TEXT,
+    request_type TEXT DEFAULT 'new' CHECK (request_type IN ('new', 'renewal')),
     requested_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     approved_at TIMESTAMP WITH TIME ZONE,
     viewed_at TIMESTAMP WITH TIME ZONE
@@ -206,6 +207,7 @@ ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS payment_method TEXT
 ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS payment_reference TEXT;
 ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS payment_receipt_url TEXT;
 ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS payment_notes TEXT;
+ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS request_type TEXT DEFAULT 'new';
 
 ALTER TABLE public.license_requests ENABLE ROW LEVEL SECURITY;
 GRANT ALL ON TABLE public.license_requests TO postgres, service_role;

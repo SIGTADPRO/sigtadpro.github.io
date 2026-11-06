@@ -374,12 +374,12 @@
     /* Mesa de Ayuda / Chat en Vivo */
     .tickets-container {
       display: grid;
-      grid-template-columns: 340px 1fr;
-      gap: 20px;
+      grid-template-columns: 320px 1fr;
+      gap: 0;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
-      min-height: 600px;
+      height: 540px;
       overflow: hidden;
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
     }
@@ -387,11 +387,45 @@
     @media (max-width: 820px) {
       .tickets-container {
         grid-template-columns: 1fr;
+        height: auto;
+        min-height: 480px;
       }
       .tickets-list-col {
         border-right: none !important;
         border-bottom: 1px solid var(--border);
       }
+      .tickets-list-col.mobile-hidden {
+        display: none !important;
+      }
+      .chat-view-col {
+        display: none;
+      }
+      .chat-view-col.mobile-active {
+        display: flex !important;
+        min-height: 480px;
+      }
+      .btn-back-tickets {
+        display: inline-flex !important;
+      }
+    }
+
+    .btn-back-tickets {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      padding: 6px 12px;
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-back-tickets:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
     }
 
     .tickets-list-col {
@@ -399,10 +433,11 @@
       background: rgba(10, 10, 30, 0.6);
       display: flex;
       flex-direction: column;
+      height: 100%;
     }
 
     .tickets-list-header {
-      padding: 18px;
+      padding: 16px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
@@ -416,7 +451,7 @@
     }
 
     .ticket-item {
-      padding: 14px 16px;
+      padding: 12px 14px;
       border-radius: var(--radius);
       margin-bottom: 8px;
       cursor: pointer;
@@ -434,7 +469,7 @@
 
     .ticket-item-subject {
       font-weight: 700;
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       margin-bottom: 4px;
       color: #ffffff;
     }
@@ -451,7 +486,7 @@
     }
 
     .chat-header {
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
@@ -461,13 +496,107 @@
 
     .chat-messages-box {
       flex: 1;
-      padding: 20px;
+      padding: 18px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      min-height: 380px;
-      max-height: 480px;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    /* Renovación y Sucursales */
+    .renewal-banner {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.88rem;
+      color: #93c5fd;
+    }
+    .input-locked {
+      background: rgba(30, 41, 59, 0.6) !important;
+      color: #94a3b8 !important;
+      cursor: not-allowed !important;
+      border-color: rgba(148, 163, 184, 0.25) !important;
+    }
+
+    /* Píldoras de Vencimiento de Licencia */
+    .exp-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .exp-pill.exp-valid {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .exp-pill.exp-warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .exp-pill.exp-expired {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+    .exp-pill.exp-lifetime {
+      background: rgba(139, 92, 246, 0.18);
+      color: #c4b5fd;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+    }
+
+    /* Acordeón de Historial por Sucursal */
+    .history-accordion-btn {
+      background: transparent;
+      border: none;
+      color: #60a5fa;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 6px 0;
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+    .history-accordion-btn:hover {
+      color: #93c5fd;
+    }
+    .history-drawer {
+      margin-top: 8px;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: var(--radius);
+      padding: 8px;
+      overflow-x: auto;
+    }
+    .history-table {
+      width: 100%;
+      font-size: 0.74rem;
+      text-align: left;
+      border-collapse: collapse;
+      color: #cbd5e1;
+    }
+    .history-table th {
+      padding: 4px 6px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-weight: 600;
+    }
+    .history-table td {
+      padding: 5px 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     }
 
     .chat-bubble {
@@ -806,7 +935,18 @@
             Vincula un equipo físico a tu comercio mediante su identificador único (UUID).
           </p>
 
+          <!-- Banner de Renovación (visible únicamente en modo renovación) -->
+          <div id="renewalNoticeBanner" class="renewal-banner" style="display: none;">
+            <div>
+              <strong>🔄 Modo Renovación Activo:</strong> Solicitando nueva vigencia para la sucursal <span id="renewalBranchLabel" style="font-weight: 700; color: #ffffff;"></span>.
+            </div>
+            <button type="button" class="btn-outline" onclick="cancelBranchRenewal()" style="padding: 4px 10px; font-size: 0.75rem; border-color: #f87171; color: #fca5a5;">
+              ✕ Cancelar
+            </button>
+          </div>
+
           <form id="licenseRequestForm" onsubmit="handleCreateLicenseRequest(event)">
+            <input type="hidden" id="reqRequestType" value="new" />
             <div class="form-group">
               <label for="reqBranchName">Nombre de la Sucursal / Terminal</label>
               <input type="text" id="reqBranchName" required placeholder="Ej. Sede Principal - Caja 1, Sucursal Norte, etc." />
@@ -819,10 +959,10 @@
 
             <!-- Aviso de Seguridad Anti-Fraude e Inmutabilidad -->
             <div class="security-notice-box">
-              <div class="icon">🛡️</div>
+              <div class="icon">🔒</div>
               <div>
-                <strong>Aviso de Seguridad:</strong>
-                <p>El UUID quedará blindado e inmutable tras el envío para garantizar la seguridad de tu licencia.</p>
+                <strong>Bloqueo de Seguridad:</strong>
+                <p>Una vez enviada la solicitud, el UUID y el nombre de la sucursal no podrán ser modificados.</p>
               </div>
             </div>
 
@@ -843,10 +983,17 @@
 
             <!-- Caja Dinámica: Pago Móvil -->
             <div id="boxPagoMovil" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px;">
-              <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.82rem; color: #cbd5e1;">
-                <div style="color: #60a5fa; font-weight: 700; margin-bottom: 2px;">💳 Datos Oficiales para Pago Móvil:</div>
-                <div><strong>Banco:</strong> Banesco (0134) | <strong>C.I.:</strong> V-28.487.645</div>
-                <div><strong>Teléfono:</strong> 0412-1234567 | <strong>Titular:</strong> Edinson Pereira (MaxiTHN)</div>
+              <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; font-size: 0.83rem; color: #cbd5e1; display: flex; flex-direction: column; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <span style="color: #60a5fa; font-weight: 700;">💳 Datos Oficiales para Pago Móvil:</span>
+                  <button type="button" onclick="copyPagoMovilData()" class="btn-outline" style="padding: 2px 8px; font-size: 0.72rem; border-color: #60a5fa; color: #93c5fd;">
+                    📋 Copiar Datos
+                  </button>
+                </div>
+                <div><strong>Banco:</strong> Banco de Venezuela (0102)</div>
+                <div><strong>Cédula / RIF:</strong> V-28.573.445</div>
+                <div><strong>Teléfono:</strong> 0412-8835935</div>
+                <div><strong>Titular:</strong> Edinson Pereira (MaxiTHN)</div>
               </div>
 
               <div class="form-group" style="margin-bottom: 12px;">
@@ -885,7 +1032,7 @@
 
           <!-- Guía compacta para obtener el UUID -->
           <div class="uuid-tip-box">
-            💡 <strong>¿Dónde ver el UUID?:</strong> En SIGTAD PRO ve a <em>Menú &gt; Acerca de / Licencia</em> y copia el código alfanumérico de tu máquina.
+            💡 <strong>¿Dónde ver el UUID?:</strong> En el sistema SIGTAD PRO abre: <em>Configuración &gt; Seguridad &gt; Licencia</em> y copia el identificador de tu equipo.
           </div>
         </div>
       </section>
@@ -925,9 +1072,14 @@
             <div id="activeChatArea" style="display: none; flex-direction: column; height: 100%;">
               <!-- Cabecera del Chat -->
               <div class="chat-header">
-                <div>
-                  <h4 id="activeChatSubject" style="margin: 0; font-size: 1.05rem;">Asunto del Ticket</h4>
-                  <span id="activeChatStatus" class="badge-status approved" style="margin-top: 4px;">Abierto</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <button type="button" id="btnBackToTickets" class="btn-back-tickets" onclick="backToMobileTicketsList()" title="Volver a la lista de tickets">
+                    ← Lista
+                  </button>
+                  <div>
+                    <h4 id="activeChatSubject" style="margin: 0; font-size: 1.05rem;">Asunto del Ticket</h4>
+                    <span id="activeChatStatus" class="badge-status approved" style="margin-top: 4px;">Abierto</span>
+                  </div>
                 </div>
                 <div style="font-size: 0.78rem; color: #10b981; display: flex; align-items: center; gap: 6px;">
                   <span class="status-dot"></span> Cifrado & En Línea
