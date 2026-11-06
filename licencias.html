@@ -12,7 +12,7 @@
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/favicon-48x48.png" />
-  <link rel="stylesheet" href="css/styles.css?v=5.4.0" />
+  <link rel="stylesheet" href="css/styles.css?v=5.4.1" />
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -844,7 +844,7 @@
           <span>←</span> <span>Inicio</span>
         </a>
         <button id="btnPortalLogout" class="btn-portal-exit" title="Cerrar sesión">
-          <span>🚪</span> <span>Salir</span>
+          <span>🚪</span> <span>Cerrar Sesión</span>
         </button>
       </div>
     </div>
@@ -860,9 +860,14 @@
       <p style="color: var(--text-secondary); max-width: 480px; margin: 12px auto 24px;">
         Debes iniciar sesión con tu cuenta de comercio o Google para gestionar tus licencias, sucursales y soporte.
       </p>
-      <a href="index.html?openAuth=login" class="btn-primary" style="padding: 12px 28px;">
-        🔐 Iniciar Sesión en SIGTAD PRO
-      </a>
+      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button type="button" class="btn-primary" onclick="openPortalAuthModal()" style="padding: 12px 28px; font-size: 1rem;">
+          🔐 Iniciar Sesión en SIGTAD PRO
+        </button>
+        <a href="index.html?openAuth=register" class="btn-outline" style="padding: 12px 24px; font-size: 1rem;">
+          📝 Crear Cuenta Nueva
+        </a>
+      </div>
     </div>
 
     <!-- Contenido Autenticado -->
@@ -1183,8 +1188,64 @@
     </div>
   </div>
 
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL 3: INICIO DE SESIÓN DIRECTO EN PORTAL
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="portalAuthModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;">
+    <div class="modal-box key-modal-box" style="max-width: 420px; text-align: left; padding: 26px 22px;">
+      <button class="modal-close" onclick="closePortalAuthModal()" style="position: absolute; top: 14px; right: 14px;">✕</button>
+
+      <div style="text-align: center; margin-bottom: 18px;">
+        <div style="font-size: 2.2rem; margin-bottom: 6px;">🔐</div>
+        <h3 style="margin: 0 0 4px 0; font-size: 1.25rem;">Iniciar Sesión</h3>
+        <p style="color: var(--text-secondary); font-size: 0.84rem; margin: 0;">
+          Accede a tus licencias y sucursales de SIGTAD PRO
+        </p>
+      </div>
+
+      <!-- Botón Google OAuth -->
+      <button type="button" class="btn-outline btn-full" onclick="signInWithGooglePortal()" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px; margin-bottom: 16px; font-size: 0.88rem; background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.15); color: #ffffff;">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"/>
+          <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.27v3.14C3.26 21.36 7.33 24 12 24z"/>
+          <path fill="#FBBC05" d="M5.28 14.28c-.25-.72-.38-1.49-.38-2.28s.13-1.56.38-2.28V6.58H1.27C.46 8.2.005 10.04.005 12c0 1.96.455 3.8 1.265 5.42l4.01-3.14z"/>
+          <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.27 6.58l4.01 3.14c.95-2.83 3.6-4.97 6.72-4.97z"/>
+        </svg>
+        <span>Continuar con Google</span>
+      </button>
+
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+        <span style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
+        <span style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase;">O con tu correo</span>
+        <span style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></span>
+      </div>
+
+      <form id="portalLoginForm" onsubmit="handlePortalEmailLogin(event)">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label for="portalLoginEmail" style="font-size: 0.82rem;">Correo Electrónico</label>
+          <input type="email" id="portalLoginEmail" required placeholder="tu-correo@ejemplo.com" style="padding: 10px; font-size: 0.9rem;" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="portalLoginPassword" style="font-size: 0.82rem;">Contraseña</label>
+          <input type="password" id="portalLoginPassword" required placeholder="••••••••" style="padding: 10px; font-size: 0.9rem;" />
+        </div>
+
+        <div id="portalLoginMsg" class="auth-message"></div>
+
+        <button type="submit" class="btn-primary btn-full" style="padding: 11px; font-size: 0.92rem; margin-top: 4px;">
+          Ingresar al Portal
+        </button>
+      </form>
+
+      <div style="text-align: center; margin-top: 14px; font-size: 0.8rem; color: var(--text-secondary);">
+        ¿No tienes cuenta? <a href="index.html?openAuth=register" style="color: #60a5fa; font-weight: 600;">Regístrate aquí</a>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts del Portal -->
   <script src="js/config.js"></script>
-  <script src="js/licenses.js?v=5.4.0"></script>
+  <script src="js/licenses.js?v=5.4.1"></script>
 </body>
 </html>

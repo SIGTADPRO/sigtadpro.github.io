@@ -54,6 +54,14 @@ function initAuth() {
       }, 400);
     }
 
+    // Abrir modal de autenticación si se solicita por parámetro en la URL (?openAuth=login o ?openAuth=register)
+    const openAuthParam = urlParams.get('openAuth');
+    if (openAuthParam) {
+      setTimeout(() => {
+        openAuthModal(openAuthParam === 'register' ? 'register' : 'login');
+      }, 100);
+    }
+
     // Restaurar sesión persistente de localStorage
     _authClient.auth.getSession().then(async ({ data: { session } }) => {
       currentUser = session?.user || null;
@@ -596,6 +604,9 @@ async function handleRegister(e) {
 
 // ─── CERRAR SESIÓN ────────────────────────────────────────────
 async function handleLogout() {
+  const confirmLogout = confirm('¿Estás seguro de que deseas salir y cerrar tu sesión en SIGTAD PRO?');
+  if (!confirmLogout) return;
+
   const msg = document.getElementById('profileMessage');
   _showMsg(msg, 'info', '⏳ Cerrando sesión...');
   try {

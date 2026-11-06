@@ -58,6 +58,7 @@ function initModalBackdropListeners() {
       if (e.target === overlay) {
         if (overlay.id === 'licenseKeyModal') closeLicenseModal();
         if (overlay.id === 'newTicketModal') closeNewTicketModal();
+        if (overlay.id === 'portalAuthModal') closePortalAuthModal();
       }
     });
   });
@@ -66,6 +67,7 @@ function initModalBackdropListeners() {
     if (e.key === 'Escape') {
       closeLicenseModal();
       closeNewTicketModal();
+      closePortalAuthModal();
     }
   });
 }
@@ -81,11 +83,87 @@ function initLogoutListener() {
   const btn = document.getElementById('btnPortalLogout');
   if (btn) {
     btn.onclick = async () => {
+      const confirmLogout = confirm('¿Estás seguro de que deseas salir y cerrar tu sesión en SIGTAD PRO?');
+      if (!confirmLogout) return;
       if (_supabaseClient) await _supabaseClient.auth.signOut();
       window.location.href = 'index.html';
     };
   }
 }
+
+// ─── MODAL DE INICIO DE SESIÓN DIRECTO EN EL PORTAL ───────────────
+function openPortalAuthModal() {
+  const modal = document.getElementById('portalAuthModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.classList.add('modal-visible');
+  }
+}
+
+function closePortalAuthModal() {
+  const modal = document.getElementById('portalAuthModal');
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('modal-visible');
+  }
+}
+
+async function signInWithGooglePortal() {
+  if (!_supabaseClient) return;
+  const currentUrl = window.location.href.split('?')[0].split('#')[0];
+  await _supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: currentUrl
+    }
+  });
+}
+
+async function handlePortalEmailLogin(e) {
+  e.preventDefault();
+  if (!_supabaseClient) return;
+
+  const email = document.getElementById('portalLoginEmail')?.value.trim();
+  const password = document.getElementById('portalLoginPassword')?.value;
+  const msg = document.getElementById('portalLoginMsg');
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+
+  if (!email || !password) return;
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = '⏳ Verificando credenciales...';
+  }
+  showMsg(msg, 'info', '⏳ Iniciando sesión en SIGTAD PRO...');
+
+  try {
+    const { data, error } = await _supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+
+    showMsg(msg, 'success', '✅ ¡Sesión iniciada con éxito! Cargando portal...');
+    _currentUser = data.user;
+    setTimeout(async () => {
+      closePortalAuthModal();
+      e.target.reset();
+      showMsg(msg, '', '');
+      await loadPortalData();
+    }, 600);
+
+  } catch(err) {
+    console.error('[SIGTAD Licencias] Error al iniciar sesión:', err);
+    showMsg(msg, 'error', `❌ Error: ${err.message}`);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Ingresar al Portal';
+    }
+  }
+}
+
+window.openPortalAuthModal = openPortalAuthModal;
+window.closePortalAuthModal = closePortalAuthModal;
+window.signInWithGooglePortal = signInWithGooglePortal;
+window.handlePortalEmailLogin = handlePortalEmailLogin;
 
 // ─── CARGA DE DATOS DEL PERFIL Y PORTAL ─────────────────────────
 async function loadPortalData() {

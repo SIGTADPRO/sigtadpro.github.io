@@ -7,6 +7,16 @@ function initSplash() {
   const splash = document.getElementById('splash');
   if (!splash) return;
 
+  const isDirectAuth = window.location.search.includes('openAuth=') || 
+                       window.location.hash.includes('access_token') || 
+                       window.location.search.includes('code=');
+
+  if (isDirectAuth) {
+    splash.style.display = 'none';
+    checkTermsAccepted();
+    return;
+  }
+
   setTimeout(() => {
     splash.classList.add('hidden');
     setTimeout(() => {
