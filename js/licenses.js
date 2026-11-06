@@ -252,6 +252,11 @@ function renderLicensesGrid(licenses) {
         </div>
 
         <div class="meta-row">
+          <span>Pago Reportado:</span>
+          <span class="meta-val">${lic.payment_method === 'pago_movil' ? `📱 Pago Móvil (Ref: #${escapeHtml(lic.payment_reference || 'S/R')})` : '💵 Efectivo'}</span>
+        </div>
+
+        <div class="meta-row">
           <span>Solicitada el:</span>
           <span class="meta-val">${requestedDate}</span>
         </div>
@@ -263,13 +268,19 @@ function renderLicensesGrid(licenses) {
       </div>
 
       <div style="margin-top: 16px;">
-        ${isApproved ? `
-          <button class="btn-primary btn-full" onclick="openLicenseModal('${lic.id}')" style="padding: 10px; font-size: 0.88rem;">
-            🔑 Ver Llave & Descargar
-          </button>
-        ` : (isPending ? `
+        ${isApproved ? (
+          (!lic.license_key || lic.viewed_at) ? `
+            <div style="text-align: center; font-size: 0.8rem; color: #34d399; padding: 10px; background: rgba(16, 185, 129, 0.08); border-radius: var(--radius); border: 1px dashed rgba(52, 211, 153, 0.3);">
+              🔒 Llave entregada y destruida del servidor por seguridad.
+            </div>
+          ` : `
+            <button class="btn-primary btn-full" onclick="openLicenseModal('${lic.id}')" style="padding: 10px; font-size: 0.88rem;">
+              🔑 Ver y Respaldar Llave
+            </button>
+          `
+        ) : (isPending ? `
           <div style="text-align: center; font-size: 0.82rem; color: #fbbf24; padding: 8px; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius);">
-            ⏳ Solicitud enviada a Maxi. La llave estará disponible aquí en cuanto sea emitida.
+            ⏳ Solicitud enviada (${lic.payment_method === 'pago_movil' ? 'Pago Móvil Ref #' + escapeHtml(lic.payment_reference || '—') : 'Efectivo'}). Maxi emitirá la llave en breve.
           </div>
         ` : `
           <div style="text-align: center; font-size: 0.82rem; color: #f87171; padding: 8px;">
@@ -283,6 +294,80 @@ function renderLicensesGrid(licenses) {
   });
 }
 
+// ─── GESTIÓN DE REPORTES DE PAGO ─────────────────────────────
+let _selectedPaymentMethod = 'pago_movil';
+let _proofBase64 = null;
+
+function selectPaymentMethod(method) {
+  _selectedPaymentMethod = method;
+  const pillPm = document.getElementById('pillPagoMovil');
+  const pillEf = document.getElementById('pillEfectivo');
+  const boxPm = document.getElementById('boxPagoMovil');
+  const boxEf = document.getElementById('boxEfectivo');
+
+  if (method === 'pago_movil') {
+    if (pillPm) pillPm.classList.add('active');
+    if (pillEf) pillEf.classList.remove('active');
+    if (boxPm) boxPm.style.display = 'block';
+    if (boxEf) boxEf.style.display = 'none';
+  } else {
+    if (pillEf) pillEf.classList.add('active');
+    if (pillPm) pillPm.classList.remove('active');
+    if (boxEf) boxEf.style.display = 'block';
+    if (boxPm) boxPm.style.display = 'none';
+  }
+}
+
+function handleProofImageSelect(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const img = new Image();
+    img.onload = function() {
+      // Comprimir con canvas para mantener el tamaño muy ligero (< 80KB)
+      const maxDim = 800;
+      let width = img.width;
+      let height = img.height;
+      if (width > height && width > maxDim) {
+        height = Math.round((height * maxDim) / width);
+        width = maxDim;
+      } else if (height > maxDim) {
+        width = Math.round((width * maxDim) / height);
+        height = maxDim;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      _proofBase64 = canvas.toDataURL('image/jpeg', 0.72);
+
+      const previewBox = document.getElementById('proofPreviewBox');
+      const previewImg = document.getElementById('proofPreviewImg');
+      if (previewImg) previewImg.src = _proofBase64;
+      if (previewBox) previewBox.style.display = 'block';
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearProofImage() {
+  _proofBase64 = null;
+  const input = document.getElementById('reqPayProof');
+  if (input) input.value = '';
+  const previewBox = document.getElementById('proofPreviewBox');
+  if (previewBox) previewBox.style.display = 'none';
+}
+
+window.selectPaymentMethod = selectPaymentMethod;
+window.handleProofImageSelect = handleProofImageSelect;
+window.clearProofImage = clearProofImage;
+
 // ─── FORMULARIO: CREAR SOLICITUD DE LICENCIA ──────────────────
 async function handleCreateLicenseRequest(e) {
   e.preventDefault();
@@ -293,9 +378,15 @@ async function handleCreateLicenseRequest(e) {
 
   const branchName = document.getElementById('reqBranchName')?.value.trim();
   const deviceUuid = document.getElementById('reqDeviceUuid')?.value.trim();
+  const payReference = document.getElementById('reqPayReference')?.value.trim() || '';
 
   if (!branchName || !deviceUuid) {
     showMsg(msgBox, 'error', '❌ Por favor ingresa el nombre de la sucursal y el UUID del equipo.');
+    return;
+  }
+
+  if (_selectedPaymentMethod === 'pago_movil' && !payReference) {
+    showMsg(msgBox, 'error', '❌ Por favor ingresa el número de referencia del Pago Móvil para verificar tu pago.');
     return;
   }
 
@@ -317,7 +408,10 @@ async function handleCreateLicenseRequest(e) {
         branch_name: branchName,
         device_uuid: deviceUuid,
         status: 'pending',
-        duration_label: 'Pendiente'
+        duration_label: 'Pendiente',
+        payment_method: _selectedPaymentMethod,
+        payment_reference: _selectedPaymentMethod === 'pago_movil' ? payReference : 'Acuerdo Efectivo',
+        payment_receipt_url: _proofBase64 || null
       })
       .select()
       .single();
@@ -326,6 +420,7 @@ async function handleCreateLicenseRequest(e) {
 
     showMsg(msgBox, 'success', '✅ ¡Solicitud registrada con éxito! El UUID ha quedado blindado.');
     e.target.reset();
+    clearProofImage();
 
     // Actualizar lista y cambiar a pestaña de licencias
     setTimeout(async () => {
@@ -345,7 +440,7 @@ async function handleCreateLicenseRequest(e) {
   }
 }
 
-// ─── MODAL DE LLAVE (TXT, WHATSAPP, QR) ────────────────────────
+// ─── MODAL DE LLAVE (ULTRA-COMPACTO & UN SOLO USO / BURN-ON-READ) ───────────
 async function openLicenseModal(licenseId) {
   let lic = _userLicenses.find(l => String(l.id) === String(licenseId));
   if (!lic && _supabaseClient) {
@@ -366,48 +461,54 @@ async function openLicenseModal(licenseId) {
   const modal = document.getElementById('licenseKeyModal');
   const branchTitle = document.getElementById('modalBranchTitle');
   const durationLabel = document.getElementById('modalDurationLabel');
-  const keyDisplay = document.getElementById('modalLicenseKeyDisplay');
+  const feedback = document.getElementById('copySuccessFeedback');
 
   if (branchTitle) branchTitle.textContent = `Licencia — ${lic.branch_name || 'Sucursal'}`;
   if (durationLabel) durationLabel.textContent = `Periodo de Vigencia: ${lic.duration_label || 'Activa'}`;
-  if (keyDisplay) keyDisplay.textContent = lic.license_key || 'CLAVE-NO-GENERADA';
+  if (feedback) feedback.style.display = 'none';
 
-  // Mostrar el modal primero para respuesta visual inmediata
+  // Mostrar el modal inmediatamente
   if (modal) {
     modal.style.display = 'flex';
     modal.classList.add('modal-visible');
   }
-
-  // Renderizar código QR de forma 100% segura contra excepciones
-  const qrBox = document.getElementById('qrcodeBox');
-  if (qrBox) {
-    qrBox.innerHTML = '';
-    if (lic.license_key) {
-      try {
-        if (typeof QRCode !== 'undefined') {
-          new QRCode(qrBox, {
-            text: lic.license_key,
-            width: 140,
-            height: 140,
-            colorDark: '#000000',
-            colorLight: '#ffffff',
-            correctLevel: (typeof QRCode.CorrectLevel !== 'undefined' ? QRCode.CorrectLevel.L : 1)
-          });
-        }
-      } catch(qrErr) {
-        console.warn('[SIGTAD] QR no generado por longitud de llave:', qrErr);
-        qrBox.innerHTML = '<span style="font-size:0.75rem; color:#94a3b8; display:block; padding: 6px;">(Código QR omitido: usa "Copiar Llave" o descarga el archivo .txt)</span>';
-      }
-    }
-  }
 }
 
-function closeLicenseModal() {
+async function closeLicenseModal() {
   const modal = document.getElementById('licenseKeyModal');
   if (modal) {
     modal.classList.remove('modal-visible');
     modal.style.display = 'none';
   }
+
+  // Destruir la llave en el servidor (Burn-on-Read) para máxima ciberseguridad
+  if (_currentModalLicense?.id && _supabaseClient) {
+    const licId = _currentModalLicense.id;
+    try {
+      // 1. Ejecutar RPC de autodestrucción
+      await _supabaseClient.rpc('destroy_license_key', { p_license_id: licId });
+      console.log('[SIGTAD Security] Llave autodestruida del servidor con éxito.');
+    } catch(e) {
+      // Fallback update directo
+      try {
+        await _supabaseClient
+          .from('license_requests')
+          .update({ license_key: null, viewed_at: new Date().toISOString() })
+          .eq('id', licId);
+      } catch(ex) {
+        console.warn('[SIGTAD Security] Excepción al autodestruir:', ex);
+      }
+    }
+
+    // Actualizar estado en memoria local
+    const item = _userLicenses.find(l => String(l.id) === String(licId));
+    if (item) {
+      item.license_key = null;
+      item.viewed_at = new Date().toISOString();
+    }
+    renderLicensesGrid(_userLicenses);
+  }
+
   _currentModalLicense = null;
 }
 
@@ -417,14 +518,23 @@ window.openNewTicketModal = openNewTicketModal;
 window.closeNewTicketModal = closeNewTicketModal;
 
 function copyLicenseKey() {
-  if (!_currentModalLicense?.license_key) return;
+  if (!_currentModalLicense?.license_key) {
+    alert('Esta llave ya fue reclamada y destruida del servidor por seguridad.');
+    return;
+  }
   navigator.clipboard.writeText(_currentModalLicense.license_key)
-    .then(() => alert('✅ Llave de licencia copiada al portapapeles.'))
-    .catch(() => alert('No se pudo copiar automáticamente.'));
+    .then(() => {
+      const feedback = document.getElementById('copySuccessFeedback');
+      if (feedback) feedback.style.display = 'block';
+    })
+    .catch(() => alert('No se pudo copiar automáticamente. Por favor descarga el archivo .txt.'));
 }
 
 function downloadLicenseTxt() {
-  if (!_currentModalLicense) return;
+  if (!_currentModalLicense?.license_key) {
+    alert('Esta llave ya fue reclamada y destruida del servidor por seguridad.');
+    return;
+  }
   const lic = _currentModalLicense;
   const cleanBranch = lic.branch_name.replace(/[^a-zA-Z0-9_-]/g, '_');
   const filename = `SIGTAD_PRO_Licencia_${cleanBranch}.txt`;

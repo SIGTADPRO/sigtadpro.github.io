@@ -15,8 +15,6 @@
   <link rel="stylesheet" href="css/styles.css?v=5.3.7" />
   <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- QRCode.js para generación nativa de códigos QR -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     /* Estilos específicos para el Portal de Licencias y Tickets */
@@ -557,43 +555,58 @@
       color: #ffffff !important;
     }
     .key-modal-box {
-      max-width: 520px !important;
-      padding: 32px 24px 26px !important;
+      max-width: 440px !important;
+      padding: 24px 20px 20px !important;
       text-align: center !important;
     }
     .ticket-modal-box {
       max-width: 480px !important;
       padding: 28px 24px !important;
     }
-    .key-display {
-      background: #000000;
-      border: 1px solid #3b82f6;
-      border-radius: var(--radius);
-      padding: 16px;
-      margin: 18px 0;
-      font-family: monospace;
-      font-size: 1.05rem;
-      color: #38bdf8;
-      letter-spacing: 1.5px;
-      word-break: break-all;
-      user-select: all;
-    }
-
-    .qr-container {
+    .burn-notice-box {
       display: flex;
-      justify-content: center;
-      padding: 14px;
-      background: #ffffff;
+      align-items: flex-start;
+      gap: 10px;
+      text-align: left;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.25);
       border-radius: var(--radius);
-      width: fit-content;
-      margin: 16px auto;
+      padding: 12px 14px;
+      margin: 14px 0;
     }
-
-    .key-actions-grid {
+    .payment-method-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 14px;
+      margin-bottom: 12px;
+    }
+    .payment-method-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all var(--transition);
+    }
+    .payment-method-pill:hover {
+      border-color: var(--blue-bright);
+      background: rgba(79, 111, 255, 0.08);
+    }
+    .payment-method-pill.active {
+      border-color: var(--blue-bright);
+      background: rgba(79, 111, 255, 0.16);
+      color: #60a5fa;
+      box-shadow: 0 0 14px rgba(79, 111, 255, 0.2);
+    }
+    .badge-status.delivered {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(52, 211, 153, 0.35);
     }
 
     .uuid-tip-box {
@@ -813,6 +826,49 @@
               </div>
             </div>
 
+            <!-- SELECCIÓN Y REPORTE DE PAGO -->
+            <div class="form-group" style="margin-top: 18px;">
+              <label style="font-weight: 700; margin-bottom: 8px; display: block;">Reporte de Pago Acordado</label>
+              <div class="payment-method-grid">
+                <label class="payment-method-pill active" id="pillPagoMovil" onclick="selectPaymentMethod('pago_movil')">
+                  <input type="radio" name="payMethod" value="pago_movil" checked style="display:none;" />
+                  <span>📱 Pago Móvil</span>
+                </label>
+                <label class="payment-method-pill" id="pillEfectivo" onclick="selectPaymentMethod('efectivo')">
+                  <input type="radio" name="payMethod" value="efectivo" style="display:none;" />
+                  <span>💵 Efectivo</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Caja Dinámica: Pago Móvil -->
+            <div id="boxPagoMovil" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px;">
+              <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.82rem; color: #cbd5e1;">
+                <div style="color: #60a5fa; font-weight: 700; margin-bottom: 2px;">💳 Datos Oficiales para Pago Móvil:</div>
+                <div><strong>Banco:</strong> Banesco (0134) | <strong>C.I.:</strong> V-28.487.645</div>
+                <div><strong>Teléfono:</strong> 0412-1234567 | <strong>Titular:</strong> Edinson Pereira (MaxiTHN)</div>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label for="reqPayReference">Número de Referencia del Pago <span style="color:#f87171;">*</span></label>
+                <input type="text" id="reqPayReference" placeholder="Ej. 123456 (Últimos 4 o 6 dígitos de la transacción)" />
+              </div>
+
+              <div class="form-group" style="margin-bottom: 0;">
+                <label for="reqPayProof">Captura de Pantalla / Comprobante (Opcional)</label>
+                <input type="file" id="reqPayProof" accept="image/*" style="font-size: 0.82rem; color: var(--text-secondary);" onchange="handleProofImageSelect(event)" />
+                <div id="proofPreviewBox" style="display: none; margin-top: 10px; text-align: center;">
+                  <img id="proofPreviewImg" src="" alt="Comprobante" style="max-height: 140px; border-radius: 8px; border: 1px solid var(--border); object-fit: contain;" />
+                  <button type="button" class="btn-outline" style="display: block; margin: 6px auto 0; padding: 2px 8px; font-size: 0.72rem; color: #f87171;" onclick="clearProofImage()">✕ Quitar imagen</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Caja Dinámica: Efectivo -->
+            <div id="boxEfectivo" style="display: none; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius); padding: 14px; margin-bottom: 16px; font-size: 0.84rem; color: #a7f3d0;">
+              💵 <strong>Pago en Efectivo:</strong> No se requiere comprobante digital. El pago se verifica o acuerda directamente con MaxiTHN de forma presencial.
+            </div>
+
             <div class="form-checkbox" style="margin-bottom: 18px;">
               <input type="checkbox" id="confirmUuidCheck" required />
               <label for="confirmUuidCheck" style="font-size: 0.84rem; color: #cbd5e1;">
@@ -900,42 +956,46 @@
   </main>
 
   <!-- ══════════════════════════════════════════════════════════════
-       MODAL 1: VER LLAVE DE LICENCIA (Descarga, WhatsApp, QR)
+       MODAL 1: VER LLAVE DE LICENCIA (Ultra-Compacto & Un Solo Uso)
        ══════════════════════════════════════════════════════════════ -->
   <div id="licenseKeyModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;" onclick="if(event.target === this) closeLicenseModal()">
     <div class="modal-box key-modal-box">
       <button class="modal-close" onclick="closeLicenseModal()">✕</button>
 
-      <div style="font-size: 2.2rem; margin-bottom: 6px;">🔑</div>
-      <h3 id="modalBranchTitle" style="margin-bottom: 4px;">Licencia de Activación</h3>
-      <p id="modalDurationLabel" style="color: #a78bfa; font-weight: 700; font-size: 0.88rem; margin-bottom: 4px;">Periodo: 1 Año</p>
-      <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0;">
-        Llave vinculada al UUID registrado de este equipo.
-      </p>
+      <div style="font-size: 2rem; margin-bottom: 4px;">🔑</div>
+      <h3 id="modalBranchTitle" style="margin-bottom: 2px; font-size: 1.15rem;">Licencia de Activación</h3>
+      <p id="modalDurationLabel" style="color: #a78bfa; font-weight: 700; font-size: 0.85rem; margin-bottom: 0;">Periodo: 1 Año</p>
 
-      <!-- Llave visual con botón de copiar -->
-      <div id="modalLicenseKeyDisplay" class="key-display">CARGANDO-LLAVE...</div>
-
-      <!-- Acciones de Distribución -->
-      <div class="key-actions-grid">
-        <button id="btnCopyKey" class="btn-primary" onclick="copyLicenseKey()">
-          📋 Copiar Llave
-        </button>
-        <button id="btnDownloadTxt" class="btn-outline" onclick="downloadLicenseTxt()">
-          💾 Descargar .txt
-        </button>
-        <button id="btnShareWhatsApp" class="btn-outline" style="grid-column: 1 / -1; color: #34d399; border-color: rgba(52, 211, 153, 0.4);" onclick="shareLicenseWhatsApp()">
-          📲 Enviar a mi WhatsApp
-        </button>
+      <!-- Aviso de Autodestrucción Segura -->
+      <div class="burn-notice-box">
+        <span style="font-size: 1.2rem; line-height: 1;">🛡️</span>
+        <p style="margin: 0; font-size: 0.78rem; line-height: 1.35; color: #cbd5e1;">
+          <strong>Entrega Segura de Un Solo Uso:</strong> Tu llave ha sido generada. Por protección y ciberseguridad, <strong>no se expone en pantalla y se autodestruirá del servidor al cerrar esta ventana</strong>. Respáldala ahora:
+        </p>
       </div>
 
-      <!-- Renderizador de Código QR -->
-      <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px;">
-        <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-bottom: 8px;">
-          Escanea desde SIGTAD PRO para activar:
-        </span>
-        <div id="qrcodeBox" class="qr-container"></div>
+      <!-- Botones de Acción Inmediata -->
+      <div style="display: flex; flex-direction: column; gap: 8px; margin: 12px 0;">
+        <button id="btnCopyKey" class="btn-primary" onclick="copyLicenseKey()" style="padding: 12px; font-size: 0.95rem; font-weight: 700; width: 100%;">
+          📋 Copiar Llave de Licencia
+        </button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <button id="btnDownloadTxt" class="btn-outline" onclick="downloadLicenseTxt()" style="padding: 9px; font-size: 0.82rem;">
+            💾 Descargar .txt
+          </button>
+          <button id="btnShareWhatsApp" class="btn-outline" onclick="shareLicenseWhatsApp()" style="padding: 9px; font-size: 0.82rem; color: #34d399; border-color: rgba(52, 211, 153, 0.4);">
+            📲 Enviar a WhatsApp
+          </button>
+        </div>
       </div>
+
+      <div id="copySuccessFeedback" style="display: none; padding: 7px 10px; border-radius: 8px; background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 0.8rem; font-weight: 600; margin-bottom: 10px;">
+        ✅ ¡Llave copiada al portapapeles! Ya puedes pegarla en SIGTAD PRO.
+      </div>
+
+      <button type="button" class="btn-outline" onclick="closeLicenseModal()" style="width: 100%; padding: 8px; font-size: 0.78rem; border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;">
+        🔒 He Guardado mi Llave (Cerrar y Destruir)
+      </button>
     </div>
   </div>
 

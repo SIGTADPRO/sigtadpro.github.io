@@ -228,8 +228,8 @@ async function _renderUserProfile() {
   // Restaurar visibilidad de caja de detalles vs formulario de edición
   const detailsBox = document.getElementById('profileDetailsBox');
   const editForm   = document.getElementById('editProfileForm');
-  if (detailsBox) detailsBox.style.display = 'block';
-  if (editForm)   editForm.style.display   = 'none';
+  const btnCancel  = document.getElementById('btnCancelEditProfile');
+  const btnToggle  = document.getElementById('btnToggleEditProfile');
 
   if (!currentUser) return;
   await _fetchUserProfile();
@@ -240,6 +240,22 @@ async function _renderUserProfile() {
   const email    = currentUser.email || '';
   const address  = currentProfile?.address || meta.address || 'No especificada';
   const phone    = currentProfile?.phone || meta.phone || 'No especificado';
+
+  // Detección de perfil incompleto (común tras registro con Google OAuth)
+  const isProfileIncomplete = !business || !phone || phone === 'No especificado';
+
+  if (isProfileIncomplete) {
+    if (detailsBox) detailsBox.style.display = 'none';
+    if (editForm)   editForm.style.display   = 'flex';
+    if (btnCancel)  btnCancel.style.display  = 'none';
+    const editMsg = document.getElementById('editProfileMsg');
+    if (editMsg) _showMsg(editMsg, 'info', '👋 ¡Bienvenido! Por favor ingresa el nombre de tu negocio y teléfono/WhatsApp para completar tu registro y gestionar tus licencias.');
+  } else {
+    if (detailsBox) detailsBox.style.display = 'block';
+    if (editForm)   editForm.style.display   = 'none';
+    if (btnCancel)  btnCancel.style.display  = 'inline-block';
+    if (btnToggle)  btnToggle.style.display  = 'inline-flex';
+  }
 
   // Renderizado protegido contra XSS usando textContent
   const nameEl  = document.getElementById('profileName');

@@ -187,6 +187,10 @@ CREATE TABLE IF NOT EXISTS public.license_requests (
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'expired')),
     license_key TEXT,
     duration_label TEXT DEFAULT 'Pendiente',
+    payment_method TEXT DEFAULT 'efectivo',
+    payment_reference TEXT,
+    payment_receipt_url TEXT,
+    payment_notes TEXT,
     requested_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     approved_at TIMESTAMP WITH TIME ZONE,
     viewed_at TIMESTAMP WITH TIME ZONE
@@ -198,6 +202,10 @@ ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS business_name TEXT;
 ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS duration_label TEXT DEFAULT 'Pendiente';
 ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS viewed_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'efectivo';
+ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS payment_reference TEXT;
+ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS payment_receipt_url TEXT;
+ALTER TABLE public.license_requests ADD COLUMN IF NOT EXISTS payment_notes TEXT;
 
 ALTER TABLE public.license_requests ENABLE ROW LEVEL SECURITY;
 GRANT ALL ON TABLE public.license_requests TO postgres, service_role;
@@ -260,6 +268,26 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.admin_issue_license(UUID, TEXT, TEXT) TO authenticated, anon;
+
+-- FUNCIÓN RPC BLINDADA DE AUTODESTRUCCIÓN DE LLAVE (BURN-ON-READ)
+-- Destruye permanentemente la clave del servidor tras la primera recepción por parte del comerciante
+CREATE OR REPLACE FUNCTION public.destroy_license_key(
+    p_license_id UUID
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+    UPDATE public.license_requests
+    SET license_key = NULL,
+        viewed_at = COALESCE(viewed_at, timezone('utc'::text, now()))
+    WHERE id = p_license_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.destroy_license_key(UUID) TO authenticated, anon;
 
 -- 7. TABLAS DE MESA DE AYUDA Y SOPORTE EN TIEMPO REAL (TICKETS & CHAT)
 CREATE TABLE IF NOT EXISTS public.support_tickets (
