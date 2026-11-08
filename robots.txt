@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /admin.html
 
 # Sitemap oficial para indexación en Google y Bing
 Sitemap: https://sigtad.com/sitemap.xml

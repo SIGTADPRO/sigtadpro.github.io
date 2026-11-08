@@ -1,8 +1,8 @@
--- ═══════════════════════════════════════════════════════════════
--- SIGTAD PRO — ESQUEMA DE BASE DE DATOS BLINDADO (SUPABASE)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- SIGTAD PRO — ESQUEMA DE BASE DE DATOS BLINDADO (SUPABASE + POSTGRESQL RLS)
 -- Copia y pega todo este código en:
 -- Supabase Dashboard -> SQL Editor -> New Query -> Run
--- ═══════════════════════════════════════════════════════════════
+-- ═══════════════════════════════════════════════════════════════════════════
 
 -- 1. TABLA DE ESTADÍSTICAS DE DESCARGAS REALES
 CREATE TABLE IF NOT EXISTS public.download_stats (
@@ -52,7 +52,29 @@ BEGIN
 END;
 $$;
 
--- 3. TABLA BLINDADA DE PERFILES DE USUARIOS (DATOS PROTEGIDOS)
+GRANT EXECUTE ON FUNCTION increment_windows_downloads() TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION increment_android_downloads() TO anon, authenticated;
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 3. FUNCIÓN DE SEGURIDAD CENTRALIZADA: VERIFICADOR DE ADMINISTRADOR
+-- Evalúa criptográficamente el token JWT emitido por Supabase Auth
+-- ═══════════════════════════════════════════════════════════════════════════
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean AS $$
+BEGIN
+    RETURN (
+        (auth.jwt() ->> 'email') = 'sigtadpro@gmail.com'
+        OR (auth.jwt() ->> 'email') = 'edinsonalberto2002@gmail.com'
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+REVOKE ALL ON FUNCTION public.is_admin() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated, service_role;
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 4. TABLA BLINDADA DE PERFILES DE USUARIOS (DATOS PROTEGIDOS)
+-- ═══════════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     full_name TEXT,
@@ -75,8 +97,7 @@ CREATE POLICY "Usuarios consultan solo su propio perfil"
 ON public.profiles FOR SELECT
 USING (
     auth.uid() = id 
-    OR auth.jwt() ->> 'email' = 'sigtadpro@gmail.com'
-    OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
+    OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Usuarios actualizan solo su propio perfil" ON public.profiles;
@@ -84,14 +105,17 @@ CREATE POLICY "Usuarios actualizan solo su propio perfil"
 ON public.profiles FOR UPDATE
 USING (
     auth.uid() = id
-    OR auth.jwt() ->> 'email' = 'sigtadpro@gmail.com'
-    OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
+    OR public.is_admin()
 );
 
 DROP POLICY IF EXISTS "Usuarios insertan su propio perfil" ON public.profiles;
 CREATE POLICY "Usuarios insertan su propio perfil"
 ON public.profiles FOR INSERT
-WITH CHECK (auth.uid() = id OR auth.uid() IS NULL);
+WITH CHECK (
+    auth.uid() = id 
+    OR auth.uid() IS NULL 
+    OR public.is_admin()
+);
 
 -- TRIGGER AUTOMÁTICO DEFENSIVO: Crear perfil al registrarse un usuario en auth.users
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -138,19 +162,22 @@ CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
--- 4. RPC DE BORRADO SEGURO DE CUENTA (CUMPLIMIENTO GOOGLE PLAY STORE)
+-- RPC DE BORRADO SEGURO DE CUENTA (CUMPLIMIENTO GOOGLE PLAY STORE)
 CREATE OR REPLACE FUNCTION public.delete_user_account()
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
-    -- Elimina al usuario actual de auth.users; la cascada borra profiles, licencias y tickets asociados
     DELETE FROM auth.users WHERE id = auth.uid();
 END;
 $$;
 
+GRANT EXECUTE ON FUNCTION public.delete_user_account() TO authenticated;
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- 5. TABLA DE SUSCRIPTORES
+-- ═══════════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS public.subscribers (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     email TEXT UNIQUE NOT NULL,
@@ -171,12 +198,11 @@ DROP POLICY IF EXISTS "Permitir lectura de suscriptores" ON public.subscribers;
 DROP POLICY IF EXISTS "Permitir lectura exclusiva a administrador" ON public.subscribers;
 CREATE POLICY "Permitir lectura exclusiva a administrador"
 ON public.subscribers FOR SELECT
-USING (
-    auth.jwt() ->> 'email' = 'sigtadpro@gmail.com'
-    OR auth.jwt() ->> 'email' = 'edinsonalberto2002@gmail.com'
-);
+USING (public.is_admin());
 
+-- ═══════════════════════════════════════════════════════════════════════════
 -- 6. TABLA DE LICENCIAS POR SUCURSAL CON UUID INMUTABLE (ANTI-FRAUDE)
+-- ═══════════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS public.license_requests (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
@@ -231,24 +257,32 @@ CREATE TRIGGER trg_protect_license_uuid
     BEFORE UPDATE ON public.license_requests
     FOR EACH ROW EXECUTE PROCEDURE public.protect_license_uuid();
 
--- Políticas RLS para Licencias:
+-- Políticas RLS Blindadas para Licencias:
 DROP POLICY IF EXISTS "Usuarios ven sus solicitudes de licencias" ON public.license_requests;
 CREATE POLICY "Usuarios ven sus solicitudes de licencias"
 ON public.license_requests FOR SELECT
-USING (true);
+USING (
+    auth.uid() = user_id 
+    OR public.is_admin()
+);
 
 DROP POLICY IF EXISTS "Usuarios crean sus solicitudes de licencias" ON public.license_requests;
 CREATE POLICY "Usuarios crean sus solicitudes de licencias"
 ON public.license_requests FOR INSERT
-WITH CHECK (auth.uid() = user_id OR auth.uid() IS NULL);
+WITH CHECK (
+    auth.uid() = user_id 
+    OR public.is_admin()
+);
 
 DROP POLICY IF EXISTS "Admin actualiza licencias" ON public.license_requests;
 CREATE POLICY "Admin actualiza licencias"
 ON public.license_requests FOR UPDATE
-USING (true);
+USING (public.is_admin());
 
+-- ═══════════════════════════════════════════════════════════════════════════
 -- FUNCIÓN RPC BLINDADA PARA EMISIÓN DE LICENCIA (SECURITY DEFINER)
--- Garantiza que el panel de administración pueda actualizar el estado y la llave sin bloqueos de RLS
+-- Solo ejecutable si el token JWT pertenece a sigtadpro@gmail.com
+-- ═══════════════════════════════════════════════════════════════════════════
 CREATE OR REPLACE FUNCTION public.admin_issue_license(
     p_license_id UUID,
     p_license_key TEXT,
@@ -260,6 +294,11 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+    -- Verificación estricta de privilegios de administrador
+    IF NOT public.is_admin() THEN
+        RAISE EXCEPTION 'Acceso denegado: Se requieren privilegios de administrador para emitir licencias.';
+    END IF;
+
     UPDATE public.license_requests
     SET license_key = p_license_key,
         duration_label = p_duration_label,
@@ -269,10 +308,15 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.admin_issue_license(UUID, TEXT, TEXT) TO authenticated, anon;
+-- Revocar permisos a 'anon', otorgar exclusivamente a 'authenticated'
+REVOKE EXECUTE ON FUNCTION public.admin_issue_license(UUID, TEXT, TEXT) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.admin_issue_license(UUID, TEXT, TEXT) FROM anon;
+GRANT EXECUTE ON FUNCTION public.admin_issue_license(UUID, TEXT, TEXT) TO authenticated, service_role;
 
+-- ═══════════════════════════════════════════════════════════════════════════
 -- FUNCIÓN RPC BLINDADA DE AUTODESTRUCCIÓN DE LLAVE (BURN-ON-READ)
 -- Destruye permanentemente la clave del servidor tras la primera recepción por parte del comerciante
+-- ═══════════════════════════════════════════════════════════════════════════
 CREATE OR REPLACE FUNCTION public.destroy_license_key(
     p_license_id UUID
 )
@@ -285,13 +329,16 @@ BEGIN
     UPDATE public.license_requests
     SET license_key = NULL,
         viewed_at = COALESCE(viewed_at, timezone('utc'::text, now()))
-    WHERE id = p_license_id;
+    WHERE id = p_license_id
+      AND (user_id = auth.uid() OR public.is_admin());
 END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.destroy_license_key(UUID) TO authenticated, anon;
 
+-- ═══════════════════════════════════════════════════════════════════════════
 -- 7. TABLAS DE MESA DE AYUDA Y SOPORTE EN TIEMPO REAL (TICKETS & CHAT)
+-- ═══════════════════════════════════════════════════════════════════════════
 CREATE TABLE IF NOT EXISTS public.support_tickets (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
@@ -309,9 +356,20 @@ GRANT ALL ON TABLE public.support_tickets TO postgres, service_role;
 GRANT SELECT, INSERT, UPDATE ON TABLE public.support_tickets TO authenticated, anon;
 
 DROP POLICY IF EXISTS "Usuarios gestionan sus propios tickets" ON public.support_tickets;
-CREATE POLICY "Usuarios gestionan sus propios tickets"
-ON public.support_tickets FOR ALL
-USING (true);
+DROP POLICY IF EXISTS "Lectura de tickets" ON public.support_tickets;
+CREATE POLICY "Lectura de tickets"
+ON public.support_tickets FOR SELECT
+USING (auth.uid() = user_id OR public.is_admin());
+
+DROP POLICY IF EXISTS "Creación de tickets" ON public.support_tickets;
+CREATE POLICY "Creación de tickets"
+ON public.support_tickets FOR INSERT
+WITH CHECK (auth.uid() = user_id OR public.is_admin());
+
+DROP POLICY IF EXISTS "Actualización de tickets" ON public.support_tickets;
+CREATE POLICY "Actualización de tickets"
+ON public.support_tickets FOR UPDATE
+USING (auth.uid() = user_id OR public.is_admin());
 
 CREATE TABLE IF NOT EXISTS public.ticket_messages (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -328,9 +386,29 @@ GRANT ALL ON TABLE public.ticket_messages TO postgres, service_role;
 GRANT SELECT, INSERT ON TABLE public.ticket_messages TO authenticated, anon;
 
 DROP POLICY IF EXISTS "Acceso a mensajes del ticket" ON public.ticket_messages;
-CREATE POLICY "Acceso a mensajes del ticket"
-ON public.ticket_messages FOR ALL
-USING (true);
+DROP POLICY IF EXISTS "Lectura de mensajes del ticket" ON public.ticket_messages;
+CREATE POLICY "Lectura de mensajes del ticket"
+ON public.ticket_messages FOR SELECT
+USING (
+    public.is_admin()
+    OR EXISTS (
+        SELECT 1 FROM public.support_tickets st
+        WHERE st.id = ticket_messages.ticket_id
+          AND st.user_id = auth.uid()
+    )
+);
+
+DROP POLICY IF EXISTS "Inserción de mensajes del ticket" ON public.ticket_messages;
+CREATE POLICY "Inserción de mensajes del ticket"
+ON public.ticket_messages FOR INSERT
+WITH CHECK (
+    public.is_admin()
+    OR EXISTS (
+        SELECT 1 FROM public.support_tickets st
+        WHERE st.id = ticket_messages.ticket_id
+          AND st.user_id = auth.uid()
+    )
+);
 
 -- Habilitar Supabase Realtime para licencias y chat de forma segura e idempotente
 DO $$

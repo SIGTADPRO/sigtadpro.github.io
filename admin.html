@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SIGTAD PRO — Panel de Control Interno Blindado (MaxiTHN)</title>
-  <meta name="robots" content="noindex, nofollow" />
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -112,19 +112,52 @@
 
   <div class="admin-container">
     <!-- Bloque de Autenticación de Administrador -->
-    <div id="adminAuthBox" class="login-box">
-      <img src="assets/logo.png" alt="Logo" style="width: 70px; margin: 0 auto 16px;" />
-      <h2>Panel Privado SIGTAD PRO</h2>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 8px 0 20px;">
-        Acceso exclusivo blindado para Abg. Edinson Pereira (MaxiTHN)
+    <div id="adminAuthBox" class="login-box" style="max-width: 440px; margin: 40px auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px 28px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <img src="assets/logo.png" alt="Logo" style="width: 72px; margin: 0 auto 14px; filter: drop-shadow(0 4px 12px rgba(124, 58, 237, 0.4));" />
+      <div style="display: inline-block; padding: 4px 12px; background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.35); border-radius: 20px; font-size: 0.78rem; color: var(--purple-light); font-weight: 700; margin-bottom: 12px; letter-spacing: 0.5px;">
+        🛡️ ACCESO BLINDADO SUPABASE AUTH + RLS
+      </div>
+      <h2 style="font-size: 1.45rem; margin-bottom: 6px;">Centro de Mando SIGTAD PRO</h2>
+      <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0 0 22px; line-height: 1.45;">
+        Acceso exclusivo blindado para <strong>Abg. Edinson Pereira (MaxiTHN)</strong>.
       </p>
-      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
-        <div class="form-group" style="text-align: left; margin-bottom: 16px;">
-          <label>Credencial Maestra de Administrador</label>
-          <input type="password" id="adminPasswordInput" placeholder="Ingresa tu clave de acceso" required />
+
+      <!-- Botón Google OAuth Oficial -->
+      <button type="button" id="btnAdminGoogleLogin" onclick="signInWithGoogleAdmin()" class="btn-outline btn-full" style="display: flex; align-items: center; justify-content: center; gap: 10px; padding: 11px; font-size: 0.92rem; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); margin-bottom: 18px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        Continuar con Google Admin
+      </button>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin: 18px 0; color: var(--text-muted); font-size: 0.8rem;">
+        <span style="flex: 1; height: 1px; background: var(--border);"></span>
+        <span>o con Correo y Contraseña Maestra</span>
+        <span style="flex: 1; height: 1px; background: var(--border);"></span>
+      </div>
+
+      <form id="adminLoginForm" onsubmit="handleAdminEmailLogin(event)">
+        <div class="form-group" style="text-align: left; margin-bottom: 14px;">
+          <label style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 6px; display: block;">Correo de Administrador</label>
+          <input type="email" id="adminEmailInput" value="sigtadpro@gmail.com" required placeholder="sigtadpro@gmail.com" style="width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: var(--radius); color: #fff; font-size: 0.9rem;" />
         </div>
-        <button type="submit" class="btn-primary btn-full">Acceder al Panel Seguro</button>
+        <div class="form-group" style="text-align: left; margin-bottom: 18px;">
+          <label style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 6px; display: block;">Contraseña de tu cuenta</label>
+          <input type="password" id="adminPasswordInput" placeholder="Ingresa tu clave de acceso" required style="width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: var(--radius); color: #fff; font-size: 0.9rem;" />
+        </div>
+        <button type="submit" id="btnAdminEmailSubmit" class="btn-primary btn-full" style="padding: 11px; font-size: 0.92rem;">
+          Acceder al Centro de Mando
+        </button>
       </form>
+
+      <div id="adminAuthMessage" style="display: none; margin-top: 14px; padding: 10px 14px; border-radius: var(--radius); font-size: 0.84rem; text-align: left; line-height: 1.4;"></div>
+
+      <p style="margin: 20px 0 0; font-size: 0.76rem; color: var(--text-muted); line-height: 1.4;">
+        🔒 <strong>Cero Vulnerabilidad:</strong> Toda petición está asegurada por tokens JWT y políticas RLS en PostgreSQL. Ninguna consulta a datos es accesible sin credenciales legítimas.
+      </p>
     </div>
 
     <!-- Panel de Control Principal (Oculto hasta autenticar) -->
@@ -136,6 +169,10 @@
           <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">
             Auditoría de descargas, emisión de licencias por sucursal y soporte en tiempo real.
           </p>
+          <div id="adminUserBadge" style="margin-top: 6px; font-size: 0.8rem; color: #38bdf8; display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 3px 10px; border-radius: 12px;">
+            <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #34d399;"></span>
+            Sesión activa: <strong id="adminUserEmailText">sigtadpro@gmail.com</strong> (Admin Verificado)
+          </div>
         </div>
         <div class="admin-header-actions" style="display: flex; gap: 8px; align-items: center;">
           <button id="btnEnableNotifications" onclick="requestNotificationPermission()" class="btn-outline" style="padding: 7px 12px; font-size: 0.83rem;">
@@ -414,25 +451,69 @@
     let _adminTickets = [];
     let _activeAdminTicketId = null;
     let _adminRealtimeChat = null;
+    let _currentAdminUser = null;
 
-    const ADMIN_SESSION_KEY = 'sigtad_admin_authenticated';
+    const ADMIN_ALLOWED_EMAILS = ['sigtadpro@gmail.com', 'edinsonalberto2002@gmail.com'];
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true') {
-        unlockAdminDashboard();
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Inicializar cliente de Supabase si aún no está listo
+      if (!_supabase && typeof _initSupabase === 'function') {
+        _supabase = _initSupabase();
+      } else if (!_supabase && window.supabase && typeof SUPABASE_URL !== 'undefined') {
+        _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       }
 
+      // 2. Manejo de atajos de teclado (Escape para modales)
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           closeAdminIssueModal();
           closeReceiptModal();
         }
       });
+
+      // 3. Listener en vivo de Supabase Auth
+      if (_supabase) {
+        _supabase.auth.onAuthStateChange(async (event, session) => {
+          await verifyAndApplyAdminSession(session);
+        });
+
+        // 4. Verificar sesión existente al cargar
+        try {
+          const { data: { session } } = await _supabase.auth.getSession();
+          await verifyAndApplyAdminSession(session);
+        } catch(e) {
+          console.warn('[SIGTAD Admin Auth] Error al obtener sesión:', e);
+          lockAdminDashboard();
+        }
+      } else {
+        showAdminAuthMessage('⚠️ No se pudo inicializar la conexión con Supabase. Por favor recarga la página.', 'error');
+      }
     });
+
+    async function verifyAndApplyAdminSession(session) {
+      const user = session?.user;
+      const userEmail = (user?.email || '').toLowerCase().trim();
+
+      if (user && ADMIN_ALLOWED_EMAILS.includes(userEmail)) {
+        _currentAdminUser = user;
+        const emailLabel = document.getElementById('adminUserEmailText');
+        if (emailLabel) emailLabel.textContent = user.email;
+        unlockAdminDashboard();
+      } else if (user) {
+        // Usuario autenticado en Supabase pero ajeno a la administración
+        if (_supabase) await _supabase.auth.signOut();
+        _currentAdminUser = null;
+        lockAdminDashboard(`⛔ <strong>Acceso denegado:</strong> La cuenta <code>${escapeHtml(user.email)}</code> no posee privilegios de administrador de SIGTAD PRO.`);
+      } else {
+        _currentAdminUser = null;
+        lockAdminDashboard();
+      }
+    }
 
     function unlockAdminDashboard() {
       const authBox = document.getElementById('adminAuthBox');
       const dash = document.getElementById('adminDashboard');
+      hideAdminAuthMessage();
       if (authBox) authBox.style.display = 'none';
       if (dash) dash.style.display = 'block';
       loadDashboardStats();
@@ -441,22 +522,95 @@
       listenGlobalRealtimeSupport();
     }
 
-    function handleAdminLogin(e) {
-      e.preventDefault();
-      const input = document.getElementById('adminPasswordInput').value;
-      const expected = (typeof ADMIN_PASSWORD !== 'undefined') ? ADMIN_PASSWORD : '110702';
-
-      if (input === expected) {
-        sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
-        unlockAdminDashboard();
-      } else {
-        alert('Credencial incorrecta.');
+    function lockAdminDashboard(errorMsg = null) {
+      const authBox = document.getElementById('adminAuthBox');
+      const dash = document.getElementById('adminDashboard');
+      if (dash) dash.style.display = 'none';
+      if (authBox) authBox.style.display = 'block';
+      if (errorMsg) {
+        showAdminAuthMessage(errorMsg, 'error');
       }
     }
 
-    function handleAdminLogout() {
-      sessionStorage.removeItem(ADMIN_SESSION_KEY);
-      window.location.reload();
+    function showAdminAuthMessage(html, type = 'error') {
+      const el = document.getElementById('adminAuthMessage');
+      if (!el) return;
+      el.innerHTML = html;
+      el.style.display = 'block';
+      if (type === 'error') {
+        el.style.background = 'rgba(239, 68, 68, 0.15)';
+        el.style.border = '1px solid rgba(239, 68, 68, 0.35)';
+        el.style.color = '#fca5a5';
+      } else {
+        el.style.background = 'rgba(59, 130, 246, 0.15)';
+        el.style.border = '1px solid rgba(59, 130, 246, 0.35)';
+        el.style.color = '#93c5fd';
+      }
+    }
+
+    function hideAdminAuthMessage() {
+      const el = document.getElementById('adminAuthMessage');
+      if (el) el.style.display = 'none';
+    }
+
+    async function signInWithGoogleAdmin() {
+      if (!_supabase) {
+        showAdminAuthMessage('Supabase no está disponible.', 'error');
+        return;
+      }
+      showAdminAuthMessage('🔄 Conectando con Google Authentication...', 'info');
+      const currentUrl = window.location.href.split('?')[0].split('#')[0];
+      const { error } = await _supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: currentUrl
+        }
+      });
+      if (error) {
+        showAdminAuthMessage('❌ Error al iniciar con Google: ' + error.message, 'error');
+      }
+    }
+
+    async function handleAdminEmailLogin(e) {
+      e.preventDefault();
+      if (!_supabase) {
+        showAdminAuthMessage('Supabase no está disponible.', 'error');
+        return;
+      }
+
+      const emailInput = document.getElementById('adminEmailInput');
+      const passwordInput = document.getElementById('adminPasswordInput');
+      const email = emailInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+      const btn = document.getElementById('btnAdminEmailSubmit');
+
+      if (!ADMIN_ALLOWED_EMAILS.includes(email)) {
+        showAdminAuthMessage('⛔ Este correo no está autorizado como administrador de SIGTAD PRO.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Autenticando...';
+      hideAdminAuthMessage();
+
+      try {
+        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        // verifyAndApplyAdminSession se invocará vía onAuthStateChange
+      } catch(err) {
+        showAdminAuthMessage('❌ Error de acceso: ' + (err.message || 'Credenciales inválidas.'), 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Acceder al Centro de Mando';
+      }
+    }
+
+    async function handleAdminLogout() {
+      if (confirm('¿Deseas cerrar tu sesión segura de Administrador?')) {
+        if (_supabase) await _supabase.auth.signOut();
+        _currentAdminUser = null;
+        window.location.reload();
+      }
     }
 
     function switchAdminTab(tabId) {
@@ -1026,10 +1180,13 @@
 
       input.value = '';
 
+      const adminEmail = _currentAdminUser?.email || 'sigtadpro@gmail.com';
+      const adminId = _currentAdminUser?.id || null;
+
       const optimistic = {
         ticket_id: _activeAdminTicketId,
-        sender_id: null,
-        sender_email: 'sigtadpro@gmail.com',
+        sender_id: adminId,
+        sender_email: adminEmail,
         sender_role: 'admin',
         message: text,
         created_at: new Date().toISOString()
@@ -1043,7 +1200,8 @@
           .from('ticket_messages')
           .insert({
             ticket_id: _activeAdminTicketId,
-            sender_email: 'sigtadpro@gmail.com',
+            sender_id: adminId,
+            sender_email: adminEmail,
             sender_role: 'admin',
             message: text
           });

@@ -13,7 +13,9 @@ const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
 const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
 
 // ─── ADMIN ─────────────────────────────────────────────────────
-const ADMIN_PASSWORD = '110702';
+// La autenticación de administrador se gestiona de forma criptográfica y segura
+// mediante Supabase Auth y RLS en PostgreSQL (restringido a sigtadpro@gmail.com).
+// Ya no se almacenan contraseñas en texto plano en el frontend.
 
 // ─── SEGURIDAD & BOT PROTECTION (CAPTCHA) ─────────────────────
 // Compatible con Cloudflare Turnstile (recomendado) o Google reCAPTCHA v2
