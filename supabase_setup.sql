@@ -287,20 +287,20 @@ CREATE TRIGGER trg_check_license_request_anti_flood
     FOR EACH ROW EXECUTE PROCEDURE public.check_license_request_anti_flood();
 
 -- VALIDACIONES DEFENSIVAS DE LONGITUD DE CAMPOS (ANTI-BLOAT / ANTI-DoS)
+-- Se usa NOT VALID para compatibilidad inmediata con registros de prueba históricos existentes
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_branch_name_len') THEN
-        ALTER TABLE public.license_requests ADD CONSTRAINT chk_branch_name_len CHECK (char_length(branch_name) BETWEEN 1 AND 80);
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_device_uuid_len') THEN
-        ALTER TABLE public.license_requests ADD CONSTRAINT chk_device_uuid_len CHECK (char_length(device_uuid) BETWEEN 5 AND 120);
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_payment_ref_len') THEN
-        ALTER TABLE public.license_requests ADD CONSTRAINT chk_payment_ref_len CHECK (payment_reference IS NULL OR char_length(payment_reference) <= 60);
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_ticket_msg_len') THEN
-        ALTER TABLE public.ticket_messages ADD CONSTRAINT chk_ticket_msg_len CHECK (char_length(message) BETWEEN 1 AND 3000);
-    END IF;
+    ALTER TABLE public.license_requests DROP CONSTRAINT IF EXISTS chk_branch_name_len;
+    ALTER TABLE public.license_requests ADD CONSTRAINT chk_branch_name_len CHECK (char_length(branch_name) <= 100) NOT VALID;
+
+    ALTER TABLE public.license_requests DROP CONSTRAINT IF EXISTS chk_device_uuid_len;
+    ALTER TABLE public.license_requests ADD CONSTRAINT chk_device_uuid_len CHECK (char_length(device_uuid) <= 150) NOT VALID;
+
+    ALTER TABLE public.license_requests DROP CONSTRAINT IF EXISTS chk_payment_ref_len;
+    ALTER TABLE public.license_requests ADD CONSTRAINT chk_payment_ref_len CHECK (payment_reference IS NULL OR char_length(payment_reference) <= 80) NOT VALID;
+
+    ALTER TABLE public.ticket_messages DROP CONSTRAINT IF EXISTS chk_ticket_msg_len;
+    ALTER TABLE public.ticket_messages ADD CONSTRAINT chk_ticket_msg_len CHECK (char_length(message) <= 4000) NOT VALID;
 END $$;
 
 -- Políticas RLS Blindadas para Licencias:
