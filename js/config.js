@@ -32,7 +32,7 @@ const PHONE_NUMBER    = '+58 412 883 59 35';
 const ADMIN_EMAIL     = 'sigtadpro@gmail.com';
 
 // ─── DESCARGAS ─────────────────────────────────────────────────
-const WINDOWS_DOWNLOAD_URL = './SIGTAD_PRO_Setup_v5.3.6.exe';
+const WINDOWS_DOWNLOAD_URL = './SIGTAD_PRO_Setup_v6.0.2.exe';
 const PLAY_STORE_URL       = '';
 
 // ─── CALIFICACIÓN ──────────────────────────────────────────────
