@@ -436,7 +436,7 @@ function renderLicensesGrid(licenses) {
 
         <div class="uuid-box" title="UUID de hardware blindado">
           <span>🔒 ${escapeHtml(latestLic.device_uuid)}</span>
-          <button type="button" style="background:none; border:none; color:#38bdf8; cursor:pointer;" onclick="navigator.clipboard.writeText('${escapeHtml(latestLic.device_uuid)}'); alert('UUID copiado al portapapeles');" title="Copiar UUID">📋</button>
+          <button type="button" class="btn-copy-uuid" data-uuid="${escapeHtml(latestLic.device_uuid)}" style="background:none; border:none; color:#38bdf8; cursor:pointer;" onclick="copyUuidFromBtn(this)" title="Copiar UUID">📋</button>
         </div>
       </div>
 
@@ -447,7 +447,7 @@ function renderLicensesGrid(licenses) {
               🔒 Llave entregada y destruida del servidor por seguridad.
             </div>
           ` : `
-            <button class="btn-primary btn-full" onclick="openLicenseModal('${latestLic.id}')" style="padding: 10px; font-size: 0.88rem; margin-bottom: 8px;">
+            <button class="btn-primary btn-full" data-lic-id="${latestLic.id}" onclick="openLicenseModal(this.getAttribute('data-lic-id'))" style="padding: 10px; font-size: 0.88rem; margin-bottom: 8px;">
               🔑 Ver y Respaldar Llave
             </button>
           `
@@ -462,7 +462,7 @@ function renderLicensesGrid(licenses) {
         `)}
 
         ${isApproved ? `
-          <button type="button" class="btn-outline btn-full" onclick="startBranchRenewal('${escapeHtml(latestLic.branch_name)}', '${escapeHtml(latestLic.device_uuid)}')" style="padding: 8px 12px; font-size: 0.84rem; border-color: #3b82f6; color: #60a5fa;">
+          <button type="button" class="btn-outline btn-full" data-branch="${escapeHtml(latestLic.branch_name)}" data-uuid="${escapeHtml(latestLic.device_uuid)}" onclick="startBranchRenewalFromBtn(this)" style="padding: 8px 12px; font-size: 0.84rem; border-color: #3b82f6; color: #60a5fa;">
             🔄 Renovar Licencia de esta Sucursal
           </button>
         ` : ''}
@@ -585,6 +585,24 @@ function clearProofImage() {
 }
 
 // ─── GESTIÓN DE RENOVACIÓN DE SUCURSALES & HISTORIAL ─────────
+function copyUuidFromBtn(btn) {
+  const uuid = btn.getAttribute('data-uuid') || '';
+  if (uuid && navigator.clipboard) {
+    navigator.clipboard.writeText(uuid).then(() => {
+      alert('UUID copiado al portapapeles');
+    }).catch(() => {
+      // Fallback
+      prompt('Copia tu UUID:', uuid);
+    });
+  }
+}
+
+function startBranchRenewalFromBtn(btn) {
+  const branch = btn.getAttribute('data-branch') || '';
+  const uuid = btn.getAttribute('data-uuid') || '';
+  startBranchRenewal(branch, uuid);
+}
+
 function startBranchRenewal(branchName, deviceUuid) {
   switchPortalTab('tabRequest');
 

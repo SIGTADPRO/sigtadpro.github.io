@@ -1,4 +1,4 @@
-﻿# 🚀 GUÍA DE DESPLIEGUE Y CONFIGURACIÓN — SIGTAD PRO WEB
+# 🚀 GUÍA DE DESPLIEGUE Y CONFIGURACIÓN — SIGTAD PRO WEB
 
 Esta guía te explica de forma clara cómo publicar tu página web de forma **gratuita, activa 24/7, segura con HTTPS (sin advertencias de Google)** y cómo administrar los datos.
 
@@ -63,7 +63,7 @@ Para que el contador sume entre distintos usuarios y se guarden los registros:
 ## 4. 🕵️ Panel de Administración Privado (Ver descargas reales vs artificiales)
 
 Para ver el desglose exacto de tus números:
-1. Abre en tu navegador `admin.html` (o `tudominio.com/admin.html`).
+1. Abre en tu navegador `sigtad.html` (o `tudominio.com/sigtad.html`).
 2. Ingresa la clave de administrador (por defecto es `sigtad_admin_2026`, cámbiala en `js/config.js`).
 3. Podrás auditar:
    - Cuántos clics reales se hicieron en Windows.

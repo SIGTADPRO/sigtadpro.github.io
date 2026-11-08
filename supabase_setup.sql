@@ -257,6 +257,52 @@ CREATE TRIGGER trg_protect_license_uuid
     BEFORE UPDATE ON public.license_requests
     FOR EACH ROW EXECUTE PROCEDURE public.protect_license_uuid();
 
+-- GUARDIA DEFENSIVA ANTI-FLOOD: Máximo 3 solicitudes pendientes simultáneas por usuario
+CREATE OR REPLACE FUNCTION public.check_license_request_anti_flood()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    pending_count INTEGER;
+BEGIN
+    IF public.is_admin() THEN
+        RETURN NEW;
+    END IF;
+
+    SELECT COUNT(*) INTO pending_count
+    FROM public.license_requests
+    WHERE user_id = NEW.user_id AND status = 'pending';
+
+    IF pending_count >= 3 THEN
+        RAISE EXCEPTION 'Límite alcanzado: Ya tienes 3 solicitudes de licencia pendientes. Espera a que sean procesadas antes de crear una nueva.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_check_license_request_anti_flood ON public.license_requests;
+CREATE TRIGGER trg_check_license_request_anti_flood
+    BEFORE INSERT ON public.license_requests
+    FOR EACH ROW EXECUTE PROCEDURE public.check_license_request_anti_flood();
+
+-- VALIDACIONES DEFENSIVAS DE LONGITUD DE CAMPOS (ANTI-BLOAT / ANTI-DoS)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_branch_name_len') THEN
+        ALTER TABLE public.license_requests ADD CONSTRAINT chk_branch_name_len CHECK (char_length(branch_name) BETWEEN 1 AND 80);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_device_uuid_len') THEN
+        ALTER TABLE public.license_requests ADD CONSTRAINT chk_device_uuid_len CHECK (char_length(device_uuid) BETWEEN 5 AND 120);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_payment_ref_len') THEN
+        ALTER TABLE public.license_requests ADD CONSTRAINT chk_payment_ref_len CHECK (payment_reference IS NULL OR char_length(payment_reference) <= 60);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_ticket_msg_len') THEN
+        ALTER TABLE public.ticket_messages ADD CONSTRAINT chk_ticket_msg_len CHECK (char_length(message) BETWEEN 1 AND 3000);
+    END IF;
+END $$;
+
 -- Políticas RLS Blindadas para Licencias:
 DROP POLICY IF EXISTS "Usuarios ven sus solicitudes de licencias" ON public.license_requests;
 CREATE POLICY "Usuarios ven sus solicitudes de licencias"
