@@ -105,22 +105,19 @@ function handleWindowsDownloadClick() {
   openModal('prizeModal');
 }
 
-function triggerAndroidDownload() {
-  const targetUrl = (typeof PLAY_STORE_URL !== 'undefined' && PLAY_STORE_URL.trim() !== '') ? PLAY_STORE_URL : '';
-
-  if (targetUrl) {
-    window.open(targetUrl, '_blank');
-  } else {
-    const waPlayStoreUrl = (typeof WHATSAPP_PLAYSTORE_LINK !== 'undefined' && WHATSAPP_PLAYSTORE_LINK.trim() !== '')
-      ? WHATSAPP_PLAYSTORE_LINK
-      : `https://wa.me/${typeof WHATSAPP_NUMBER !== 'undefined' ? WHATSAPP_NUMBER : '584128835935'}?text=${encodeURIComponent('¡Hola Maxi! Vengo de la web sigtad.com y me gustaría solicitar acceso a SIGTAD PRO en Google Play Store para probar la aplicación en mi teléfono Android.')}`;
-    window.open(waPlayStoreUrl, '_blank');
-  }
-
+function handleAndroidDownloadClick() {
   if (typeof incrementCounter === 'function') {
     incrementCounter('android');
   }
   openModal('prizeModal');
+}
+
+function triggerAndroidDownload() {
+  const targetUrl = (typeof PLAY_STORE_URL !== 'undefined' && PLAY_STORE_URL.trim() !== '')
+    ? PLAY_STORE_URL
+    : 'https://play.google.com/store/apps/details?id=com.sigtad.pos';
+  window.open(targetUrl, '_blank', 'noopener');
+  handleAndroidDownloadClick();
 }
 
 // Secuencia: Premio 15 días → Calificar app
@@ -232,6 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Eventos de botones
   document.getElementById('acceptTermsBtn')?.addEventListener('click', acceptTerms);
+  const ratePlayBtn = document.getElementById('ratePlayStore');
+  if (ratePlayBtn && typeof PLAY_STORE_URL !== 'undefined' && PLAY_STORE_URL.trim() !== '') {
+    ratePlayBtn.href = PLAY_STORE_URL;
+  }
   const rateGoogleBtn = document.getElementById('rateGoogle');
   if (rateGoogleBtn) {
     rateGoogleBtn.href = (typeof GOOGLE_REVIEW_URL !== 'undefined' && GOOGLE_REVIEW_URL) ? GOOGLE_REVIEW_URL : '#';
@@ -246,7 +247,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     btnWin.addEventListener('click', handleWindowsDownloadClick);
   }
-  document.getElementById('btnDownloadAndroid')?.addEventListener('click', triggerAndroidDownload);
+  const btnAnd = document.getElementById('btnDownloadAndroid');
+  if (btnAnd) {
+    if (typeof PLAY_STORE_URL !== 'undefined' && PLAY_STORE_URL.trim() !== '') {
+      btnAnd.href = PLAY_STORE_URL;
+    }
+    btnAnd.addEventListener('click', handleAndroidDownloadClick);
+  }
 
   document.getElementById('closePrizeBtn')?.addEventListener('click', closePrizeAndOpenRating);
   document.getElementById('closeRatingModal')?.addEventListener('click', () => closeModal('ratingModal'));

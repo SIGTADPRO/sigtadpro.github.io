@@ -35,7 +35,7 @@ const ADMIN_EMAIL     = 'sigtadpro@gmail.com';
 
 // ─── DESCARGAS ─────────────────────────────────────────────────
 const WINDOWS_DOWNLOAD_URL = './SIGTAD_PRO_Setup_v6.0.3.exe';
-const PLAY_STORE_URL       = '';
+const PLAY_STORE_URL       = 'https://play.google.com/store/apps/details?id=com.sigtad.pos';
 
 // ─── CALIFICACIÓN ──────────────────────────────────────────────
 const GOOGLE_REVIEW_URL = '#';
