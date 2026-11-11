@@ -12,43 +12,62 @@
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link rel="icon" type="image/png" sizes="48x48" href="assets/icons/favicon-48x48.png" />
-  <link rel="stylesheet" href="css/styles.css?v=5.4.1" />
+  <link rel="stylesheet" href="css/styles.css?v=6.0.5" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body { padding-top: 20px; }
     .admin-container { max-width: 1180px; margin: 0 auto; padding: 20px; }
-    @media (max-width: 680px) {
-      body { padding-top: 10px; }
-      .admin-container { padding: 12px 10px; }
-      .admin-nav-tabs { gap: 4px; margin: 14px 0 18px; }
-      .admin-tab-btn { padding: 8px 12px; font-size: 0.82rem; }
-      .admin-header-actions { flex-wrap: wrap; width: 100%; gap: 6px !important; }
-      .admin-header-actions button, .admin-header-actions a {
-        flex: 1 1 auto;
-        text-align: center;
-        justify-content: center;
-        padding: 6px 10px !important;
-        font-size: 0.78rem !important;
-      }
-    }
     .login-box {
       max-width: 420px; margin: 70px auto; background: var(--bg-card);
       border: 1px solid var(--border-bright); border-radius: var(--radius-lg);
       padding: 32px; box-shadow: var(--glow-blue); text-align: center;
     }
+
+    /* Acordeón de Estadísticas Oculto por Defecto */
+    .metrics-accordion {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .metrics-accordion-btn {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      text-align: left;
+      transition: background var(--transition);
+    }
+    .metrics-accordion-btn:hover { background: rgba(255,255,255,0.02); }
+    .metrics-accordion-body {
+      display: none;
+      padding: 0 20px 20px;
+      border-top: 1px solid var(--border);
+      animation: fadeIn 0.2s ease-out;
+    }
+    .metrics-accordion.open .metrics-accordion-body { display: block; }
+
     .stats-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 16px; margin: 24px 0;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px; margin: 18px 0 0 0;
     }
     .stat-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 20px; text-align: center;
+      background: rgba(15, 23, 42, 0.55); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 14px; text-align: center;
     }
     .stat-card.highlight-card { border-color: var(--gold); }
-    .stat-num { font-size: 2.6rem; font-weight: 800; line-height: 1; margin: 10px 0; }
+    .stat-num { font-size: 2.3rem; font-weight: 800; line-height: 1; margin: 8px 0; }
     .stat-real { color: #10b981; }
     .stat-art { color: #a78bfa; }
     .stat-total { color: var(--blue-bright); }
+
     .subscribers-table {
       width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 0.88rem;
     }
@@ -67,12 +86,14 @@
     .admin-nav-tabs {
       display: flex; gap: 8px; border-bottom: 1px solid var(--border);
       margin: 20px 0 24px; padding-bottom: 2px; overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
     .admin-tab-btn {
       background: transparent; border: none; color: var(--text-secondary);
       padding: 12px 20px; font-size: 0.95rem; font-weight: 700;
       cursor: pointer; border-bottom: 3px solid transparent;
       transition: all var(--transition); display: flex; align-items: center; gap: 8px;
+      white-space: nowrap; flex-shrink: 0;
     }
     .admin-tab-btn:hover { color: #ffffff; background: rgba(255,255,255,0.02); }
     .admin-tab-btn.active {
@@ -84,12 +105,9 @@
 
     /* Mesa de Ayuda de Admin */
     .admin-chat-layout {
-      display: grid; grid-template-columns: 360px 1fr; gap: 20px;
+      display: grid; grid-template-columns: 360px 1fr; gap: 0;
       background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius-lg); min-height: 620px; overflow: hidden;
-    }
-    @media (max-width: 860px) {
-      .admin-chat-layout { grid-template-columns: 1fr; }
+      border-radius: var(--radius-lg); min-height: 580px; overflow: hidden;
     }
     .admin-tickets-col {
       border-right: 1px solid var(--border); background: rgba(10, 10, 30, 0.6);
@@ -106,6 +124,134 @@
     .admin-bubble-user {
       align-self: flex-start; background: rgba(30, 41, 59, 0.9);
       border: 1px solid rgba(148, 163, 184, 0.2); color: #f1f5f9; border-bottom-left-radius: 2px;
+    }
+
+    .admin-modal-actions {
+      display: flex; gap: 10px; margin-top: 18px;
+    }
+
+    /* ─── ADAPTACIÓN MÓVIL INTEGRAL ──────────────────────────────── */
+    @media (max-width: 860px) {
+      .admin-chat-layout { grid-template-columns: 1fr; min-height: auto; }
+      .admin-tickets-col { border-right: none; border-bottom: 1px solid var(--border); max-height: 230px; }
+    }
+
+    @media (max-width: 768px) {
+      /* Transformar tablas anchas en tarjetas verticales legibles */
+      .table-responsive { overflow-x: visible; }
+      .subscribers-table, .subscribers-table tbody, .subscribers-table tr, .subscribers-table td {
+        display: block; width: 100%;
+      }
+      .subscribers-table thead { display: none; }
+      .subscribers-table tr {
+        background: rgba(15, 23, 42, 0.55);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      }
+      .subscribers-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+        text-align: right;
+        word-break: break-word;
+      }
+      .subscribers-table td:last-child {
+        border-bottom: none;
+        padding-bottom: 2px;
+      }
+      .subscribers-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: var(--text-muted);
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        text-align: left;
+        flex-shrink: 0;
+      }
+      .subscribers-table td.td-action {
+        padding-top: 12px;
+        justify-content: stretch;
+      }
+      .subscribers-table td.td-action::before { display: none; }
+      .subscribers-table td.td-action button {
+        width: 100%;
+        padding: 11px 14px !important;
+        font-size: 0.92rem !important;
+        font-weight: 700;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body { padding-top: 8px; }
+      .admin-container { padding: 10px; }
+      #adminAuthBox { margin: 24px auto !important; padding: 24px 18px !important; }
+      .admin-header-box { flex-direction: column; align-items: stretch !important; }
+      .admin-header-box h2 { font-size: 1.25rem; }
+      .admin-header-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr);
+        width: 100%;
+        gap: 8px !important;
+      }
+      .admin-header-actions button, .admin-header-actions a {
+        text-align: center;
+        justify-content: center;
+        padding: 9px 10px !important;
+        font-size: 0.8rem !important;
+      }
+      .admin-header-actions button:last-child { grid-column: span 2; }
+      .admin-nav-tabs { gap: 4px; margin: 14px 0 18px; }
+      .admin-tab-btn { padding: 9px 12px; font-size: 0.82rem; }
+
+      .metrics-accordion-btn { padding: 14px; }
+      .metrics-accordion-body { padding: 0 14px 14px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .stat-card { padding: 14px 10px; }
+      .stat-card.highlight-card { grid-column: span 2; }
+      .stat-num { font-size: 1.85rem; }
+
+      .admin-card-section { padding: 16px 12px !important; }
+
+      /* Chat móvil */
+      #adminChatMessagesBox { min-height: 240px !important; max-height: 45dvh !important; padding: 12px !important; }
+      .admin-chat-bubble { max-width: 88%; padding: 10px 12px; font-size: 0.86rem; }
+      #adminChatSendForm { padding: 10px !important; gap: 6px !important; }
+      #adminChatMessageInput { min-width: 0; font-size: 16px !important; padding: 9px 10px !important; }
+      #adminChatSendForm button { padding: 10px 14px !important; font-size: 0.85rem !important; }
+
+      /* Modales 100% cómodos y desplazables en celular */
+      #adminIssueKeyModal .modal-box,
+      #adminReceiptModal .modal-box {
+        padding: 20px 16px !important;
+        max-height: 92dvh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      #adminIssueKeyModal .modal-close,
+      #adminReceiptModal .modal-close {
+        top: 10px; right: 10px; width: 32px; height: 32px; z-index: 20;
+      }
+      #adminIssueKeyModal h3 { font-size: 1.15rem; padding-right: 30px; }
+      #adminIssueKeyModal input,
+      #adminIssueKeyModal select,
+      #adminIssueKeyModal textarea,
+      #adminAuthBox input {
+        font-size: 16px !important;
+      }
+      .admin-modal-actions {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .admin-modal-actions button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -153,15 +299,15 @@
     <!-- Panel de Control Principal (Oculto hasta autenticar) -->
     <div id="adminDashboard" style="display: none;">
       <!-- Cabecera -->
-      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+      <div class="admin-header-box" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
         <div>
           <h2 style="margin: 0;">🛡️ Centro de Mando Oficial — SIGTAD PRO®</h2>
           <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">
             Auditoría de descargas, emisión de licencias por sucursal y soporte en tiempo real.
           </p>
-          <div id="adminUserBadge" style="margin-top: 6px; font-size: 0.8rem; color: #38bdf8; display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 3px 10px; border-radius: 12px;">
-            <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #34d399;"></span>
-            Sesión activa: <strong id="adminUserEmailText">sigtadpro@gmail.com</strong> (Admin Verificado)
+          <div id="adminUserBadge" style="margin-top: 6px; font-size: 0.8rem; color: #38bdf8; display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 3px 10px; border-radius: 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis;">
+            <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #34d399; flex-shrink: 0;"></span>
+            <span>Sesión activa: <strong id="adminUserEmailText">sigtadpro@gmail.com</strong></span>
           </div>
         </div>
         <div class="admin-header-actions" style="display: flex; gap: 8px; align-items: center;">
@@ -197,48 +343,63 @@
       </nav>
 
       <!-- ══════════════════════════════════════════════════════════════
-           TAB 1: AUDITORÍA & MÉTRICAS
+           TAB 1: AUDITORÍA & MÉTRICAS (DESPLEGABLE PRIVADO POR DEFECTO)
            ══════════════════════════════════════════════════════════════ -->
       <div id="tabAuditoria" class="admin-tab-content active">
-        <div class="stats-grid">
-          <!-- Reales Windows -->
-          <div class="stat-card">
-            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Windows</span>
-            <div class="stat-num stat-real" id="adminRealWin">0</div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary);">Descargas instalador .exe</p>
-          </div>
+        <div id="statsAccordionContainer" class="metrics-accordion">
+          <button type="button" id="btnToggleStats" class="metrics-accordion-btn" onclick="toggleStatsAccordion()" aria-expanded="false">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 1.35rem; line-height: 1;">📊</span>
+              <div>
+                <strong style="font-size: 0.98rem; display: block;">Auditoría y Contador de Descargas</strong>
+                <span id="statsAccordionHint" style="font-size: 0.78rem; color: var(--text-muted);">Oculto por privacidad • Toca para desplegar cifras</span>
+              </div>
+            </div>
+            <span id="statsAccordionArrow" style="font-size: 0.85rem; color: #60a5fa; font-weight: 700; white-space: nowrap;">▼ Ver</span>
+          </button>
 
-          <!-- Reales Android -->
-          <div class="stat-card">
-            <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Reales Android</span>
-            <div class="stat-num stat-real" id="adminRealAnd">0</div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary);">Clics a Google Play</p>
-          </div>
+          <div id="statsAccordionBody" class="metrics-accordion-body">
+            <div class="stats-grid">
+              <!-- Reales Windows -->
+              <div class="stat-card">
+                <span style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Reales Windows</span>
+                <div class="stat-num stat-real" id="adminRealWin">0</div>
+                <p style="font-size: 0.78rem; color: var(--text-secondary);">Descargas instalador .exe</p>
+              </div>
 
-          <!-- Total Real -->
-          <div class="stat-card" style="border-color: #10b981;">
-            <span style="font-size: 0.8rem; color: #10b981; font-weight: 700; text-transform: uppercase;">Total Reales</span>
-            <div class="stat-num stat-real" id="adminRealTotal">0</div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary);">Descargas 100% verídicas</p>
-          </div>
+              <!-- Reales Android -->
+              <div class="stat-card">
+                <span style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase;">Reales Android</span>
+                <div class="stat-num stat-real" id="adminRealAnd">0</div>
+                <p style="font-size: 0.78rem; color: var(--text-secondary);">Clics a Google Play</p>
+              </div>
 
-          <!-- Artificial acumulado -->
-          <div class="stat-card">
-            <span style="font-size: 0.8rem; color: var(--purple-light); font-weight: 700; text-transform: uppercase;">Conteo Artificial</span>
-            <div class="stat-num stat-art" id="adminArtificial">0</div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary);">Base + 1 a 3 / día</p>
-          </div>
+              <!-- Total Real -->
+              <div class="stat-card" style="border-color: #10b981;">
+                <span style="font-size: 0.78rem; color: #10b981; font-weight: 700; text-transform: uppercase;">Total Reales</span>
+                <div class="stat-num stat-real" id="adminRealTotal">0</div>
+                <p style="font-size: 0.78rem; color: var(--text-secondary);">Descargas 100% verídicas</p>
+              </div>
 
-          <!-- Total Visible en la Web -->
-          <div class="stat-card highlight-card">
-            <span style="font-size: 0.8rem; color: var(--gold); font-weight: 700; text-transform: uppercase;">Visible al Público</span>
-            <div class="stat-num stat-total" id="adminDisplayed">0</div>
-            <p style="font-size: 0.8rem; color: var(--text-secondary);">Real + Artificial</p>
+              <!-- Artificial acumulado -->
+              <div class="stat-card">
+                <span style="font-size: 0.78rem; color: var(--purple-light); font-weight: 700; text-transform: uppercase;">Conteo Artificial</span>
+                <div class="stat-num stat-art" id="adminArtificial">0</div>
+                <p style="font-size: 0.78rem; color: var(--text-secondary);">Base + 1 a 3 / día</p>
+              </div>
+
+              <!-- Total Visible en la Web -->
+              <div class="stat-card highlight-card">
+                <span style="font-size: 0.78rem; color: var(--gold); font-weight: 700; text-transform: uppercase;">Visible al Público</span>
+                <div class="stat-num stat-total" id="adminDisplayed">0</div>
+                <p style="font-size: 0.78rem; color: var(--text-secondary);">Real + Artificial</p>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Sección de Usuarios Registrados y Perfiles Comerciales -->
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-top: 24px;">
+        <div class="admin-card-section" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-top: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <div>
               <h3 style="margin: 0;">👥 Base de Datos de Usuarios y Comercios</h3>
@@ -261,7 +422,7 @@
            TAB 2: GESTIÓN DE LICENCIAS POR SUCURSAL
            ══════════════════════════════════════════════════════════════ -->
       <div id="tabLicencias" class="admin-tab-content">
-        <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
+        <div class="admin-card-section" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
             <div>
               <h3 style="margin: 0;">🔑 Solicitudes de Licencias por Sucursal</h3>
@@ -309,7 +470,7 @@
             </div>
 
             <div id="adminActiveChatArea" style="display: none; flex-direction: column; height: 100%;">
-              <div style="padding: 16px 20px; border-bottom: 1px solid var(--border); background: rgba(15, 23, 42, 0.5); display: flex; justify-content: space-between; align-items: center;">
+              <div style="padding: 14px 16px; border-bottom: 1px solid var(--border); background: rgba(15, 23, 42, 0.5); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                 <div>
                   <h4 id="adminChatSubject" style="margin: 0; font-size: 1.05rem;">Asunto</h4>
                   <span id="adminChatMerchantSub" style="font-size: 0.8rem; color: #93c5fd;">Comercio: —</span>
@@ -407,8 +568,8 @@
           </small>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 18px;">
-          <button type="submit" class="btn-primary" style="flex: 1; padding: 12px;">
+        <div class="admin-modal-actions">
+          <button type="submit" class="btn-primary" style="flex: 1; padding: 13px; font-weight: 700;">
             💾 Guardar y Entregar Licencia al Comercio
           </button>
           <button type="button" class="btn-outline" onclick="closeAdminIssueModal()" style="padding: 12px;">
@@ -603,6 +764,19 @@
       }
     }
 
+    function toggleStatsAccordion() {
+      const container = document.getElementById('statsAccordionContainer');
+      const btn = document.getElementById('btnToggleStats');
+      const arrow = document.getElementById('statsAccordionArrow');
+      const hint = document.getElementById('statsAccordionHint');
+      if (!container) return;
+
+      const isOpen = container.classList.toggle('open');
+      if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      if (arrow) arrow.textContent = isOpen ? '▲ Ocultar' : '▼ Ver';
+      if (hint) hint.textContent = isOpen ? 'Métricas en tiempo real desplegadas' : 'Oculto por privacidad • Toca para desplegar cifras';
+    }
+
     function switchAdminTab(tabId) {
       document.querySelectorAll('.admin-nav-tabs .admin-tab-btn').forEach(b => {
         b.classList.toggle('active', b.getAttribute('onclick').includes(tabId));
@@ -668,13 +842,13 @@
         const tr = document.createElement('tr');
         const isGoogle = (u.auth_provider === 'google');
         tr.innerHTML = `
-          <td><strong>${escapeHtml(u.full_name || 'Sin nombre')}</strong></td>
-          <td>${escapeHtml(u.business_name || '—')}</td>
-          <td>${escapeHtml(u.address || '—')}</td>
-          <td>${escapeHtml(u.phone || '—')}</td>
-          <td>${escapeHtml(u.email || '—')}</td>
-          <td><span class="badge-provider ${isGoogle ? 'badge-google' : 'badge-email'}">${isGoogle ? 'Google G' : 'Email'}</span></td>
-          <td>${u.created_at ? new Date(u.created_at).toLocaleDateString('es-VE') : '—'}</td>
+          <td data-label="Nombre"><strong>${escapeHtml(u.full_name || 'Sin nombre')}</strong></td>
+          <td data-label="Negocio">${escapeHtml(u.business_name || '—')}</td>
+          <td data-label="Dirección">${escapeHtml(u.address || '—')}</td>
+          <td data-label="Teléfono">${escapeHtml(u.phone || '—')}</td>
+          <td data-label="Correo">${escapeHtml(u.email || '—')}</td>
+          <td data-label="Acceso"><span class="badge-provider ${isGoogle ? 'badge-google' : 'badge-email'}">${isGoogle ? 'Google G' : 'Email'}</span></td>
+          <td data-label="Fecha">${u.created_at ? new Date(u.created_at).toLocaleDateString('es-VE') : '—'}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -762,15 +936,15 @@
           }
 
           tr.innerHTML = `
-            <td>${lic.requested_at ? new Date(lic.requested_at).toLocaleDateString('es-VE') : '—'}</td>
-            <td>${typeBadge}</td>
-            <td><strong>${escapeHtml(lic.business_name || 'Comercio')}</strong><br><small style="color:var(--text-secondary)">${escapeHtml(lic.user_email)}</small></td>
-            <td>🏢 ${escapeHtml(lic.branch_name)}</td>
-            <td><code style="font-size:0.78rem; color:#38bdf8;">${escapeHtml(lic.device_uuid)}</code></td>
-            <td>${payHtml}</td>
-            <td>${statusHtml}</td>
-            <td><span style="color:#a78bfa; font-weight:600;">${escapeHtml(lic.duration_label || 'Pendiente')}</span></td>
-            <td>
+            <td data-label="Fecha">${lic.requested_at ? new Date(lic.requested_at).toLocaleDateString('es-VE') : '—'}</td>
+            <td data-label="Tipo">${typeBadge}</td>
+            <td data-label="Comercio"><div><strong>${escapeHtml(lic.business_name || 'Comercio')}</strong><br><small style="color:var(--text-secondary)">${escapeHtml(lic.user_email)}</small></div></td>
+            <td data-label="Sucursal">🏢 ${escapeHtml(lic.branch_name)}</td>
+            <td data-label="UUID Equipo"><code style="font-size:0.78rem; color:#38bdf8; word-break:break-all;">${escapeHtml(lic.device_uuid)}</code></td>
+            <td data-label="Pago">${payHtml}</td>
+            <td data-label="Estado">${statusHtml}</td>
+            <td data-label="Vigencia"><span style="color:#a78bfa; font-weight:600;">${escapeHtml(lic.duration_label || 'Pendiente')}</span></td>
+            <td class="td-action">
               <button class="btn-primary" style="padding: 5px 10px; font-size: 0.8rem;" data-id="${lic.id}" onclick="openAdminIssueModal(this.getAttribute('data-id'))">
                 ${isApproved ? '✏️ Modificar Llave' : '🔑 Emitir Llave'}
               </button>
