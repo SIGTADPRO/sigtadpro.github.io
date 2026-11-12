@@ -441,6 +441,11 @@
             <a id="btnDownloadWindows" href="./SIGTAD_PRO_Setup_v6.0.6.exe" download="SIGTAD_PRO_Setup_v6.0.6.exe" class="btn-download btn-windows">
               <span>⬇️ Descargar para Windows</span>
             </a>
+            <div style="margin-top: 10px; text-align: center;">
+              <a id="btnDownloadZip" href="./SIGTAD_PRO_Setup_v6.0.6.zip" download="SIGTAD_PRO_Setup_v6.0.6.zip" style="color: #94a3b8; font-size: 0.8rem; text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; gap: 4px;">
+                <span>📦 ¿Tu navegador bloquea el instalador? Descargar en .ZIP</span>
+              </a>
+            </div>
           </div>
 
           <!-- Botón Android -->
@@ -901,6 +906,81 @@
         </div>
 
         <button id="skipRatingBtn" class="btn-text">Ahora no, tal vez más tarde</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL: ASISTENTE VISUAL DE INSTALACIÓN SEGURA
+       ══════════════════════════════════════════════════════════════ -->
+  <div id="downloadGuideModal" class="modal-overlay" role="dialog" aria-modal="true" style="display: none;">
+    <div class="modal-box download-guide-modal">
+      <button class="modal-close" id="closeDownloadGuideModal" aria-label="Cerrar">✕</button>
+
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <img src="assets/logo.png" alt="SIGTAD PRO" class="modal-logo" />
+          <div>
+            <h2>¡Tu descarga ha comenzado!</h2>
+            <span class="badge" style="background: rgba(16,185,129,0.2); color: #10b981; border: 1px solid rgba(16,185,129,0.3); font-size: 0.78rem; padding: 2px 8px; border-radius: 12px; display: inline-block; margin-top: 2px;">
+              🛡️ Versión Oficial v6.0.6 Verificada
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body scrollable">
+        <!-- Tarjeta de Regalo 15 Días -->
+        <div style="background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.15)); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 1.8rem;" aria-hidden="true">🎉</span>
+          <div>
+            <strong style="color: #34d399; font-size: 0.95rem;">¡Felicidades! Tienes 15 días gratis</strong>
+            <p style="margin: 2px 0 0; font-size: 0.82rem; color: #cbd5e1;">Tu período de prueba sin restricciones se activará automáticamente al instalar.</p>
+          </div>
+        </div>
+
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 14px;">
+          Al tratarse de una <strong>versión recién lanzada</strong>, sigue estos 2 pasos sencillos si tu equipo solicita confirmación:
+        </p>
+
+        <!-- Paso 1: En el Navegador -->
+        <div class="guide-step-card">
+          <h4 style="color: #60a5fa;">
+            <span>🌐</span> Paso 1: En tu Navegador (Chrome / Edge / Brave)
+          </h4>
+          <p>
+            Si ves el mensaje preventivo <em>"Este archivo no se descarga habitualmente"</em>: haz clic en la descarga &rarr; <kbd>Opciones (⋮)</kbd> &rarr; <kbd>Conservar</kbd> &rarr; <strong>"Conservar de todos modos"</strong>.
+          </p>
+        </div>
+
+        <!-- Paso 2: En Windows SmartScreen -->
+        <div class="guide-step-card">
+          <h4 style="color: #34d399;">
+            <span>🛡️</span> Paso 2: Al abrir el instalador en Windows
+          </h4>
+          <p>
+            Si aparece la pantalla azul <em>"Windows protegió su PC"</em>: haz clic en el enlace subrayado <strong style="color: #38bdf8;">"Más información"</strong> y luego pulsa el botón <strong style="color: #34d399;">"Ejecutar de todas formas"</strong>.
+          </p>
+        </div>
+
+        <!-- Garantía Jurídica y Técnica -->
+        <div class="guide-guarantee-box">
+          🔒 <strong>Garantía de Confianza:</strong> SIGTAD PRO ha sido desarrollado por el <strong>Abg. Edinson Pereira (MaxiTHN)</strong>. Es un software 100% offline, verificado con 0 amenazas en Windows Defender y libre de telemetría o virus.
+        </div>
+
+        <!-- Opción Alternativa en ZIP -->
+        <div class="guide-zip-box">
+          <p style="font-size: 0.84rem; color: var(--text-muted); margin-bottom: 8px;">¿Las políticas de tu navegador o red bloquean instaladores .EXE directos?</p>
+          <a id="btnDownloadZipAlternative" href="./SIGTAD_PRO_Setup_v6.0.6.zip" download="SIGTAD_PRO_Setup_v6.0.6.zip" class="btn-outline btn-sm" style="display: inline-flex; align-items: center; gap: 6px;">
+            <span>📦 Descargar versión en archivo comprimido .ZIP</span>
+          </a>
+        </div>
+
+        <div style="margin-top: 18px;">
+          <button id="btnAcknowledgeGuide" class="btn-primary btn-full btn-lg">
+            ¡Entendido, continuar!
+          </button>
+        </div>
       </div>
     </div>
   </div>

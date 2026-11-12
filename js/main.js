@@ -102,7 +102,7 @@ function handleWindowsDownloadClick() {
   if (typeof incrementCounter === 'function') {
     incrementCounter('windows');
   }
-  openModal('prizeModal');
+  setTimeout(() => openModal('downloadGuideModal'), 250);
 }
 
 function handleAndroidDownloadClick() {
@@ -247,6 +247,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     btnWin.addEventListener('click', handleWindowsDownloadClick);
   }
+  const btnZip = document.getElementById('btnDownloadZip');
+  if (btnZip) {
+    if (typeof WINDOWS_ZIP_DOWNLOAD_URL !== 'undefined' && WINDOWS_ZIP_DOWNLOAD_URL) {
+      btnZip.href = WINDOWS_ZIP_DOWNLOAD_URL;
+    }
+    btnZip.addEventListener('click', handleWindowsDownloadClick);
+  }
+  const btnZipAlt = document.getElementById('btnDownloadZipAlternative');
+  if (btnZipAlt) {
+    if (typeof WINDOWS_ZIP_DOWNLOAD_URL !== 'undefined' && WINDOWS_ZIP_DOWNLOAD_URL) {
+      btnZipAlt.href = WINDOWS_ZIP_DOWNLOAD_URL;
+    }
+    btnZipAlt.addEventListener('click', () => {
+      if (typeof incrementCounter === 'function') incrementCounter('windows');
+    });
+  }
   const btnAnd = document.getElementById('btnDownloadAndroid');
   if (btnAnd) {
     if (typeof PLAY_STORE_URL !== 'undefined' && PLAY_STORE_URL.trim() !== '') {
@@ -254,6 +270,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     btnAnd.addEventListener('click', handleAndroidDownloadClick);
   }
+
+  document.getElementById('closeDownloadGuideModal')?.addEventListener('click', () => closeModal('downloadGuideModal'));
+  document.getElementById('btnAcknowledgeGuide')?.addEventListener('click', () => {
+    closeModal('downloadGuideModal');
+    setTimeout(() => openModal('ratingModal'), 350);
+  });
 
   document.getElementById('closePrizeBtn')?.addEventListener('click', closePrizeAndOpenRating);
   document.getElementById('closeRatingModal')?.addEventListener('click', () => closeModal('ratingModal'));
