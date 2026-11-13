@@ -263,6 +263,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (typeof incrementCounter === 'function') incrementCounter('windows');
     });
   }
+  const btnVcredist = document.getElementById('btnDownloadVcredist');
+  if (btnVcredist && typeof VCREDIST_DOWNLOAD_URL !== 'undefined' && VCREDIST_DOWNLOAD_URL) {
+    btnVcredist.href = VCREDIST_DOWNLOAD_URL;
+  }
   const btnAnd = document.getElementById('btnDownloadAndroid');
   if (btnAnd) {
     if (typeof PLAY_STORE_URL !== 'undefined' && PLAY_STORE_URL.trim() !== '') {
