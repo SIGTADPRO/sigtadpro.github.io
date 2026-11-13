@@ -34,8 +34,8 @@ const PHONE_NUMBER    = '+58 412 883 59 35';
 const ADMIN_EMAIL     = 'sigtadpro@gmail.com';
 
 // ─── DESCARGAS ─────────────────────────────────────────────────
-const WINDOWS_DOWNLOAD_URL     = './SIGTAD_PRO_Setup_v6.0.7.exe';
-const WINDOWS_ZIP_DOWNLOAD_URL = './SIGTAD_PRO_Setup_v6.0.7.zip';
+const WINDOWS_DOWNLOAD_URL     = './SIGTAD_PRO_Setup_v6.0.8.exe';
+const WINDOWS_ZIP_DOWNLOAD_URL = './SIGTAD_PRO_Setup_v6.0.8.zip';
 const VCREDIST_DOWNLOAD_URL    = './(si la APP no se ejecuta) VC_redist.x64.exe';
 const PLAY_STORE_URL           = 'https://play.google.com/store/apps/details?id=com.sigtad.pos';
 
